@@ -104,7 +104,10 @@ impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
     /// The resulting instance can be used to step the motor using
     /// [`STSPIN220::step`]. All other capabilities of the STSPIN220, like
     /// the power-up sequence, selecting a step mode, or controlling the power
-    /// state, have to be done externally.
+    /// state, explicitly enabled, or managed externally.
+    ///
+    /// To enable additional capabilities, see
+    /// [`STSPIN220::enable_mode_control`].
     pub fn from_step_dir_pins<Error>(
         step_mode3: StepMode3,
         dir_mode4: DirMode4,
@@ -121,6 +124,106 @@ impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
             step_mode3,
             dir_mode4,
         }
+    }
+}
+
+impl<EnableFault, StepMode3, DirMode4>
+    STSPIN220<EnableFault, (), (), (), StepMode3, DirMode4>
+{
+    /// Enables support for step mode control and sets the initial step mode
+    ///
+    /// Consumes this instance of `STSPIN220` and returns another instance that
+    /// has support for controlling the step mode. Requires the additional pins
+    /// for doing so, namely STBY/RESET, MODE1, and MODE2. It expects the types
+    /// that represent those pins to implement [`OutputPin`].
+    ///
+    /// This method is only available when those pins have not been provided
+    /// yet.
+    pub fn enable_mode_control<
+        StandbyReset,
+        Mode1,
+        Mode2,
+        Delay,
+        DelayTime,
+        OutputPinError,
+        DelayError,
+    >(
+        mut self,
+        mut standby_reset: StandbyReset,
+        mut mode1: Mode1,
+        mut mode2: Mode2,
+        mode: StepMode,
+        delay: &mut Delay,
+    ) -> Result<
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>,
+        ModeError<OutputPinError, DelayError>,
+    >
+    where
+        StandbyReset: OutputPin<Error = OutputPinError>,
+        Mode1: OutputPin<Error = OutputPinError>,
+        Mode2: OutputPin<Error = OutputPinError>,
+        StepMode3: OutputPin<Error = OutputPinError>,
+        DirMode4: OutputPin<Error = OutputPinError>,
+        Delay: DelayUs<DelayTime, Error = DelayError>,
+        DelayTime: From<u8>,
+    {
+        const MODE_SETUP_TIME_US: u8 = 1;
+        const MODE_HOLD_TIME_US: u8 = 100;
+
+        // Force driver into standby mode.
+        standby_reset
+            .try_set_low()
+            .map_err(|err| ModeError::OutputPin(err))?;
+
+        // Set mode signals. All this repetition is messy. I decided not to do
+        // anything about it and wait for the next embedded-hal alpha version,
+        // which has features that would help here.
+        let (mode1_s, mode2_s, mode3_s, mode4_s) = mode.to_signals();
+        match mode1_s {
+            false => mode1.try_set_low(),
+            true => mode1.try_set_high(),
+        }
+        .map_err(|err| ModeError::OutputPin(err))?;
+        match mode2_s {
+            false => mode2.try_set_low(),
+            true => mode2.try_set_high(),
+        }
+        .map_err(|err| ModeError::OutputPin(err))?;
+        match mode3_s {
+            false => self.step_mode3.try_set_low(),
+            true => self.step_mode3.try_set_high(),
+        }
+        .map_err(|err| ModeError::OutputPin(err))?;
+        match mode4_s {
+            false => self.dir_mode4.try_set_low(),
+            true => self.dir_mode4.try_set_high(),
+        }
+        .map_err(|err| ModeError::OutputPin(err))?;
+
+        // Need to wait for the MODEx input setup time.
+        delay
+            .try_delay_us(MODE_SETUP_TIME_US.into())
+            .map_err(|err| ModeError::Delay(err))?;
+
+        // Leave standby mode.
+        standby_reset
+            .try_set_high()
+            .map_err(|err| ModeError::OutputPin(err))?;
+
+        // Now the mode pins need to stay as they are for the MODEx input hold
+        // time, for the settings to take effect.
+        delay
+            .try_delay_us(MODE_HOLD_TIME_US.into())
+            .map_err(|err| ModeError::Delay(err))?;
+
+        Ok(STSPIN220 {
+            _enable_fault: self._enable_fault,
+            _standby_reset: standby_reset,
+            _mode1: mode1,
+            _mode2: mode2,
+            step_mode3: self.step_mode3,
+            dir_mode4: self.dir_mode4,
+        })
     }
 }
 
@@ -193,6 +296,72 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
             .map_err(|err| StepError::OutputPin(err))?;
 
         Ok(())
+    }
+}
+
+/// Defines the step mode
+pub enum StepMode {
+    /// Full steps
+    Full = 1,
+
+    /// 2 microsteps per full step
+    M2 = 2,
+
+    /// 4 microsteps per full step
+    M4 = 4,
+
+    /// 8 microsteps per full step
+    M8 = 8,
+
+    /// 16 microsteps per full step
+    M16 = 16,
+
+    /// 32 microsteps per full step
+    M32 = 32,
+
+    /// 64 microsteps per full step
+    M64 = 64,
+
+    /// 128 microsteps per full step
+    M128 = 128,
+
+    /// 256 microsteps per full step
+    M256 = 256,
+}
+
+impl StepMode {
+    /// Provides the pin signals for the given step mode
+    pub fn to_signals(&self) -> (bool, bool, bool, bool) {
+        use StepMode::*;
+        match self {
+            Full => (false, false, false, false),
+            M2 => (true, false, true, false),
+            M4 => (false, true, false, true),
+            M8 => (true, true, true, false),
+            M16 => (true, true, true, true),
+            M32 => (false, true, false, false),
+            M64 => (true, true, false, true),
+            M128 => (true, false, false, false),
+            M256 => (true, true, false, false),
+        }
+    }
+}
+
+/// An error that can occur while setting the microstepping mode
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ModeError<OutputPinError, DelayError> {
+    /// An error originated from using the [`OutputPin`] trait
+    OutputPin(OutputPinError),
+
+    /// An error originated from using the [`DelayUs`] trait
+    Delay(DelayError),
+}
+
+// Enables use of `?` in the (probably quite common) case when all error types
+// are infallible.
+impl From<ModeError<Infallible, Infallible>> for Infallible {
+    fn from(_: ModeError<Infallible, Infallible>) -> Self {
+        unreachable!()
     }
 }
 
