@@ -59,7 +59,7 @@
 #![no_std]
 #![deny(missing_docs)]
 
-use core::convert::Infallible;
+use core::convert::{Infallible, TryFrom};
 
 use embedded_hal::{blocking::delay::DelayUs, digital::OutputPin};
 
@@ -346,6 +346,31 @@ impl StepMode {
         }
     }
 }
+
+impl TryFrom<u16> for StepMode {
+    type Error = InvalidStepModeError;
+
+    fn try_from(val: u16) -> Result<Self, Self::Error> {
+        match val {
+            1 => Ok(StepMode::Full),
+            2 => Ok(StepMode::M2),
+            4 => Ok(StepMode::M4),
+            8 => Ok(StepMode::M8),
+            16 => Ok(StepMode::M16),
+            32 => Ok(StepMode::M32),
+            64 => Ok(StepMode::M64),
+            128 => Ok(StepMode::M128),
+            256 => Ok(StepMode::M256),
+
+            _ => Err(InvalidStepModeError),
+        }
+    }
+}
+
+/// Indicates that a given step mode value did not represent a valid step mode
+///
+/// Valid values are 1, 2, 4, 8, 16, 32, 64, 128, and 256.
+pub struct InvalidStepModeError;
 
 /// An error that can occur while setting the microstepping mode
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
