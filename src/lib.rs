@@ -87,9 +87,9 @@ pub struct STSPIN220<
     DirMode4,
 > {
     enable_fault: EnableFault,
-    _standby_reset: StandbyReset,
-    _mode1: Mode1,
-    _mode2: Mode2,
+    standby_reset: StandbyReset,
+    mode1: Mode1,
+    mode2: Mode2,
     step_mode3: StepMode3,
     dir_mode4: DirMode4,
 }
@@ -118,9 +118,9 @@ impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
     {
         Self {
             enable_fault: (),
-            _standby_reset: (),
-            _mode1: (),
-            _mode2: (),
+            standby_reset: (),
+            mode1: (),
+            mode2: (),
             step_mode3,
             dir_mode4,
         }
@@ -170,9 +170,9 @@ impl<EnableFault, StepMode3, DirMode4>
     {
         let mut self_ = STSPIN220 {
             enable_fault: self.enable_fault,
-            _standby_reset: standby_reset,
-            _mode1: mode1,
-            _mode2: mode2,
+            standby_reset,
+            mode1,
+            mode2,
             step_mode3: self.step_mode3,
             dir_mode4: self.dir_mode4,
         };
@@ -208,7 +208,7 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         const MODE_HOLD_TIME_US: u8 = 100;
 
         // Force driver into standby mode.
-        self._standby_reset
+        self.standby_reset
             .try_set_low()
             .map_err(|err| ModeError::OutputPin(err))?;
 
@@ -217,13 +217,13 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         // which has features that would help here.
         let (mode1_s, mode2_s, mode3_s, mode4_s) = step_mode.to_signals();
         match mode1_s {
-            false => self._mode1.try_set_low(),
-            true => self._mode1.try_set_high(),
+            false => self.mode1.try_set_low(),
+            true => self.mode1.try_set_high(),
         }
         .map_err(|err| ModeError::OutputPin(err))?;
         match mode2_s {
-            false => self._mode2.try_set_low(),
-            true => self._mode2.try_set_high(),
+            false => self.mode2.try_set_low(),
+            true => self.mode2.try_set_high(),
         }
         .map_err(|err| ModeError::OutputPin(err))?;
         match mode3_s {
@@ -243,7 +243,7 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
             .map_err(|err| ModeError::Delay(err))?;
 
         // Leave standby mode.
-        self._standby_reset
+        self.standby_reset
             .try_set_high()
             .map_err(|err| ModeError::OutputPin(err))?;
 
