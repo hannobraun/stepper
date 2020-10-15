@@ -86,7 +86,7 @@ pub struct STSPIN220<
     StepMode3,
     DirMode4,
 > {
-    _enable_fault: EnableFault,
+    enable_fault: EnableFault,
     _standby_reset: StandbyReset,
     _mode1: Mode1,
     _mode2: Mode2,
@@ -117,7 +117,7 @@ impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
         DirMode4: OutputPin<Error = Error>,
     {
         Self {
-            _enable_fault: (),
+            enable_fault: (),
             _standby_reset: (),
             _mode1: (),
             _mode2: (),
@@ -217,7 +217,7 @@ impl<EnableFault, StepMode3, DirMode4>
             .map_err(|err| ModeError::Delay(err))?;
 
         Ok(STSPIN220 {
-            _enable_fault: self._enable_fault,
+            enable_fault: self.enable_fault,
             _standby_reset: standby_reset,
             _mode1: mode1,
             _mode2: mode2,
