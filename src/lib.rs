@@ -397,6 +397,7 @@ impl TryFrom<u16> for StepMode {
 /// Indicates that a given step mode value did not represent a valid step mode
 ///
 /// Valid values are 1, 2, 4, 8, 16, 32, 64, 128, and 256.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct InvalidStepModeError;
 
 /// An error that can occur while setting the microstepping mode
