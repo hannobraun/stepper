@@ -152,7 +152,7 @@ impl<EnableFault, StepMode3, DirMode4>
         mut standby_reset: StandbyReset,
         mut mode1: Mode1,
         mut mode2: Mode2,
-        mode: StepMode,
+        step_mode: StepMode,
         delay: &mut Delay,
     ) -> Result<
         STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>,
@@ -178,7 +178,7 @@ impl<EnableFault, StepMode3, DirMode4>
         // Set mode signals. All this repetition is messy. I decided not to do
         // anything about it and wait for the next embedded-hal alpha version,
         // which has features that would help here.
-        let (mode1_s, mode2_s, mode3_s, mode4_s) = mode.to_signals();
+        let (mode1_s, mode2_s, mode3_s, mode4_s) = step_mode.to_signals();
         match mode1_s {
             false => mode1.try_set_low(),
             true => mode1.try_set_high(),
