@@ -138,7 +138,8 @@ impl<EnableFault, StepMode3, DirMode4>
     /// that represent those pins to implement [`OutputPin`].
     ///
     /// This method is only available when those pins have not been provided
-    /// yet.
+    /// yet. After this method has been called once, you can use
+    /// [`STSPIN::set_set_mode`] to change the step mode again.
     pub fn enable_mode_control<
         StandbyReset,
         Mode1,
@@ -148,10 +149,10 @@ impl<EnableFault, StepMode3, DirMode4>
         OutputPinError,
         DelayError,
     >(
-        mut self,
-        mut standby_reset: StandbyReset,
-        mut mode1: Mode1,
-        mut mode2: Mode2,
+        self,
+        standby_reset: StandbyReset,
+        mode1: Mode1,
+        mode2: Mode2,
         step_mode: StepMode,
         delay: &mut Delay,
     ) -> Result<
@@ -167,11 +168,47 @@ impl<EnableFault, StepMode3, DirMode4>
         Delay: DelayUs<DelayTime, Error = DelayError>,
         DelayTime: From<u8>,
     {
+        let mut self_ = STSPIN220 {
+            enable_fault: self.enable_fault,
+            _standby_reset: standby_reset,
+            _mode1: mode1,
+            _mode2: mode2,
+            step_mode3: self.step_mode3,
+            dir_mode4: self.dir_mode4,
+        };
+
+        self_.set_step_mode(step_mode, delay)?;
+
+        Ok(self_)
+    }
+}
+
+impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+    STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+{
+    /// Sets the step mode
+    ///
+    /// This method is only available, if all the pins required for setting the
+    /// step mode have been provided using [`STSPIN220::enable_mode_control`].
+    pub fn set_step_mode<Delay, DelayTime, OutputPinError, DelayError>(
+        &mut self,
+        step_mode: StepMode,
+        delay: &mut Delay,
+    ) -> Result<(), ModeError<OutputPinError, DelayError>>
+    where
+        StandbyReset: OutputPin<Error = OutputPinError>,
+        Mode1: OutputPin<Error = OutputPinError>,
+        Mode2: OutputPin<Error = OutputPinError>,
+        StepMode3: OutputPin<Error = OutputPinError>,
+        DirMode4: OutputPin<Error = OutputPinError>,
+        Delay: DelayUs<DelayTime, Error = DelayError>,
+        DelayTime: From<u8>,
+    {
         const MODE_SETUP_TIME_US: u8 = 1;
         const MODE_HOLD_TIME_US: u8 = 100;
 
         // Force driver into standby mode.
-        standby_reset
+        self._standby_reset
             .try_set_low()
             .map_err(|err| ModeError::OutputPin(err))?;
 
@@ -180,13 +217,13 @@ impl<EnableFault, StepMode3, DirMode4>
         // which has features that would help here.
         let (mode1_s, mode2_s, mode3_s, mode4_s) = step_mode.to_signals();
         match mode1_s {
-            false => mode1.try_set_low(),
-            true => mode1.try_set_high(),
+            false => self._mode1.try_set_low(),
+            true => self._mode1.try_set_high(),
         }
         .map_err(|err| ModeError::OutputPin(err))?;
         match mode2_s {
-            false => mode2.try_set_low(),
-            true => mode2.try_set_high(),
+            false => self._mode2.try_set_low(),
+            true => self._mode2.try_set_high(),
         }
         .map_err(|err| ModeError::OutputPin(err))?;
         match mode3_s {
@@ -206,7 +243,7 @@ impl<EnableFault, StepMode3, DirMode4>
             .map_err(|err| ModeError::Delay(err))?;
 
         // Leave standby mode.
-        standby_reset
+        self._standby_reset
             .try_set_high()
             .map_err(|err| ModeError::OutputPin(err))?;
 
@@ -216,20 +253,9 @@ impl<EnableFault, StepMode3, DirMode4>
             .try_delay_us(MODE_HOLD_TIME_US.into())
             .map_err(|err| ModeError::Delay(err))?;
 
-        Ok(STSPIN220 {
-            enable_fault: self.enable_fault,
-            _standby_reset: standby_reset,
-            _mode1: mode1,
-            _mode2: mode2,
-            step_mode3: self.step_mode3,
-            dir_mode4: self.dir_mode4,
-        })
+        Ok(())
     }
-}
 
-impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
-    STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
-{
     /// Rotates the motor one (micro-)step in the given direction
     ///
     /// Sets the DIR/MODE4 pin according to the `dir` argument, initiates a step
