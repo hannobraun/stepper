@@ -326,6 +326,7 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 }
 
 /// Defines the step mode
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum StepMode {
     /// Full steps
     Full = 1,
