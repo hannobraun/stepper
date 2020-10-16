@@ -9,11 +9,12 @@
 //! # Example
 //!
 //! ``` rust
-//! # fn main() -> Result<(), core::convert::Infallible> {
-//! use embedded_hal::prelude::*;
-//! use stspin220::{Dir, STEP_METHOD_DELAY_US, STSPIN220};
+//! # fn main() -> Result<(), stspin220::StepError<core::convert::Infallible>> {
+//! #
+//! use embedded_time::{duration::Microseconds, Clock as _};
+//! use stspin220::{Dir, STSPIN220};
 //!
-//! const STEP_DELAY_US: u32 = 500; // defines the motor speed
+//! const STEP_DELAY: Microseconds = Microseconds(500);
 //!
 //! # struct Pin;
 //! # impl embedded_hal::digital::OutputPin for Pin {
@@ -22,17 +23,28 @@
 //! #     fn try_set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! # }
 //! #
-//! # struct Delay;
-//! # impl embedded_hal::blocking::delay::DelayUs<u32> for Delay {
-//! #     type Error = core::convert::Infallible;
-//! #     fn try_delay_us(&mut self, us: u32) -> Result<(), Self::Error> {
-//! #         Ok(())
+//! # struct Clock(std::time::Instant);
+//! # impl embedded_time::Clock for Clock {
+//! #     type T = u32;
+//! #     const SCALING_FACTOR: embedded_time::fraction::Fraction =
+//! #         embedded_time::fraction::Fraction::new(1, 1_000_000);
+//! #     fn try_now(&self)
+//! #         -> Result<
+//! #             embedded_time::Instant<Self>,
+//! #             embedded_time::clock::Error
+//! #         >
+//! #     {
+//! #         Ok(
+//! #             embedded_time::Instant::new(
+//! #                 self.0.elapsed().as_micros() as u32
+//! #             )
+//! #         )
 //! #     }
 //! # }
 //! #
 //! # let step_mode3 = Pin;
 //! # let dir_mode4 = Pin;
-//! # let mut delay = Delay;
+//! # let mut clock = Clock(std::time::Instant::now());
 //! #
 //! // You need to acquire the GPIO pins connected to the STEP/MODE3 and
 //! // DIR/MODE4 signals. How you do this depends on your target platform. All
@@ -45,8 +57,9 @@
 //!
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {
-//!     driver.step(Dir::Forward, &mut delay)?;
-//!     delay.try_delay_us(STEP_DELAY_US - STEP_METHOD_DELAY_US as u32)?;
+//!     let timer = clock.new_timer(STEP_DELAY).start()?;
+//!     driver.step(Dir::Forward, &clock)?;
+//!     timer.wait()?;
 //! }
 //!
 //! #
@@ -62,15 +75,7 @@
 use core::convert::{Infallible, TryFrom};
 
 use embedded_hal::{blocking::delay::DelayUs, digital::OutputPin};
-
-const DIR_SETUP_DELAY_US: u8 = 1;
-const PULSE_LENGTH_US: u8 = 1;
-
-/// The approximate duration that `STSPIN220::step` blocks for
-///
-/// Can be used by the user to calculate the time until the next call to
-/// [`STSPIN220::step`].
-pub const STEP_METHOD_DELAY_US: u8 = DIR_SETUP_DELAY_US + PULSE_LENGTH_US;
+use embedded_time::{duration::Nanoseconds, Clock, TimeError};
 
 /// The STSPIN220 driver API
 ///
@@ -260,28 +265,32 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
     ///
     /// Sets the DIR/MODE4 pin according to the `dir` argument, initiates a step
     /// pulse by setting STEP/MODE3 HIGH, then ends the step pulse by setting
-    /// STEP/MODE4 LOW again. The method blocks while this is going on. The
-    /// approximate duration this method blocks for is defined by
-    /// `STEP_LENGTH_US`.
+    /// STEP/MODE4 LOW again. The method blocks while this is going on.
     ///
     /// This should result in the motor making one step. To achieve a specific
     /// speed, the user must call this method at the appropriate frequency.
+    ///
+    /// Requires a reference to an `embedded_time::Clock` implementation to
+    /// handle the timing. Please make sure that the timer doesn't overflow
+    /// while this method is running.
     ///
     /// Any errors that occur are wrapped in a [`StepError`] and returned to the
     /// user directly. This might leave the driver API in an invalid state, for
     /// example if STEP/MODE3 has been set HIGH, but an error occurs before it
     /// can be set LOW again.
-    pub fn step<Delay, DelayTime, OutputPinError, DelayError>(
+    pub fn step<Clk, OutputPinError>(
         &mut self,
         dir: Dir,
-        delay: &mut Delay,
-    ) -> Result<(), StepError<OutputPinError, DelayError>>
+        clock: &Clk,
+    ) -> Result<(), StepError<OutputPinError>>
     where
         StepMode3: OutputPin<Error = OutputPinError>,
         DirMode4: OutputPin<Error = OutputPinError>,
-        Delay: DelayUs<DelayTime, Error = DelayError>,
-        DelayTime: From<u8>,
+        Clk: Clock,
     {
+        const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(1000);
+        const PULSE_LENGTH: Nanoseconds = Nanoseconds(1000);
+
         match dir {
             Dir::Forward => self
                 .dir_mode4
@@ -294,12 +303,8 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         }
 
         // According to the datasheet, we need to wait at least 100 ns between
-        // setting DIR and starting the STEP pulse. We can't get that much
-        // accuracy out of `DelayUs`, but waiting for a microsecond should be
-        // fine for now.
-        delay
-            .try_delay_us(DIR_SETUP_DELAY_US.into())
-            .map_err(|err| StepError::Delay(err))?;
+        // setting DIR and starting the STEP pulse.
+        clock.new_timer(DIR_SETUP_DELAY).start()?.wait()?;
 
         // Start step pulse
         self.step_mode3
@@ -309,12 +314,7 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         // There are two delays we need to adhere to:
         // - The minimum DIR hold time of 100 ns.
         // - The minimum STCK high time, also 100 ns.
-        //
-        // The minimum delay we can get out of `DelayUs` is more than both, so
-        // while not ideal, the following should be fine.
-        delay
-            .try_delay_us(PULSE_LENGTH_US.into())
-            .map_err(|err| StepError::Delay(err))?;
+        clock.new_timer(PULSE_LENGTH).start()?.wait()?;
 
         // End step pulse
         self.step_mode3
@@ -419,20 +419,18 @@ impl From<ModeError<Infallible, Infallible>> for Infallible {
 }
 
 /// An error that can occur while making a step
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum StepError<OutputPinError, DelayError> {
+#[derive(Debug, Eq, PartialEq)]
+pub enum StepError<OutputPinError> {
     /// An error originated from using the [`OutputPin`] trait
     OutputPin(OutputPinError),
 
-    /// An error originated from using the [`DelayUs`] trait
-    Delay(DelayError),
+    /// An error originated from working with a timer
+    Time(TimeError),
 }
 
-// Enables use of `?` in the (probably quite common) case when all error types
-// are infallible.
-impl From<StepError<Infallible, Infallible>> for Infallible {
-    fn from(_: StepError<Infallible, Infallible>) -> Self {
-        unreachable!()
+impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
+    fn from(err: TimeError) -> Self {
+        Self::Time(err)
     }
 }
 
