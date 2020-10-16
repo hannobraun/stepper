@@ -288,8 +288,8 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         DirMode4: OutputPin<Error = OutputPinError>,
         Clk: Clock,
     {
-        const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(1000);
-        const PULSE_LENGTH: Nanoseconds = Nanoseconds(1000);
+        const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(100);
+        const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
         match dir {
             Dir::Forward => self
