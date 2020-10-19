@@ -1,4 +1,4 @@
-# STSPIN220 Driver ![CI Build](https://github.com/braun-embedded/stspin220/workflows/Rust/badge.svg)
+# STSPIN220 Driver ![CI Build](https://github.com/braun-embedded/stspin220/workflows/CI%20Build/badge.svg)
 
 ## About
 
