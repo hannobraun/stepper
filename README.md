@@ -1,4 +1,4 @@
-# STSPIN220 Driver ![CI Build](https://github.com/braun-embedded/stspin220/workflows/CI%20Build/badge.svg)
+# STSPIN220 Driver [![crates.io](https://img.shields.io/crates/v/stspin220.svg)](https://crates.io/crates/stspin220) [![Documentation](https://docs.rs/stspin220/badge.svg)](https://docs.rs/stspin220) ![CI Build](https://github.com/braun-embedded/stspin220/workflows/CI%20Build/badge.svg)
 
 ## About
 
