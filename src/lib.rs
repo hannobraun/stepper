@@ -74,7 +74,10 @@
 
 use core::convert::{Infallible, TryFrom};
 
-use embedded_hal::{blocking::delay::DelayUs, digital::OutputPin};
+use embedded_hal::{
+    blocking::delay::DelayUs,
+    digital::{OutputPin, PinState},
+};
 use embedded_time::{duration::Nanoseconds, Clock, TimeError};
 
 /// The STSPIN220 driver API
@@ -221,26 +224,18 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         // anything about it and wait for the next embedded-hal alpha version,
         // which has features that would help here.
         let (mode1_s, mode2_s, mode3_s, mode4_s) = step_mode.to_signals();
-        match mode1_s {
-            false => self.mode1.try_set_low(),
-            true => self.mode1.try_set_high(),
-        }
-        .map_err(|err| ModeError::OutputPin(err))?;
-        match mode2_s {
-            false => self.mode2.try_set_low(),
-            true => self.mode2.try_set_high(),
-        }
-        .map_err(|err| ModeError::OutputPin(err))?;
-        match mode3_s {
-            false => self.step_mode3.try_set_low(),
-            true => self.step_mode3.try_set_high(),
-        }
-        .map_err(|err| ModeError::OutputPin(err))?;
-        match mode4_s {
-            false => self.dir_mode4.try_set_low(),
-            true => self.dir_mode4.try_set_high(),
-        }
-        .map_err(|err| ModeError::OutputPin(err))?;
+        self.mode1
+            .try_set_state(mode1_s)
+            .map_err(|err| ModeError::OutputPin(err))?;
+        self.mode2
+            .try_set_state(mode2_s)
+            .map_err(|err| ModeError::OutputPin(err))?;
+        self.step_mode3
+            .try_set_state(mode3_s)
+            .map_err(|err| ModeError::OutputPin(err))?;
+        self.dir_mode4
+            .try_set_state(mode4_s)
+            .map_err(|err| ModeError::OutputPin(err))?;
 
         // Need to wait for the MODEx input setup time.
         delay
@@ -358,18 +353,19 @@ pub enum StepMode {
 
 impl StepMode {
     /// Provides the pin signals for the given step mode
-    pub fn to_signals(&self) -> (bool, bool, bool, bool) {
+    pub fn to_signals(&self) -> (PinState, PinState, PinState, PinState) {
+        use PinState::*;
         use StepMode::*;
         match self {
-            Full => (false, false, false, false),
-            M2 => (true, false, true, false),
-            M4 => (false, true, false, true),
-            M8 => (true, true, true, false),
-            M16 => (true, true, true, true),
-            M32 => (false, true, false, false),
-            M64 => (true, true, false, true),
-            M128 => (true, false, false, false),
-            M256 => (true, true, false, false),
+            Full => (Low, Low, Low, Low),
+            M2 => (High, Low, High, Low),
+            M4 => (Low, High, Low, High),
+            M8 => (High, High, High, Low),
+            M16 => (High, High, High, High),
+            M32 => (Low, High, Low, Low),
+            M64 => (High, High, Low, High),
+            M128 => (High, Low, Low, Low),
+            M256 => (High, High, Low, Low),
         }
     }
 }
