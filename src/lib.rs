@@ -223,18 +223,18 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
         // Set mode signals. All this repetition is messy. I decided not to do
         // anything about it and wait for the next embedded-hal alpha version,
         // which has features that would help here.
-        let (mode1_s, mode2_s, mode3_s, mode4_s) = step_mode.to_signals();
+        let (mode1, mode2, mode3, mode4) = step_mode.to_signals();
         self.mode1
-            .try_set_state(mode1_s)
+            .try_set_state(mode1)
             .map_err(|err| ModeError::OutputPin(err))?;
         self.mode2
-            .try_set_state(mode2_s)
+            .try_set_state(mode2)
             .map_err(|err| ModeError::OutputPin(err))?;
         self.step_mode3
-            .try_set_state(mode3_s)
+            .try_set_state(mode3)
             .map_err(|err| ModeError::OutputPin(err))?;
         self.dir_mode4
-            .try_set_state(mode4_s)
+            .try_set_state(mode4)
             .map_err(|err| ModeError::OutputPin(err))?;
 
         // Need to wait for the MODEx input setup time.
