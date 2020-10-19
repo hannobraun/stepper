@@ -17,4 +17,4 @@ See [LICENSE.md] for full details.
 
 [STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
-[LICENSE.md]: https://github.com/braun-embedded/step-dir/LICENSE.md
+[LICENSE.md]: https://github.com/braun-embedded/stspin220/blob/master/LICENSE.md
