@@ -72,13 +72,13 @@
 #![no_std]
 #![deny(missing_docs)]
 
-use core::convert::{Infallible, TryFrom};
+use core::convert::TryFrom;
 
-use embedded_hal::{
-    blocking::delay::DelayUs,
-    digital::{OutputPin, PinState},
+use embedded_hal::digital::{OutputPin, PinState};
+use embedded_time::{
+    duration::{Microseconds, Nanoseconds},
+    Clock, TimeError,
 };
-use embedded_time::{duration::Nanoseconds, Clock, TimeError};
 
 /// The STSPIN220 driver API
 ///
@@ -152,20 +152,18 @@ impl<EnableFault, StepMode3, DirMode4>
         StandbyReset,
         Mode1,
         Mode2,
-        Delay,
-        DelayTime,
+        Clk,
         OutputPinError,
-        DelayError,
     >(
         self,
         standby_reset: StandbyReset,
         mode1: Mode1,
         mode2: Mode2,
         step_mode: StepMode,
-        delay: &mut Delay,
+        clock: &Clk,
     ) -> Result<
         STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>,
-        ModeError<OutputPinError, DelayError>,
+        ModeError<OutputPinError>,
     >
     where
         StandbyReset: OutputPin<Error = OutputPinError>,
@@ -173,8 +171,7 @@ impl<EnableFault, StepMode3, DirMode4>
         Mode2: OutputPin<Error = OutputPinError>,
         StepMode3: OutputPin<Error = OutputPinError>,
         DirMode4: OutputPin<Error = OutputPinError>,
-        Delay: DelayUs<DelayTime, Error = DelayError>,
-        DelayTime: From<u8>,
+        Clk: Clock,
     {
         let mut self_ = STSPIN220 {
             enable_fault: self.enable_fault,
@@ -185,7 +182,7 @@ impl<EnableFault, StepMode3, DirMode4>
             dir_mode4: self.dir_mode4,
         };
 
-        self_.set_step_mode(step_mode, delay)?;
+        self_.set_step_mode(step_mode, clock)?;
 
         Ok(self_)
     }
@@ -198,22 +195,21 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
     ///
     /// This method is only available, if all the pins required for setting the
     /// step mode have been provided using [`STSPIN220::enable_mode_control`].
-    pub fn set_step_mode<Delay, DelayTime, OutputPinError, DelayError>(
+    pub fn set_step_mode<Clk, OutputPinError>(
         &mut self,
         step_mode: StepMode,
-        delay: &mut Delay,
-    ) -> Result<(), ModeError<OutputPinError, DelayError>>
+        clock: &Clk,
+    ) -> Result<(), ModeError<OutputPinError>>
     where
         StandbyReset: OutputPin<Error = OutputPinError>,
         Mode1: OutputPin<Error = OutputPinError>,
         Mode2: OutputPin<Error = OutputPinError>,
         StepMode3: OutputPin<Error = OutputPinError>,
         DirMode4: OutputPin<Error = OutputPinError>,
-        Delay: DelayUs<DelayTime, Error = DelayError>,
-        DelayTime: From<u8>,
+        Clk: Clock,
     {
-        const MODE_SETUP_TIME_US: u8 = 1;
-        const MODE_HOLD_TIME_US: u8 = 100;
+        const MODE_SETUP_TIME: Microseconds = Microseconds(1);
+        const MODE_HOLD_TIME: Microseconds = Microseconds(100);
 
         // Force driver into standby mode.
         self.standby_reset
@@ -238,9 +234,7 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
             .map_err(|err| ModeError::OutputPin(err))?;
 
         // Need to wait for the MODEx input setup time.
-        delay
-            .try_delay_us(MODE_SETUP_TIME_US.into())
-            .map_err(|err| ModeError::Delay(err))?;
+        clock.new_timer(MODE_SETUP_TIME).start()?.wait()?;
 
         // Leave standby mode.
         self.standby_reset
@@ -249,9 +243,7 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 
         // Now the mode pins need to stay as they are for the MODEx input hold
         // time, for the settings to take effect.
-        delay
-            .try_delay_us(MODE_HOLD_TIME_US.into())
-            .map_err(|err| ModeError::Delay(err))?;
+        clock.new_timer(MODE_HOLD_TIME).start()?.wait()?;
 
         Ok(())
     }
@@ -397,20 +389,18 @@ impl TryFrom<u16> for StepMode {
 pub struct InvalidStepModeError;
 
 /// An error that can occur while setting the microstepping mode
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ModeError<OutputPinError, DelayError> {
+#[derive(Debug, Eq, PartialEq)]
+pub enum ModeError<OutputPinError> {
     /// An error originated from using the [`OutputPin`] trait
     OutputPin(OutputPinError),
 
-    /// An error originated from using the [`DelayUs`] trait
-    Delay(DelayError),
+    /// An error originated from working with a timer
+    Time(TimeError),
 }
 
-// Enables use of `?` in the (probably quite common) case when all error types
-// are infallible.
-impl From<ModeError<Infallible, Infallible>> for Infallible {
-    fn from(_: ModeError<Infallible, Infallible>) -> Self {
-        unreachable!()
+impl<OutputPinError> From<TimeError> for ModeError<OutputPinError> {
+    fn from(err: TimeError) -> Self {
+        Self::Time(err)
     }
 }
 
