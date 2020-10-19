@@ -6,7 +6,7 @@ Rust driver crate for the [STSPIN220] stepper motor driver. Carrier boards for t
 
 ## Status
 
-This driver is currently in development. Please check back later.
+This driver is currently very basic in its capabilities. Its design is experimental, and more revisions to the API are expected.
 
 ## License
 
