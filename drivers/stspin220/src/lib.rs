@@ -190,26 +190,31 @@ impl<EnableFault, StepMode3, DirMode4>
     }
 }
 
-impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
-    STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
+    > STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+where
+    StandbyReset: OutputPin<Error = OutputPinError>,
+    Mode1: OutputPin<Error = OutputPinError>,
+    Mode2: OutputPin<Error = OutputPinError>,
+    StepMode3: OutputPin<Error = OutputPinError>,
+    DirMode4: OutputPin<Error = OutputPinError>,
 {
     /// Sets the step mode
     ///
     /// This method is only available, if all the pins required for setting the
     /// step mode have been provided using [`STSPIN220::enable_mode_control`].
-    pub fn set_step_mode<Clk, OutputPinError>(
+    pub fn set_step_mode<Clk: Clock>(
         &mut self,
         step_mode: StepMode,
         clock: &Clk,
-    ) -> Result<(), ModeError<OutputPinError>>
-    where
-        StandbyReset: OutputPin<Error = OutputPinError>,
-        Mode1: OutputPin<Error = OutputPinError>,
-        Mode2: OutputPin<Error = OutputPinError>,
-        StepMode3: OutputPin<Error = OutputPinError>,
-        DirMode4: OutputPin<Error = OutputPinError>,
-        Clk: Clock,
-    {
+    ) -> Result<(), ModeError<OutputPinError>> {
         const MODE_SETUP_TIME: Microseconds = Microseconds(1);
         const MODE_HOLD_TIME: Microseconds = Microseconds(100);
 
@@ -249,7 +254,21 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 
         Ok(())
     }
+}
 
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
+    > STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+where
+    StepMode3: OutputPin<Error = OutputPinError>,
+    DirMode4: OutputPin<Error = OutputPinError>,
+{
     /// Rotates the motor one (micro-)step in the given direction
     ///
     /// Sets the DIR/MODE4 pin according to the `dir` argument, initiates a step
@@ -267,16 +286,11 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
     /// user directly. This might leave the driver API in an invalid state, for
     /// example if STEP/MODE3 has been set HIGH, but an error occurs before it
     /// can be set LOW again.
-    pub fn step<Clk, OutputPinError>(
+    pub fn step<Clk: Clock>(
         &mut self,
         dir: Dir,
         clock: &Clk,
-    ) -> Result<(), StepError<OutputPinError>>
-    where
-        StepMode3: OutputPin<Error = OutputPinError>,
-        DirMode4: OutputPin<Error = OutputPinError>,
-        Clk: Clock,
-    {
+    ) -> Result<(), StepError<OutputPinError>> {
         const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(100);
         const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
