@@ -6,7 +6,7 @@ Step/Dir provides an abstract interface over drivers libraries for stepper motor
 
 ## Status
 
-This library is currently in development. Nothing to see here.
+This is only an early draft, mainly intended as a base for further development. Its use cases are very limited right now.
 
 ## License
 
