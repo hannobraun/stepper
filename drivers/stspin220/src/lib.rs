@@ -72,10 +72,10 @@
 #![no_std]
 #![deny(missing_docs)]
 
-use core::convert::TryFrom;
+pub use step_dir::{Dir, StepMode};
 
 use step_dir::{
-    embedded_hal::digital::{OutputPin, PinState},
+    embedded_hal::digital::OutputPin,
     embedded_time::{
         duration::{Microseconds, Nanoseconds},
         Clock, TimeError,
@@ -314,82 +314,6 @@ impl<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
     }
 }
 
-/// Defines the step mode
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub enum StepMode {
-    /// Full steps
-    Full = 1,
-
-    /// 2 microsteps per full step
-    M2 = 2,
-
-    /// 4 microsteps per full step
-    M4 = 4,
-
-    /// 8 microsteps per full step
-    M8 = 8,
-
-    /// 16 microsteps per full step
-    M16 = 16,
-
-    /// 32 microsteps per full step
-    M32 = 32,
-
-    /// 64 microsteps per full step
-    M64 = 64,
-
-    /// 128 microsteps per full step
-    M128 = 128,
-
-    /// 256 microsteps per full step
-    M256 = 256,
-}
-
-impl StepMode {
-    /// Provides the pin signals for the given step mode
-    pub fn to_signals(&self) -> (PinState, PinState, PinState, PinState) {
-        use PinState::*;
-        use StepMode::*;
-        match self {
-            Full => (Low, Low, Low, Low),
-            M2 => (High, Low, High, Low),
-            M4 => (Low, High, Low, High),
-            M8 => (High, High, High, Low),
-            M16 => (High, High, High, High),
-            M32 => (Low, High, Low, Low),
-            M64 => (High, High, Low, High),
-            M128 => (High, Low, Low, Low),
-            M256 => (High, High, Low, Low),
-        }
-    }
-}
-
-impl TryFrom<u16> for StepMode {
-    type Error = InvalidStepModeError;
-
-    fn try_from(val: u16) -> Result<Self, Self::Error> {
-        match val {
-            1 => Ok(StepMode::Full),
-            2 => Ok(StepMode::M2),
-            4 => Ok(StepMode::M4),
-            8 => Ok(StepMode::M8),
-            16 => Ok(StepMode::M16),
-            32 => Ok(StepMode::M32),
-            64 => Ok(StepMode::M64),
-            128 => Ok(StepMode::M128),
-            256 => Ok(StepMode::M256),
-
-            _ => Err(InvalidStepModeError),
-        }
-    }
-}
-
-/// Indicates that a given step mode value did not represent a valid step mode
-///
-/// Valid values are 1, 2, 4, 8, 16, 32, 64, 128, and 256.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct InvalidStepModeError;
-
 /// An error that can occur while setting the microstepping mode
 #[derive(Debug, Eq, PartialEq)]
 pub enum ModeError<OutputPinError> {
@@ -420,20 +344,4 @@ impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
     fn from(err: TimeError) -> Self {
         Self::Time(err)
     }
-}
-
-/// Defines the direction in which to rotate the motor
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Dir {
-    /// Rotate the motor forward
-    ///
-    /// This corresponds to whatever direction the motor rotates in when the
-    /// dir signal is set HIGH.
-    Forward,
-
-    /// Rotate the motor backward
-    ///
-    /// This corresponds to whatever direction the motor rotates in when the
-    /// dir signal set is LOW.
-    Backward,
 }
