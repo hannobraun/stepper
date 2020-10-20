@@ -1,6 +1,6 @@
 [package]
 name    = "stspin220"
-version = "0.1.0"
+version = "0.2.1"
 authors = ["Hanno Braun <hanno@braun-embedded.com>"]
 edition = "2018"
 
@@ -12,4 +12,5 @@ categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
 [dependencies.step-dir]
-path = "../.."
+version = "0.2.0"
+path    = "../.."
