@@ -1,0 +1,2 @@
+[workspace]
+members = ["drivers/stspin220"]
