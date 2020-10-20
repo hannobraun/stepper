@@ -20,6 +20,9 @@ pub mod prelude {
     pub use super::{SetStepMode as _, Step as _};
 }
 
+#[cfg(feature = "stspin220")]
+pub mod stspin220;
+
 use core::convert::TryFrom;
 
 use embedded_hal::digital::PinState;
