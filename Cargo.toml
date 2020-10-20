@@ -1,6 +1,6 @@
 [workspace]
 members         = ["drivers/stspin220"]
-default-members = ["drivers/stspin220"]
+default-members = [".", "drivers/stspin220"]
 
 [package]
 name    = "step-dir"
@@ -17,3 +17,7 @@ categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 [dependencies]
 embedded-hal  = "1.0.0-alpha.2"
 embedded-time = "0.10.0"
+
+[features]
+default = ["stspin220"]
+stspin220 = []
