@@ -18,6 +18,27 @@ pub extern crate embedded_time;
 use core::convert::TryFrom;
 
 use embedded_hal::digital::PinState;
+use embedded_time::Clock;
+
+/// Blocking interface for making single steps
+pub trait Step {
+    /// The error that can occur while using this trait
+    type Error;
+
+    /// Rotates the motor one (micro-)step in the given direction
+    ///
+    /// This should result in the motor making one step. To achieve a specific
+    /// speed, the user must call this method at the appropriate frequency.
+    ///
+    /// Requires a reference to an `embedded_time::Clock` implementation to
+    /// handle the timing. Please make sure that the timer doesn't overflow
+    /// while this method is running.
+    fn step<Clk: Clock>(
+        &mut self,
+        dir: Dir,
+        clock: &Clk,
+    ) -> Result<(), Self::Error>;
+}
 
 /// Defines the direction in which to rotate the motor
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

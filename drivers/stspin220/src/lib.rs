@@ -11,7 +11,10 @@
 //! ``` rust
 //! # fn main() -> Result<(), stspin220::StepError<core::convert::Infallible>> {
 //! #
-//! use step_dir::{embedded_time::{duration::Microseconds, Clock as _}};
+//! use step_dir::{
+//!     embedded_time::{duration::Microseconds, Clock as _},
+//!     Step as _,
+//! };
 //! use stspin220::{Dir, STSPIN220};
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
@@ -72,7 +75,7 @@
 #![no_std]
 #![deny(missing_docs)]
 
-pub use step_dir::{Dir, StepMode};
+pub use step_dir::{Dir, Step, StepMode};
 
 use step_dir::{
     embedded_hal::digital::OutputPin,
@@ -264,11 +267,14 @@ impl<
         StepMode3,
         DirMode4,
         OutputPinError,
-    > STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+    > Step
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
+    type Error = StepError<OutputPinError>;
+
     /// Rotates the motor one (micro-)step in the given direction
     ///
     /// Sets the DIR/MODE4 pin according to the `dir` argument, initiates a step
@@ -286,11 +292,11 @@ where
     /// user directly. This might leave the driver API in an invalid state, for
     /// example if STEP/MODE3 has been set HIGH, but an error occurs before it
     /// can be set LOW again.
-    pub fn step<Clk: Clock>(
+    fn step<Clk: Clock>(
         &mut self,
         dir: Dir,
         clock: &Clk,
-    ) -> Result<(), StepError<OutputPinError>> {
+    ) -> Result<(), Self::Error> {
         const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(100);
         const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
