@@ -1,15 +1,18 @@
+[workspace]
+members         = ["drivers/stspin220"]
+default-members = ["drivers/stspin220"]
+
 [package]
-name    = "stspin220"
+name    = "step-dir"
 version = "0.1.0"
 authors = ["Hanno Braun <hanno@braun-embedded.com>"]
 edition = "2018"
 
-description = "Driver crate for the STSPIN220 stepper motor driver"
+description = "Library for controlling stepper motors"
 repository  = "https://github.com/braun-embedded/step-dir"
 license     = "0BSD"
-keywords    = ["step-dir", "stepper", "motor", "driver", "pololu"]
+keywords    = ["stepper", "motor", "driver", "abstract", "interface"]
 categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
-
 
 [dependencies]
 embedded-hal  = "1.0.0-alpha.2"
