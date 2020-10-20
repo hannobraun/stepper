@@ -11,6 +11,5 @@ keywords    = ["step-dir", "stepper", "motor", "driver", "pololu"]
 categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
-[dependencies]
-embedded-hal  = "1.0.0-alpha.2"
-embedded-time = "0.10.0"
+[dependencies.step-dir]
+path = "../.."

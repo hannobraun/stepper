@@ -11,31 +11,31 @@
 //! ``` rust
 //! # fn main() -> Result<(), stspin220::StepError<core::convert::Infallible>> {
 //! #
-//! use embedded_time::{duration::Microseconds, Clock as _};
+//! use step_dir::{embedded_time::{duration::Microseconds, Clock as _}};
 //! use stspin220::{Dir, STSPIN220};
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
 //!
 //! # struct Pin;
-//! # impl embedded_hal::digital::OutputPin for Pin {
+//! # impl step_dir::embedded_hal::digital::OutputPin for Pin {
 //! #     type Error = core::convert::Infallible;
 //! #     fn try_set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! #     fn try_set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! # }
 //! #
 //! # struct Clock(std::time::Instant);
-//! # impl embedded_time::Clock for Clock {
+//! # impl step_dir::embedded_time::Clock for Clock {
 //! #     type T = u32;
-//! #     const SCALING_FACTOR: embedded_time::fraction::Fraction =
-//! #         embedded_time::fraction::Fraction::new(1, 1_000_000);
+//! #     const SCALING_FACTOR: step_dir::embedded_time::fraction::Fraction =
+//! #         step_dir::embedded_time::fraction::Fraction::new(1, 1_000_000);
 //! #     fn try_now(&self)
 //! #         -> Result<
-//! #             embedded_time::Instant<Self>,
-//! #             embedded_time::clock::Error
+//! #             step_dir::embedded_time::Instant<Self>,
+//! #             step_dir::embedded_time::clock::Error
 //! #         >
 //! #     {
 //! #         Ok(
-//! #             embedded_time::Instant::new(
+//! #             step_dir::embedded_time::Instant::new(
 //! #                 self.0.elapsed().as_micros() as u32
 //! #             )
 //! #         )
@@ -74,10 +74,12 @@
 
 use core::convert::TryFrom;
 
-use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{
-    duration::{Microseconds, Nanoseconds},
-    Clock, TimeError,
+use step_dir::{
+    embedded_hal::digital::{OutputPin, PinState},
+    embedded_time::{
+        duration::{Microseconds, Nanoseconds},
+        Clock, TimeError,
+    },
 };
 
 /// The STSPIN220 driver API
