@@ -20,6 +20,19 @@ use core::convert::TryFrom;
 use embedded_hal::digital::PinState;
 use embedded_time::Clock;
 
+/// Blocking interface for setting the step mode
+pub trait SetStepMode {
+    /// The error that can occur while using this trait
+    type Error;
+
+    /// Sets the step mode
+    fn set_step_mode<Clk: Clock>(
+        &mut self,
+        step_mode: StepMode,
+        clock: &Clk,
+    ) -> Result<(), Self::Error>;
+}
+
 /// Blocking interface for making single steps
 pub trait Step {
     /// The error that can occur while using this trait

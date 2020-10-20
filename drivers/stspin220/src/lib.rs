@@ -75,7 +75,7 @@
 #![no_std]
 #![deny(missing_docs)]
 
-pub use step_dir::{Dir, Step, StepMode};
+pub use step_dir::{Dir, SetStepMode, Step, StepMode};
 
 use step_dir::{
     embedded_hal::digital::OutputPin,
@@ -201,7 +201,8 @@ impl<
         StepMode3,
         DirMode4,
         OutputPinError,
-    > STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+    > SetStepMode
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 where
     StandbyReset: OutputPin<Error = OutputPinError>,
     Mode1: OutputPin<Error = OutputPinError>,
@@ -209,15 +210,17 @@ where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
+    type Error = ModeError<OutputPinError>;
+
     /// Sets the step mode
     ///
     /// This method is only available, if all the pins required for setting the
     /// step mode have been provided using [`STSPIN220::enable_mode_control`].
-    pub fn set_step_mode<Clk: Clock>(
+    fn set_step_mode<Clk: Clock>(
         &mut self,
         step_mode: StepMode,
         clock: &Clk,
-    ) -> Result<(), ModeError<OutputPinError>> {
+    ) -> Result<(), Self::Error> {
         const MODE_SETUP_TIME: Microseconds = Microseconds(1);
         const MODE_HOLD_TIME: Microseconds = Microseconds(100);
 
