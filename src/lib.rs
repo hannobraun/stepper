@@ -15,6 +15,11 @@
 pub extern crate embedded_hal;
 pub extern crate embedded_time;
 
+/// Re-exports the traits from this library
+pub mod prelude {
+    pub use super::{SetStepMode as _, Step as _};
+}
+
 use core::convert::TryFrom;
 
 use embedded_hal::digital::PinState;
