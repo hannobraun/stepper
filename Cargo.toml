@@ -1,5 +1,5 @@
 [workspace]
-members         = ["drivers/stspin220"]
+members         = ["drivers/drv8825", "drivers/stspin220"]
 default-members = [".", "drivers/stspin220"]
 
 [package]
