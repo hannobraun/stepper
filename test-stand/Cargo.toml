@@ -1,0 +1,70 @@
+[workspace]
+members = ["tests"]
+
+
+[package]
+name    = "test-stand"
+version = "0.1.0"
+authors = ["Hanno Braun <hanno@braun-embedded.com>"]
+edition = "2018"
+publish = false
+
+
+[dependencies]
+defmt       = "0.1.2"
+defmt-rtt   = "0.1.0"
+panic-probe = "0.1.0"
+
+[dependencies.lpc8xx-hal]
+git      = "https://github.com/lpc-rs/lpc8xx-hal.git"
+features = ["845m301jhi48", "845-rt"]
+
+[dependencies.step-dir]
+path = ".."
+
+
+[features]
+default = ["defmt-default"]
+
+# These features control log levels of `defmt`.
+defmt-default = []
+defmt-trace   = []
+defmt-debug   = []
+defmt-info    = []
+defmt-warn    = []
+defmt-error   = []
+
+
+[profile.dev]
+codegen-units    = 1
+debug            = 2
+debug-assertions = true
+incremental      = false
+opt-level        = 3
+overflow-checks  = true
+
+[profile.release]
+codegen-units    = 1
+debug            = 2
+debug-assertions = false
+incremental      = false
+lto              = "fat"
+opt-level        = 3
+overflow-checks  = false
+
+
+# Do not optimize proc-macro crates to get faster builds.
+
+[profile.dev.build-override]
+codegen-units    = 8
+debug            = false
+debug-assertions = false
+opt-level        = 0
+overflow-checks  = false
+
+[profile.release.build-override]
+codegen-units    = 8
+debug            = false
+debug-assertions = false
+opt-level        = 0
+overflow-checks  = false
