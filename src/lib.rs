@@ -107,6 +107,12 @@ pub enum StepMode {
     M256 = 256,
 }
 
+impl From<StepMode> for u16 {
+    fn from(step_mode: StepMode) -> Self {
+        step_mode as Self
+    }
+}
+
 impl TryFrom<u16> for StepMode {
     type Error = InvalidStepModeError;
 
