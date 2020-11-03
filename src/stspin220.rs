@@ -76,7 +76,7 @@
 //!
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
-use embedded_hal::digital::OutputPin;
+use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::{
     duration::{Microseconds, Nanoseconds},
     Clock, TimeError,
@@ -231,7 +231,7 @@ where
         // Set mode signals. All this repetition is messy. I decided not to do
         // anything about it and wait for the next embedded-hal alpha version,
         // which has features that would help here.
-        let (mode1, mode2, mode3, mode4) = step_mode.to_signals();
+        let (mode1, mode2, mode3, mode4) = step_mode_to_signals(&step_mode);
         self.mode1
             .try_set_state(mode1)
             .map_err(|err| ModeError::OutputPin(err))?;
@@ -333,6 +333,25 @@ where
             .map_err(|err| StepError::OutputPin(err))?;
 
         Ok(())
+    }
+}
+
+/// Provides the pin signals for the given step mode
+pub fn step_mode_to_signals(
+    step_mode: &StepMode,
+) -> (PinState, PinState, PinState, PinState) {
+    use PinState::*;
+    use StepMode::*;
+    match step_mode {
+        Full => (Low, Low, Low, Low),
+        M2 => (High, Low, High, Low),
+        M4 => (Low, High, Low, High),
+        M8 => (High, High, High, Low),
+        M16 => (High, High, High, High),
+        M32 => (Low, High, Low, Low),
+        M64 => (High, High, Low, High),
+        M128 => (High, Low, Low, Low),
+        M256 => (High, High, Low, Low),
     }
 }
 

@@ -25,7 +25,6 @@ pub mod stspin220;
 
 use core::convert::TryFrom;
 
-use embedded_hal::digital::PinState;
 use embedded_time::Clock;
 
 /// Blocking interface for setting the step mode
@@ -106,25 +105,6 @@ pub enum StepMode {
 
     /// 256 microsteps per full step
     M256 = 256,
-}
-
-impl StepMode {
-    /// Provides the pin signals for the given step mode
-    pub fn to_signals(&self) -> (PinState, PinState, PinState, PinState) {
-        use PinState::*;
-        use StepMode::*;
-        match self {
-            Full => (Low, Low, Low, Low),
-            M2 => (High, Low, High, Low),
-            M4 => (Low, High, Low, High),
-            M8 => (High, High, High, Low),
-            M16 => (High, High, High, High),
-            M32 => (Low, High, Low, Low),
-            M64 => (High, High, Low, High),
-            M128 => (High, Low, Low, Low),
-            M256 => (High, High, Low, Low),
-        }
-    }
 }
 
 impl TryFrom<u16> for StepMode {
