@@ -78,7 +78,7 @@
 use step_dir::{
     embedded_hal::digital::{OutputPin, PinState},
     embedded_time::{duration::Nanoseconds, Clock, TimeError},
-    Dir as DirTrait, SetStepMode, Step as StepTrait, StepMode,
+    Dir as Direction, SetStepMode, Step as StepTrait, StepMode32,
 };
 
 /// The DRV8825 driver API
@@ -157,7 +157,7 @@ impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
         mode0: Mode0,
         mode1: Mode1,
         mode2: Mode2,
-        step_mode: StepMode,
+        step_mode: StepMode32,
         clock: &Clk,
     ) -> Result<
         DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>,
@@ -197,6 +197,7 @@ where
     Mode2: OutputPin<Error = OutputPinError>,
 {
     type Error = ModeError<OutputPinError>;
+    type StepMode = StepMode32;
 
     /// Sets the step mode
     ///
@@ -204,7 +205,7 @@ where
     /// step mode have been provided using [`DRV8825::enable_mode_control`].
     fn set_step_mode<Clk: Clock>(
         &mut self,
-        step_mode: StepMode,
+        step_mode: StepMode32,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
         // 7.6 Timing Requirements (page 7)
@@ -273,7 +274,7 @@ where
     /// set LOW again.
     fn step<Clk: Clock>(
         &mut self,
-        dir: DirTrait,
+        dir: Direction,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
         // 7.6 Timing Requirements (page 7)
@@ -282,11 +283,11 @@ where
         const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
 
         match dir {
-            DirTrait::Forward => self
+            Direction::Forward => self
                 .dir
                 .try_set_high()
                 .map_err(|err| StepError::OutputPin(err))?,
-            DirTrait::Backward => self
+            Direction::Backward => self
                 .dir
                 .try_set_low()
                 .map_err(|err| StepError::OutputPin(err))?,
@@ -349,21 +350,17 @@ impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
 
 /// Provides the pin signals for the given step mode
 fn step_mode_to_signals(
-    step_mode: &StepMode,
+    step_mode: &StepMode32,
 ) -> (PinState, PinState, PinState) {
     use PinState::*;
-    use StepMode::*;
+    use StepMode32::*;
 
-    // FIXME: the DRV8825 only goes down to 1/32 microstepping, but `StepMode`
-    //        goes to 1/256. `M32` - `M256` are currently handled by a
-    //        catch-all in the below `match` block, but this is technically
-    //        incorrect.
     match step_mode {
         Full => (Low, Low, Low),
         M2 => (High, Low, Low),
         M4 => (Low, High, Low),
         M8 => (High, High, Low),
         M16 => (Low, Low, High),
-        _ => (High, High, High),
+        M32 => (High, High, High),
     }
 }
