@@ -35,7 +35,7 @@ pub trait SetStepMode {
     /// Sets the step mode
     fn set_step_mode<Clk: Clock>(
         &mut self,
-        step_mode: StepMode,
+        step_mode: StepMode256,
         clock: &Clk,
     ) -> Result<(), Self::Error>;
 }
@@ -76,9 +76,9 @@ pub enum Dir {
     Backward,
 }
 
-/// Defines the step mode
+/// Defines the step mode with a resolution of up to 256 microsteps
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub enum StepMode {
+pub enum StepMode256 {
     /// Full steps
     Full = 1,
 
@@ -107,26 +107,26 @@ pub enum StepMode {
     M256 = 256,
 }
 
-impl From<StepMode> for u16 {
-    fn from(step_mode: StepMode) -> Self {
+impl From<StepMode256> for u16 {
+    fn from(step_mode: StepMode256) -> Self {
         step_mode as Self
     }
 }
 
-impl TryFrom<u16> for StepMode {
+impl TryFrom<u16> for StepMode256 {
     type Error = InvalidStepModeError;
 
     fn try_from(val: u16) -> Result<Self, Self::Error> {
         match val {
-            1 => Ok(StepMode::Full),
-            2 => Ok(StepMode::M2),
-            4 => Ok(StepMode::M4),
-            8 => Ok(StepMode::M8),
-            16 => Ok(StepMode::M16),
-            32 => Ok(StepMode::M32),
-            64 => Ok(StepMode::M64),
-            128 => Ok(StepMode::M128),
-            256 => Ok(StepMode::M256),
+            1 => Ok(StepMode256::Full),
+            2 => Ok(StepMode256::M2),
+            4 => Ok(StepMode256::M4),
+            8 => Ok(StepMode256::M8),
+            16 => Ok(StepMode256::M16),
+            32 => Ok(StepMode256::M32),
+            64 => Ok(StepMode256::M64),
+            128 => Ok(StepMode256::M128),
+            256 => Ok(StepMode256::M256),
 
             _ => Err(InvalidStepModeError),
         }

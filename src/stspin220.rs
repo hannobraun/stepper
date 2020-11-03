@@ -82,7 +82,7 @@ use embedded_time::{
     Clock, TimeError,
 };
 
-use crate::{Dir, SetStepMode, Step, StepMode};
+use crate::{Dir, SetStepMode, Step, StepMode256};
 
 /// The STSPIN220 driver API
 ///
@@ -163,7 +163,7 @@ impl<EnableFault, StepMode3, DirMode4>
         standby_reset: StandbyReset,
         mode1: Mode1,
         mode2: Mode2,
-        step_mode: StepMode,
+        step_mode: StepMode256,
         clock: &Clk,
     ) -> Result<
         STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>,
@@ -217,7 +217,7 @@ where
     /// step mode have been provided using [`STSPIN220::enable_mode_control`].
     fn set_step_mode<Clk: Clock>(
         &mut self,
-        step_mode: StepMode,
+        step_mode: StepMode256,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
         const MODE_SETUP_TIME: Microseconds = Microseconds(1);
@@ -338,10 +338,10 @@ where
 
 /// Provides the pin signals for the given step mode
 pub fn step_mode_to_signals(
-    step_mode: &StepMode,
+    step_mode: &StepMode256,
 ) -> (PinState, PinState, PinState, PinState) {
     use PinState::*;
-    use StepMode::*;
+    use StepMode256::*;
     match step_mode {
         Full => (Low, Low, Low, Low),
         M2 => (High, Low, High, Low),
