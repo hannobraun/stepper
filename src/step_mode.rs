@@ -83,7 +83,10 @@ macro_rules! generate_step_mode_enums {
         paste! {
             #[doc =
                 "Defines the step mode with a resolution of up to " $max " \
-                microsteps"
+                microsteps\n\
+                \n\
+                Can be used by drivers for the `StepMode` associated type of \
+                `SetStepMode`."
             ]
             #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
             pub enum [<StepMode $max>] {
@@ -124,6 +127,6 @@ generate_step_mode_enums! {
 
 /// Indicates that a given step mode value did not represent a valid step mode
 ///
-/// Valid values are 1, 2, 4, 8, 16, 32, 64, 128, and 256.
+/// Returned by the `TryFrom` implementations of the various step mode enums.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct InvalidStepModeError;
