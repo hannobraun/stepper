@@ -211,13 +211,15 @@ where
 {
     type Error = ModeError<OutputPinError>;
 
+    type StepMode = StepMode256;
+
     /// Sets the step mode
     ///
     /// This method is only available, if all the pins required for setting the
     /// step mode have been provided using [`STSPIN220::enable_mode_control`].
     fn set_step_mode<Clk: Clock>(
         &mut self,
-        step_mode: StepMode256,
+        step_mode: Self::StepMode,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
         const MODE_SETUP_TIME: Microseconds = Microseconds(1);

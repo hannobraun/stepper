@@ -27,6 +27,8 @@ mod step_mode;
 
 pub use self::step_mode::*;
 
+use core::convert::TryFrom;
+
 use embedded_time::Clock;
 
 /// Blocking interface for setting the step mode
@@ -34,10 +36,15 @@ pub trait SetStepMode {
     /// The error that can occur while using this trait
     type Error;
 
+    /// The type that defines the microstepping mode
+    ///
+    /// This crate includes a number of enums that can be used for this purpose.
+    type StepMode: Into<u16> + TryFrom<u16, Error = InvalidStepModeError>;
+
     /// Sets the step mode
     fn set_step_mode<Clk: Clock>(
         &mut self,
-        step_mode: StepMode256,
+        step_mode: Self::StepMode,
         clock: &Clk,
     ) -> Result<(), Self::Error>;
 }
