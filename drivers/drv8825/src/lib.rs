@@ -12,7 +12,4 @@
 #![no_std]
 #![deny(missing_docs)]
 
-pub use step_dir::*;
-
-mod drv8825;
-pub use drv8825::*;
+pub use step_dir::{drv8825::*, *};

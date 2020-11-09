@@ -75,11 +75,10 @@
 //!
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
-use step_dir::{
-    embedded_hal::digital::{OutputPin, PinState},
-    embedded_time::{duration::Nanoseconds, Clock, TimeError},
-    Dir as Direction, SetStepMode, Step as StepTrait, StepMode32,
-};
+use embedded_hal::digital::{OutputPin, PinState};
+use embedded_time::{duration::Nanoseconds, Clock, TimeError};
+
+use crate::{Dir as Direction, SetStepMode, Step as StepTrait, StepMode32};
 
 /// The DRV8825 driver API
 ///
