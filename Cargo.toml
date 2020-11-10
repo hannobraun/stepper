@@ -20,6 +20,6 @@ embedded-time = "0.10.0"
 paste         = "1.0.2"
 
 [features]
-default = ["stspin220"]
+default = ["drv8825", "stspin220"]
 drv8825 = []
 stspin220 = []
