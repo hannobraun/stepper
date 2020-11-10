@@ -216,9 +216,7 @@ where
             .try_set_low()
             .map_err(|err| ModeError::OutputPin(err))?;
 
-        // Set mode signals. All this repetition is messy. I decided not to do
-        // anything about it and wait for the next embedded-hal alpha version,
-        // which has features that would help here.
+        // Set mode signals.
         let (mode0, mode1, mode2) = step_mode_to_signals(&step_mode);
         self.mode0
             .try_set_state(mode0)
@@ -246,8 +244,8 @@ where
     }
 }
 
-impl<Step, Dir, OutputPinError> StepTrait
-    for DRV8825<(), (), (), (), (), (), (), Step, Dir>
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> StepTrait
+    for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Step: OutputPin<Error = OutputPinError>,
     Dir: OutputPin<Error = OutputPinError>,
