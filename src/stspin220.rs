@@ -230,9 +230,7 @@ where
             .try_set_low()
             .map_err(|err| ModeError::OutputPin(err))?;
 
-        // Set mode signals. All this repetition is messy. I decided not to do
-        // anything about it and wait for the next embedded-hal alpha version,
-        // which has features that would help here.
+        // Set mode signals.
         let (mode1, mode2, mode3, mode4) = step_mode_to_signals(&step_mode);
         self.mode1
             .try_set_state(mode1)
