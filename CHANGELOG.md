@@ -1,3 +1,22 @@
+<a name="v0.3.0"></a>
+## v0.3.0 (2020-11-12)
+
+- Extend API to support drivers with other microstepping resolutions ([#15])
+- Add support for DRV8825 ([#17])
+- Require embedded-hal 1.0.0-alpha.4 ([#16], [#21])
+
+[#15]: https://github.com/braun-embedded/step-dir/pull/15
+[#16]: https://github.com/braun-embedded/step-dir/pull/16
+[#17]: https://github.com/braun-embedded/step-dir/pull/17
+[#21]: https://github.com/braun-embedded/step-dir/pull/21
+
+
+<a name="v0.2.1"></a>
+## v0.2.1 (2020-10-20)
+
+- Fix build system problem that prevented `stspin220` crate from being published.
+
+
 <a name="v0.2.0"></a>
 ## v0.2.0 (2020-10-20)
 

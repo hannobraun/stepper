@@ -1,6 +1,6 @@
 [package]
 name = "drv8825"
-version = "0.1.0"
+version = "0.3.0"
 authors = [
     "Hanno Braun <hanno@braun-embedded.com>",
     "Jesse Braham <jesse@beta7.io>",
@@ -15,5 +15,5 @@ categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
 [dependencies.step-dir]
-version = "0.2.0"
+version = "0.3.0"
 path    = "../.."
