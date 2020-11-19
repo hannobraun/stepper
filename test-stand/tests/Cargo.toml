@@ -7,7 +7,7 @@ publish = false
 
 
 [[test]]
-name    = "test"
+name    = "stspin220"
 harness = false
 
 
