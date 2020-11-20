@@ -19,6 +19,15 @@ panic-probe = "0.1.0"
 git      = "https://github.com/lpc-rs/lpc8xx-hal.git"
 features = ["845m301jhi48", "845-rt"]
 
+# My own fork of rotary-encoder-hal. Currently includes the following pull
+# requests:
+# - https://github.com/leshow/rotary-encoder-hal/pull/6
+# - https://github.com/leshow/rotary-encoder-hal/pull/7
+# - https://github.com/leshow/rotary-encoder-hal/pull/8
+[dependencies.rotary-encoder-hal]
+git      = "https://github.com/braun-embedded/rotary-encoder-hal.git"
+features = ["defmt", "embedded-hal-alpha"]
+
 [dependencies.step-dir]
 path = ".."
 
