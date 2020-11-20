@@ -79,11 +79,11 @@ pub enum Dir {
     ///
     /// This corresponds to whatever direction the motor rotates in when the
     /// dir signal is set HIGH.
-    Forward,
+    Forward = 1,
 
     /// Rotate the motor backward
     ///
     /// This corresponds to whatever direction the motor rotates in when the
     /// dir signal set is LOW.
-    Backward,
+    Backward = -1,
 }
