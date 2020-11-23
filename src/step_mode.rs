@@ -2,6 +2,14 @@ use core::convert::TryFrom;
 
 use paste::paste;
 
+/// Implemented for all step mode enums
+///
+/// Required as a trait bound by `SetStepMode::StepMode`.
+pub trait StepMode:
+    Into<u16> + TryFrom<u16, Error = InvalidStepModeError>
+{
+}
+
 macro_rules! generate_step_mode_enums {
     (
         $(
@@ -110,6 +118,8 @@ macro_rules! generate_step_mode_enums {
                     }
                 }
             }
+
+            impl StepMode for [<StepMode $max>] {}
         }
     };
 }
