@@ -5,4 +5,5 @@ set -e
 export RUSTFLAGS="-D warnings"
 
 cargo build --verbose &&
-cargo test --verbose
+cargo test --verbose &&
+cargo doc

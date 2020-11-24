@@ -10,7 +10,7 @@
 //! level building block to be used by higher-level control code.
 
 #![no_std]
-#![deny(missing_docs)]
+#![deny(missing_docs, broken_intra_doc_links)]
 
 pub extern crate embedded_hal;
 pub extern crate embedded_time;
