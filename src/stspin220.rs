@@ -86,8 +86,9 @@ use crate::{Dir, SetStepMode, Step, StepMode256};
 
 /// The STSPIN220 driver API
 ///
-/// You can create an instance of this struct by calling [`STSPIN220::new`]. See
-/// [module documentation] for a full example that uses this API.
+/// You can create an instance of this struct by calling
+/// [`STSPIN220::from_step_dir_pins`]. See [module documentation] for a full
+/// example that uses this API.
 ///
 /// [module documentation]: index.html
 pub struct STSPIN220<
@@ -151,7 +152,7 @@ impl<EnableFault, StepMode3, DirMode4>
     ///
     /// This method is only available when those pins have not been provided
     /// yet. After this method has been called once, you can use
-    /// [`STSPIN::set_set_mode`] to change the step mode again.
+    /// [`STSPIN220::set_step_mode`] to change the step mode again.
     pub fn enable_mode_control<
         StandbyReset,
         Mode1,
