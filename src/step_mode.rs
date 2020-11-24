@@ -8,6 +8,14 @@ use paste::paste;
 pub trait StepMode:
     Into<u16> + TryFrom<u16, Error = InvalidStepModeError>
 {
+    /// The type of the iterator returned by [`StepMode::iter`]
+    type Iter: Iterator<Item = Self>;
+
+    /// Returns an iterator over all supported modes
+    ///
+    /// Starts at the mode for configuring full steps and ends at the highest
+    /// supported number of microsteps per step.
+    fn iter() -> Self::Iter;
 }
 
 macro_rules! generate_step_mode_enums {
@@ -17,7 +25,12 @@ macro_rules! generate_step_mode_enums {
         )*
     ) => {
         $(
-            generate_step_mode_enums!(@gen_enum, (), (), $max => $($variant,)*);
+            generate_step_mode_enums!(@gen_enum,
+                (),
+                (),
+                (),
+                $max => $($variant,)*
+            );
         )*
     };
 
@@ -32,6 +45,7 @@ macro_rules! generate_step_mode_enums {
         @gen_enum,
         (),
         (),
+        (),
         $max:expr => $($input:expr,)*
     ) => {
         generate_step_mode_enums!(
@@ -42,6 +56,9 @@ macro_rules! generate_step_mode_enums {
             ),
             (
                 1 => Ok(Self::Full),
+            ),
+            (
+                [<StepMode $max>]::Full,
             ),
             $max => $($input,)*
         );
@@ -56,6 +73,9 @@ macro_rules! generate_step_mode_enums {
         ),
         (
             $($try_from_output:tt)*
+        ),
+        (
+            $($iter_output:tt)*
         ),
         $max:expr => $variant:expr, $($input:expr,)*
     ) => {
@@ -72,6 +92,11 @@ macro_rules! generate_step_mode_enums {
 
                 $variant => Ok(Self::[<M $variant>]),
             ),
+            (
+                $($iter_output)*
+
+                [<StepMode $max>]::[<M $variant>],
+            ),
             $max => $($input,)*
         );
     };
@@ -85,6 +110,9 @@ macro_rules! generate_step_mode_enums {
         ),
         (
             $($try_from_output:tt)*
+        ),
+        (
+            $($iter_output:tt)*
         ),
         $max:expr =>
     ) => {
@@ -119,7 +147,43 @@ macro_rules! generate_step_mode_enums {
                 }
             }
 
-            impl StepMode for [<StepMode $max>] {}
+            impl StepMode for [<StepMode $max>] {
+                // It would be nice to avoid the custom iterator and use
+                // `iter::from_fn` instead. That would require `impl Iterator`
+                // here, which is not supported yet. Tracking issue:
+                // https://github.com/rust-lang/rust/issues/63063
+                type Iter = [<Iter $max>];
+
+                fn iter() -> Self::Iter {
+                    [<Iter $max>] {
+                        i: 0,
+                    }
+                }
+            }
+
+            #[doc =
+                "An iterator over the variants of [`StepMode" $max "`]"
+            ]
+            pub struct [<Iter $max>] {
+                i: usize,
+            }
+
+            impl Iterator for [<Iter $max>] {
+                type Item = [<StepMode $max>];
+
+                fn next(&mut self) -> Option<Self::Item> {
+                    let modes = [$($iter_output)*];
+
+                    if self.i < modes.len() {
+                        let mode = modes[self.i];
+                        self.i += 1;
+                        Some(mode)
+                    }
+                    else {
+                        None
+                    }
+                }
+            }
         }
     };
 }
@@ -148,7 +212,7 @@ mod tests {
 
     use core::convert::TryFrom;
 
-    use super::StepMode256;
+    use super::{StepMode as _, StepMode256};
 
     #[test]
     fn step_mode_should_convert_into_microsteps_per_step() {
@@ -178,5 +242,13 @@ mod tests {
         assert_eq!(<StepMode256 as TryFrom<u16>>::try_from(64), Ok(M64));
         assert_eq!(<StepMode256 as TryFrom<u16>>::try_from(128), Ok(M128));
         assert_eq!(<StepMode256 as TryFrom<u16>>::try_from(256), Ok(M256));
+    }
+
+    #[test]
+    fn step_mode_should_provide_iterator_over_modes() {
+        use StepMode256::*;
+
+        let modes: Vec<_> = StepMode256::iter().collect();
+        assert_eq!(modes, [Full, M2, M4, M8, M16, M32, M64, M128, M256]);
     }
 }
