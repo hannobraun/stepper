@@ -9,7 +9,7 @@
 //! level features like acceleration ramps. Rather, it is designed as a low-
 //! level building block to be used by higher-level control code.
 
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 #![deny(missing_docs, broken_intra_doc_links)]
 
 pub extern crate embedded_hal;
