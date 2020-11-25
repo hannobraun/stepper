@@ -9,7 +9,7 @@
 //! level features like acceleration ramps. Rather, it is designed as a low-
 //! level building block to be used by higher-level control code.
 
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 #![deny(missing_docs, broken_intra_doc_links)]
 
 pub extern crate embedded_hal;
@@ -30,8 +30,6 @@ mod step_mode;
 
 pub use self::step_mode::*;
 
-use core::convert::TryFrom;
-
 use embedded_time::Clock;
 
 /// Blocking interface for setting the step mode
@@ -42,7 +40,7 @@ pub trait SetStepMode {
     /// The type that defines the microstepping mode
     ///
     /// This crate includes a number of enums that can be used for this purpose.
-    type StepMode: Into<u16> + TryFrom<u16, Error = InvalidStepModeError>;
+    type StepMode: StepMode;
 
     /// Sets the step mode
     fn set_step_mode<Clk: Clock>(
