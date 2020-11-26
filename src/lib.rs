@@ -20,6 +20,9 @@ pub mod prelude {
     pub use super::{SetStepMode as _, Step as _};
 }
 
+#[cfg(feature = "a4988")]
+pub mod a4988;
+
 #[cfg(feature = "drv8825")]
 pub mod drv8825;
 

@@ -2,7 +2,7 @@
 
 ## About
 
-Step/Dir provides an abstract interface over drivers libraries for stepper motor drivers. It also contains implementations for the DRV8825 and STSPIN220 stepper motor drivers.
+Step/Dir provides an abstract interface over drivers libraries for stepper motor drivers. It also contains implementations for the A4988, DRV8825, and STSPIN220 stepper motor drivers.
 
 ## Status
 

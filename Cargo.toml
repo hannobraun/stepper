@@ -1,6 +1,6 @@
 [workspace]
-members         = ["drivers/drv8825", "drivers/stspin220"]
-default-members = [".", "drivers/drv8825", "drivers/stspin220"]
+members         = ["drivers/a4988", "drivers/drv8825", "drivers/stspin220"]
+default-members = [".", "drivers/a4988", "drivers/drv8825", "drivers/stspin220"]
 
 [package]
 name    = "step-dir"
@@ -20,6 +20,7 @@ embedded-time = "0.10.1"
 paste         = "1.0.3"
 
 [features]
-default = ["drv8825", "stspin220"]
+default = ["a4988", "drv8825", "stspin220"]
+a4988 = []
 drv8825 = []
 stspin220 = []
