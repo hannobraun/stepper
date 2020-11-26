@@ -1,0 +1,19 @@
+[package]
+name = "a4988"
+version = "0.3.0"
+authors = [
+    "Hanno Braun <hanno@braun-embedded.com>",
+    "Jesse Braham <jesse@beta7.io>",
+]
+edition = "2018"
+
+description = "Driver crate for the A4988 stepper motor driver"
+repository  = "https://github.com/braun-embedded/step-dir"
+license     = "0BSD"
+keywords    = ["step-dir", "stepper", "motor", "driver", "pololu"]
+categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
+
+
+[dependencies.step-dir]
+version = "0.3.0"
+path    = "../.."
