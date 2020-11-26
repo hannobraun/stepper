@@ -12,12 +12,12 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::a9488::StepError<core::convert::Infallible>
+//! #         step_dir::a4988::StepError<core::convert::Infallible>
 //! #     > {
 //! #
 //! use step_dir::{
 //!     embedded_time::{duration::Microseconds, Clock as _},
-//!     a9488::A4988,
+//!     a4988::A4988,
 //!     Dir, Step as _,
 //! };
 //!
@@ -59,7 +59,7 @@
 //! // need an implementation of `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP and DIR pins.
-//! let mut driver = A988::from_step_dir_pins(step, dir);
+//! let mut driver = A4988::from_step_dir_pins(step, dir);
 //!
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {
