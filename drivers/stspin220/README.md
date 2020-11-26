@@ -2,7 +2,11 @@
 
 ## About
 
-Rust driver crate for the [STSPIN220] stepper motor driver. Carrier boards for this chip are [available from Pololu](https://www.pololu.com/category/260/stspin220-low-voltage-stepper-motor-driver-carriers).
+Rust driver crate for the [STSPIN220] stepper motor driver. Carrier boards for this chip are [available from Pololu].
+
+This crate is a specialized facade of the [Step/Dir] library. Please consider using Step/Dir directly, as it provides drivers for more stepper motor drivers, as well as an interface to abstract over them.
+
+See [Step/Dir] for more documentation and usage examples.
 
 ## Status
 
@@ -14,7 +18,8 @@ This project is open source software, licensed under the terms of the [Zero Clau
 
 See [LICENSE.md] for full details.
 
-
-[STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
-[Zero Clause BSD License]: https://opensource.org/licenses/0BSD
-[LICENSE.md]: https://github.com/braun-embedded/step-dir/blob/master/LICENSE.md
+[stspin220]: https://www.st.com/en/motor-drivers/stspin220.html
+[available from pololu]: https://www.pololu.com/category/260/stspin220-low-voltage-stepper-motor-driver-carriers
+[step/dir]: https://crates.io/crates/step-dir
+[zero clause bsd license]: https://opensource.org/licenses/0BSD
+[license.md]: https://github.com/braun-embedded/step-dir/blob/master/LICENSE.md
