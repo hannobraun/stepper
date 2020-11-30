@@ -1,13 +1,24 @@
 //! Step/Dir - Library for controlling stepper motors
 //!
-//! Step/Dir provides an abstract interface over drivers libraries for stepper
-//! motor drivers. It also contains a reference implementation for the STSPIN220
-//! stepper motor driver.
+//! Step/Dir provides a low-level interface which abstracts over stepper motor
+//! drivers that are controlled through STEP and DIR signals. Higher-level code
+//! written against its API can control any stepper motor driver supported by
+//! Step/Dir.
 //!
-//! It is intended to be a low-level interface to typical stepper motor drivers
-//! that are controlled using STEP and DIR pins. It does not contain any higher-
-//! level features like acceleration ramps. Rather, it is designed as a low-
-//! level building block to be used by higher-level control code.
+//! Step/Dir does not provide any higher-level features like acceleration ramps.
+//! It is intended to be a building block for code that implements these higher-
+//! level features.
+//!
+//! Right now, Step/Dir supports the following drivers:
+//!
+//! - [DRV8825](crate::drv8825::DRV8825)
+//! - [STSPIN220](crate::stspin220::STSPIN220)
+//!
+//! Step/Dir defines traits that allow users to write code that is completely
+//! agnostic to the stepper motor driver it controls. Currently these traits are
+//! limited to *use* of the stepper motor drivers. There are no traits to
+//! abstract over driver *initialization*, which still requires driver-specific
+//! code.
 
 #![cfg_attr(not(test), no_std)]
 #![deny(missing_docs, broken_intra_doc_links)]
