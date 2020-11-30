@@ -18,6 +18,11 @@ Please check out [the documentation](https://docs.rs/step-dir) to learn more.
 
 Step/Dir is usable, but still under active development. Its API is going to change, as more features and support for more drivers are added.
 
+Step/Dir is maintained by:
+
+- Hanno Braun ([@hannobraun](https://github.com/hannobraun))
+- Jesse Braham ([@jessebraham](https://github.com/jessebraham))
+
 
 ## License
 
