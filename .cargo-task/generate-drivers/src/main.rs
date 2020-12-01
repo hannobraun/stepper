@@ -43,7 +43,7 @@ fn main() -> std::io::Result<()> {
 
     // Load the configuration and generate each configured driver.
     let config = load_drivers_toml(&root)?;
-    for driver in config.drivers.values() {
+    for driver in config.drivers {
         ct_info!("generating '{}' driver...", driver.name);
 
         // This is annoying and sort of hacky. This converts the `Vec` of
@@ -89,6 +89,8 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+/// The template rendering context. The values contained in this struct are used
+/// to perform substitutions within the templates.
 #[derive(Serialize)]
 struct Context {
     pub name: String,
@@ -98,14 +100,14 @@ struct Context {
     pub pololu_url: String,
 }
 
-impl From<&Driver> for Context {
-    fn from(driver: &Driver) -> Context {
+impl From<Driver> for Context {
+    fn from(driver: Driver) -> Context {
         Context {
-            name: driver.name.clone(),
-            version: driver.version.clone(),
-            authors: format_authors(driver.authors.clone()),
-            product_url: driver.product_url.clone(),
-            pololu_url: driver.pololu_url.clone(),
+            name: driver.name,
+            version: driver.version,
+            authors: format_authors(driver.authors),
+            product_url: driver.product_url,
+            pololu_url: driver.pololu_url,
         }
     }
 }
