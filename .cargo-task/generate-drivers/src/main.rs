@@ -1,5 +1,6 @@
 use std::{
     env,
+    error::Error,
     fs::{create_dir_all, remove_dir_all, File},
     io::prelude::*,
     path::PathBuf,
@@ -7,14 +8,14 @@ use std::{
 
 use serde_derive::Serialize;
 use serde_json::Value;
-use tinytemplate::{error::Error, format_unescaped, TinyTemplate};
+use tinytemplate::{format_unescaped, TinyTemplate};
 
 mod cargo_task_util;
 
 mod config;
 use config::{load_drivers_toml, Driver};
 
-fn main() -> std::io::Result<()> {
+fn main() -> Result<(), Box<dyn Error>> {
     // `root`      - executing directory; assumed to be Step/Dir root
     // `drivers`   - driver facade crate directory (output)
     // `templates` - template directory (input)
@@ -30,16 +31,13 @@ fn main() -> std::io::Result<()> {
     // Load the 'Cargo.toml', 'src/lib.rs', and 'README.md' templates and
     // register them with the template engine.
     let cargo_toml = load_template(&templates.join("Cargo.toml.tmpl"))?;
-    tt.add_template("cargo_toml", cargo_toml.as_str())
-        .expect("unable to add template");
+    tt.add_template("cargo_toml", cargo_toml.as_str())?;
 
     let lib_rs = load_template(&templates.join("src").join("lib.rs.tmpl"))?;
-    tt.add_template("lib_rs", lib_rs.as_str())
-        .expect("unable to add template");
+    tt.add_template("lib_rs", lib_rs.as_str())?;
 
     let readme_md = load_template(&templates.join("README.md.tmpl"))?;
-    tt.add_template("readme_md", readme_md.as_str())
-        .expect("unable to add template");
+    tt.add_template("readme_md", readme_md.as_str())?;
 
     // Load the configuration and generate each configured driver.
     let config = load_drivers_toml(&root)?;
@@ -61,28 +59,18 @@ fn main() -> std::io::Result<()> {
         create_dir_all(&driver_path.join("src"))?;
 
         // Render each template using the current `Context` instance.
-        let cargo_toml_output = tt
-            .render("cargo_toml", ctx)
-            .expect("unable to render template");
-
-        let lib_rs_output =
-            tt.render("lib_rs", ctx).expect("unable to render template");
-
-        let readme_md_output = tt
-            .render("readme_md", ctx)
-            .expect("unable to render template");
+        let cargo_toml_output = tt.render("cargo_toml", ctx)?;
+        let lib_rs_output = tt.render("lib_rs", ctx)?;
+        let readme_md_output = tt.render("readme_md", ctx)?;
 
         // Create each output file and write out their contents.
-        File::create(&driver_path.join("Cargo.toml"))
-            .expect("error writing file")
+        File::create(&driver_path.join("Cargo.toml"))?
             .write_all(cargo_toml_output.as_ref())?;
 
-        File::create(&driver_path.join("src").join("lib.rs"))
-            .expect("error writing file")
+        File::create(&driver_path.join("src").join("lib.rs"))?
             .write_all(lib_rs_output.as_ref())?;
 
-        File::create(&driver_path.join("README.md"))
-            .expect("error writing file")
+        File::create(&driver_path.join("README.md"))?
             .write_all(readme_md_output.as_ref())?;
     }
 
@@ -112,7 +100,10 @@ impl From<Driver> for Context {
     }
 }
 
-fn format_upper(value: &Value, output: &mut String) -> Result<(), Error> {
+fn format_upper(
+    value: &Value,
+    output: &mut String,
+) -> Result<(), tinytemplate::error::Error> {
     let mut s = String::new();
     format_unescaped(value, &mut s)?;
 
