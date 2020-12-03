@@ -14,11 +14,16 @@ use test_stand::{
             GpioPin,
         },
         mrt::{self, MRT0},
-        pins::{PIO0_0, PIO0_1, PIO0_16, PIO0_17, PIO0_18, PIO0_19, PIO0_20},
+        pins::{
+            PIO0_0, PIO0_1, PIO0_16, PIO0_17, PIO0_18, PIO0_19, PIO0_20, PIO1_0,
+        },
     },
     rotary_encoder_hal::{Direction, Rotary},
     step_dir::{
-        embedded_hal::{digital::InputPin, timer},
+        embedded_hal::{
+            digital::{InputPin, OutputPin},
+            timer,
+        },
         embedded_time::{clock::Clock, duration::Microseconds},
         stspin220::STSPIN220,
         Dir, Step, StepMode256,
@@ -36,6 +41,7 @@ struct Context {
     >,
     timer: mrt::Channel<MRT0>,
     rotary: Rotary<GpioPin<PIO0_0, Input>, GpioPin<PIO0_1, Input>>,
+    debug_signal: GpioPin<PIO1_0, Output>,
 }
 
 #[defmt_test::tests]
@@ -74,6 +80,11 @@ mod tests {
         let rotary_a = p.pins.pio0_0.into_input_pin(gpio.tokens.pio0_0);
         let rotary_b = p.pins.pio0_1.into_input_pin(gpio.tokens.pio0_1);
 
+        let debug_signal = p
+            .pins
+            .pio1_0
+            .into_output_pin(gpio.tokens.pio1_0, gpio::Level::Low);
+
         let mut timer = mrt.mrt0;
 
         timer.start(mrt::MAX_VALUE);
@@ -93,19 +104,26 @@ mod tests {
             driver,
             timer,
             rotary,
+            debug_signal,
         }
     }
 
     #[test]
     fn test_step(cx: &mut super::Context) {
-        super::test_step(&mut cx.driver, &mut cx.timer, &mut cx.rotary);
+        super::test_step(
+            &mut cx.driver,
+            &mut cx.timer,
+            &mut cx.rotary,
+            &mut cx.debug_signal,
+        );
     }
 }
 
-fn test_step<Driver, Timer, A, B>(
+fn test_step<Driver, Timer, A, B, DebugSignal>(
     driver: &mut Driver,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
+    debug_signal: &mut DebugSignal,
 ) where
     Driver: Step,
     Driver::Error: Debug,
@@ -115,16 +133,19 @@ fn test_step<Driver, Timer, A, B>(
     A::Error: Debug,
     B: InputPin,
     B::Error: Debug,
+    DebugSignal: OutputPin,
+    DebugSignal::Error: Debug,
 {
-    verify_steps(driver, timer, rotary, Dir::Forward);
-    verify_steps(driver, timer, rotary, Dir::Backward);
+    verify_steps(driver, timer, rotary, Dir::Forward, debug_signal);
+    verify_steps(driver, timer, rotary, Dir::Backward, debug_signal);
 }
 
-fn verify_steps<Driver, Timer, A, B>(
+fn verify_steps<Driver, Timer, A, B, DebugSignal>(
     driver: &mut Driver,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
     direction: Dir,
+    debug_signal: &mut DebugSignal,
 ) where
     Driver: Step,
     Driver::Error: Debug,
@@ -134,6 +155,8 @@ fn verify_steps<Driver, Timer, A, B>(
     A::Error: Debug,
     B: InputPin,
     B::Error: Debug,
+    DebugSignal: OutputPin,
+    DebugSignal::Error: Debug,
 {
     const STEP_DELAY: Microseconds = Microseconds(10_000);
 
@@ -145,6 +168,11 @@ fn verify_steps<Driver, Timer, A, B>(
     // initial state. Unless the actual state happens to be the same by
     // accident, it will mistake its initial reading for a first movement.
     let _ = rotary.update().unwrap();
+
+    // Set test output signal. This is useful when debugging with a logic
+    // analyzer, as it demarcates the initial setup movement and the actual test
+    // movement.
+    debug_signal.try_set_high().unwrap();
 
     // Depending on the initial position of the rotary encoder's magnet, we
     // might not read the number of encoder counts correctly.  If we start at a
@@ -162,6 +190,9 @@ fn verify_steps<Driver, Timer, A, B>(
     for _ in 0..STEPS_PER_COUNT / 2 {
         step(driver, timer, rotary, STEP_DELAY, direction, false);
     }
+
+    // Setup movement is over. Lower test signal.
+    debug_signal.try_set_low().unwrap();
 
     let steps = 20;
     let counts_expected = steps / STEPS_PER_COUNT;
