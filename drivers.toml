@@ -2,17 +2,10 @@
 
 [[drivers]]
 name = "drv8825"
-version = "0.3.0"
-authors = [
-  "Hanno Braun <hanno@braun-embedded.com>",
-  "Jesse Braham <jesse@beta7.io>",
-]
 product_url = "https://www.ti.com/product/DRV8825"
 pololu_url = "https://www.pololu.com/category/154/"
 
 [[drivers]]
 name = "stspin220"
-version = "0.3.0"
-authors = ["Hanno Braun <hanno@braun-embedded.com>"]
 product_url = "https://www.st.com/en/motor-drivers/stspin220.html"
 pololu_url = "https://www.pololu.com/category/260/"
