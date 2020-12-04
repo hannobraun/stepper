@@ -11,7 +11,7 @@ authors = [
 ]
 edition = "2018"
 
-description = "Library for controlling stepper motors"
+description = "Abstract interface over stepper motor drivers"
 repository  = "https://github.com/braun-embedded/step-dir"
 license     = "0BSD"
 keywords    = ["stepper", "motor", "driver", "abstract", "interface"]
