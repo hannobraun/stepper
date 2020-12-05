@@ -13,7 +13,7 @@ use tinytemplate::{format_unescaped, TinyTemplate};
 mod cargo_task_util;
 
 mod config;
-use config::{load_drivers_toml, Driver};
+use config::{load_cargo_toml, load_drivers_toml, Driver};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // `root`      - executing directory; assumed to be Step/Dir root
@@ -39,18 +39,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     let readme_md = load_template(&templates.join("README.md.tmpl"))?;
     tt.add_template("readme_md", readme_md.as_str())?;
 
+    // Load the project's version and authors from the root Step/Dir
+    // `Cargo.toml` file.
+    let manifest = load_cargo_toml(&root)?;
+    let version = manifest.package.version;
+    let authors = manifest.package.authors;
+
     // Load the configuration and generate each configured driver.
     let config = load_drivers_toml(&root)?;
     for driver in config.drivers {
         ct_info!("generating '{}' driver...", driver.name);
 
-        // This is annoying and sort of hacky. This converts the `Vec` of
-        // authors to a formatted string, and copies the remaining values over
-        // verbatim.
-        let ctx = &Context::from(driver);
+        // Build the rendering Context struct to pass along to the template
+        // engine.
+        let ctx = &Context::new(driver, &version, &authors);
 
         // If the driver crate path already exists, just delete it.
-        let driver_path = drivers.join(ctx.name.clone());
+        let driver_path = drivers.join(&ctx.name);
         if driver_path.exists() {
             remove_dir_all(&driver_path)?;
         }
@@ -83,17 +88,21 @@ fn main() -> Result<(), Box<dyn Error>> {
 struct Context {
     pub name: String,
     pub version: String,
-    pub authors: String,
+    pub authors: Vec<String>,
     pub product_url: String,
     pub pololu_url: String,
 }
 
-impl From<Driver> for Context {
-    fn from(driver: Driver) -> Context {
-        Context {
+impl Context {
+    pub fn new(
+        driver: Driver,
+        version: &String,
+        authors: &Vec<String>,
+    ) -> Self {
+        Self {
             name: driver.name,
-            version: driver.version,
-            authors: format_authors(driver.authors),
+            version: version.to_owned(),
+            authors: authors.to_owned(),
             product_url: driver.product_url,
             pololu_url: driver.pololu_url,
         }
@@ -117,24 +126,4 @@ fn load_template(path: &PathBuf) -> std::io::Result<String> {
     File::open(path)?.read_to_string(&mut contents)?;
 
     Ok(contents)
-}
-
-fn format_authors(authors: Vec<String>) -> String {
-    assert!(authors.len() != 0);
-
-    // If only a single author has been specified, just return them.
-    // Remember to wrap the String in quotes!
-    if authors.len() == 1 {
-        return format!("\"{}\"", authors[0]);
-    }
-
-    // If multiple authors have been specified, add each to a new (indented)
-    // line with trailing commas.
-    let mut output = String::from("\n");
-    for author in authors {
-        let a = format!("    \"{}\",\n", author);
-        output.push_str(a.as_str());
-    }
-
-    output
 }

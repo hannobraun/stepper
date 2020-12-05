@@ -1,7 +1,11 @@
 [package]
 name    = "{ name }"
 version = "{ version }"
-authors = [{ authors }]
+authors = [
+{{- for author in authors }}
+    "{ author }",
+{{- endfor }}
+]
 edition = "2018"
 
 description = "Driver crate for the { name | upper } stepper motor driver"

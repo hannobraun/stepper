@@ -11,8 +11,6 @@ use serde_derive::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Driver {
     pub name: String,
-    pub version: String,
-    pub authors: Vec<String>,
     pub product_url: String,
     pub pololu_url: String,
 }
@@ -33,4 +31,31 @@ pub fn load_drivers_toml(root: &PathBuf) -> Result<Config> {
     let config: Config = toml::from_str(contents.as_str())?;
 
     Ok(config)
+}
+
+/// Cargo manifest package values. The driver facade crates will have their
+/// `version` and `authors` fields kept in sync with the `step_dir` crate.
+#[derive(Debug, Deserialize)]
+pub struct Package {
+    pub version: String,
+    pub authors: Vec<String>,
+}
+
+/// The 'Cargo.toml' file format. We're only concerned with the '[package]'
+/// section at this time.
+#[derive(Debug, Deserialize)]
+pub struct Manifest {
+    pub package: Package,
+}
+
+pub fn load_cargo_toml(root: &PathBuf) -> Result<Manifest> {
+    // It is assumed that 'Cargo.toml' exists in the project's root.
+    let path = root.join("Cargo.toml");
+    assert!(path.exists());
+
+    let mut contents = String::new();
+    File::open(path)?.read_to_string(&mut contents)?;
+    let manifest: Manifest = toml::from_str(contents.as_str())?;
+
+    Ok(manifest)
 }
