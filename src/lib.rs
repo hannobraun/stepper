@@ -33,9 +33,10 @@ pub mod prelude {
 
 pub mod drivers;
 
+mod driver;
 mod step_mode;
 
-pub use self::step_mode::*;
+pub use self::{driver::*, step_mode::*};
 
 use embedded_time::Clock;
 

@@ -12,7 +12,7 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::drivers::drv8825::StepError<core::convert::Infallible>
+//! #         step_dir::StepError<core::convert::Infallible>
 //! #     > {
 //! #
 //! use step_dir::{
@@ -76,9 +76,12 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{duration::Nanoseconds, Clock, TimeError};
+use embedded_time::{duration::Nanoseconds, Clock};
 
-use crate::{Dir as Direction, SetStepMode, Step as StepTrait, StepMode32};
+use crate::{
+    Dir as Direction, ModeError, SetStepMode, Step as StepTrait, StepError,
+    StepMode32,
+};
 
 /// The DRV8825 driver API
 ///
@@ -310,38 +313,6 @@ where
             .map_err(|err| StepError::OutputPin(err))?;
 
         Ok(())
-    }
-}
-
-/// An error that can occur while setting the microstepping mode
-#[derive(Debug, Eq, PartialEq)]
-pub enum ModeError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for ModeError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
-    }
-}
-
-/// An error that can occur while making a step
-#[derive(Debug, Eq, PartialEq)]
-pub enum StepError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
     }
 }
 
