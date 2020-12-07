@@ -17,8 +17,8 @@ use test_stand::{
         },
     },
     rotary_encoder_hal::Rotary,
-    step_dir::{ stspin220::STSPIN220, StepMode256},
-    test_step,
+    step_dir::{stspin220::STSPIN220, StepMode256},
+    test_set_step_mode, test_step,
 };
 
 struct Context {
@@ -102,6 +102,16 @@ mod tests {
     #[test]
     fn test_step(cx: &mut super::Context) {
         super::test_step(
+            &mut cx.driver,
+            &mut cx.timer,
+            &mut cx.rotary,
+            &mut cx.debug_signal,
+        );
+    }
+
+    #[test]
+    fn test_set_set_mode(cx: &mut super::Context) {
+        super::test_set_step_mode(
             &mut cx.driver,
             &mut cx.timer,
             &mut cx.rotary,

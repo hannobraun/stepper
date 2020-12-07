@@ -19,7 +19,7 @@ use step_dir::{
         timer,
     },
     embedded_time::{duration::Microseconds, Clock},
-    Dir, Step,
+    Dir, SetStepMode, Step, StepMode as _,
 };
 
 /// Causes probe-run to exit with exit code 0
@@ -46,14 +46,47 @@ pub fn test_step<Driver, Timer, A, B, DebugSignal>(
     DebugSignal: OutputPin,
     DebugSignal::Error: Debug,
 {
-    verify_steps(driver, timer, rotary, Dir::Forward, debug_signal);
-    verify_steps(driver, timer, rotary, Dir::Backward, debug_signal);
+    verify_steps(driver, timer, rotary, 1, Dir::Forward, debug_signal);
+    verify_steps(driver, timer, rotary, 1, Dir::Backward, debug_signal);
+}
+
+pub fn test_set_step_mode<Driver, Timer, A, B, DebugSignal>(
+    driver: &mut Driver,
+    timer: &mut Timer,
+    rotary: &mut Rotary<A, B>,
+    debug_signal: &mut DebugSignal,
+) where
+    Driver: Step + SetStepMode,
+    <Driver as Step>::Error: Debug,
+    <Driver as SetStepMode>::Error: Debug,
+    <Driver as SetStepMode>::StepMode: Copy,
+    Timer: timer::CountDown<Time = u32> + Clock,
+    Timer::Error: Debug,
+    A: InputPin,
+    A::Error: Debug,
+    B: InputPin,
+    B::Error: Debug,
+    DebugSignal: OutputPin,
+    DebugSignal::Error: Debug,
+{
+    for mode in Driver::StepMode::iter() {
+        driver.set_step_mode(mode, timer).unwrap();
+        verify_steps(
+            driver,
+            timer,
+            rotary,
+            mode.into(),
+            Dir::Forward,
+            debug_signal,
+        );
+    }
 }
 
 pub fn verify_steps<Driver, Timer, A, B, DebugSignal>(
     driver: &mut Driver,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
+    microsteps: u16,
     direction: Dir,
     debug_signal: &mut DebugSignal,
 ) where
@@ -104,12 +137,13 @@ pub fn verify_steps<Driver, Timer, A, B, DebugSignal>(
     // Setup movement is over. Lower test signal.
     debug_signal.try_set_low().unwrap();
 
+    let delay = STEP_DELAY / microsteps as u32;
     let steps = 20;
     let counts_expected = steps / STEPS_PER_COUNT;
 
     let mut counts = 0;
-    for _ in 0..steps {
-        counts += step(driver, timer, rotary, STEP_DELAY, direction, true);
+    for _ in 0..steps * microsteps as u32 {
+        counts += step(driver, timer, rotary, delay, direction, true);
     }
 
     defmt::info!(
