@@ -1,4 +1,6 @@
-use embedded_time::TimeError;
+use embedded_time::{Clock, TimeError};
+
+use crate::{Dir, SetStepMode, Step};
 
 /// Abstract interface to stepper motor drivers
 ///
@@ -39,6 +41,43 @@ impl<T> Driver<T> {
     /// Drops this instance of `Driver` and returns the wrapped driver.
     pub fn release(self) -> T {
         self.inner
+    }
+
+    /// Sets the step mode
+    ///
+    /// This method is only available, if the wrapped driver supports
+    /// microstepping, and supports setting the step mode through software. Some
+    /// driver might not support microstepping at all, or only allow setting the
+    /// step mode by changing physical switches.
+    pub fn set_step_mode<Clk: Clock>(
+        &mut self,
+        step_mode: T::StepMode,
+        clock: &Clk,
+    ) -> Result<(), T::Error>
+    where
+        T: SetStepMode,
+    {
+        self.inner.set_step_mode(step_mode, clock)
+    }
+
+    /// Rotates the motor one (micro-)step in the given direction
+    ///
+    /// Steps the motor one step in the given direction, according to current
+    /// microstep configuration. To achieve a specific speed, the user must call
+    /// this method at the appropriate frequency.
+    ///
+    /// Requires a reference to an `embedded_time::Clock` implementation to
+    /// handle the timing. Please make sure that the timer doesn't overflow
+    /// while this method is running.
+    pub fn step<Clk: Clock>(
+        &mut self,
+        dir: Dir,
+        clock: &Clk,
+    ) -> Result<(), T::Error>
+    where
+        T: Step,
+    {
+        self.inner.step(dir, clock)
     }
 }
 
