@@ -84,7 +84,10 @@ use embedded_time::{
     Clock,
 };
 
-use crate::{Dir, ModeError, SetStepMode, Step, StepError, StepMode256};
+use crate::{
+    traits::{SetStepMode, Step},
+    Dir, ModeError, StepError, StepMode256,
+};
 
 /// The STSPIN220 driver API
 ///

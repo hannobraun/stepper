@@ -19,7 +19,8 @@ use step_dir::{
         timer,
     },
     embedded_time::{duration::Microseconds, Clock},
-    Dir, Driver, Step,
+    traits::Step,
+    Dir, Driver,
 };
 
 /// Causes probe-run to exit with exit code 0

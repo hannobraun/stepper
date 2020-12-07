@@ -1,6 +1,9 @@
 use embedded_time::{Clock, TimeError};
 
-use crate::{Dir, SetStepMode, Step};
+use crate::{
+    traits::{SetStepMode, Step},
+    Dir,
+};
 
 /// Abstract interface to stepper motor drivers
 ///
