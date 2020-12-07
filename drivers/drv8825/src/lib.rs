@@ -1,7 +1,7 @@
 //! DRV8825 Driver
 //!
 //! Platform-agnostic driver library for the DRV8825 stepper motor driver.
-//! This crate is a specialized facade of the [Step/Dir] library. Please
+//! This crate is a specialized facade for the [Step/Dir] library. Please
 //! consider using Step/Dir directly, as it provides drivers for more stepper
 //! motor drivers, as well as an interface to abstract over them.
 //!

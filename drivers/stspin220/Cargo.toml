@@ -1,7 +1,10 @@
 [package]
 name    = "stspin220"
 version = "0.3.0"
-authors = ["Hanno Braun <hanno@braun-embedded.com>"]
+authors = [
+    "Hanno Braun <hanno@braun-embedded.com>",
+    "Jesse Braham <jesse@beta7.io>",
+]
 edition = "2018"
 
 description = "Driver crate for the STSPIN220 stepper motor driver"
