@@ -11,8 +11,8 @@
 //!
 //! Right now, Step/Dir supports the following drivers:
 //!
-//! - [DRV8825](crate::drv8825::DRV8825)
-//! - [STSPIN220](crate::stspin220::STSPIN220)
+//! - [DRV8825](crate::drivers::drv8825::DRV8825)
+//! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
 //!
 //! Step/Dir defines traits that allow users to write code that is completely
 //! agnostic to the stepper motor driver it controls. Currently these traits are
@@ -31,11 +31,7 @@ pub mod prelude {
     pub use super::{SetStepMode as _, Step as _};
 }
 
-#[cfg(feature = "drv8825")]
-pub mod drv8825;
-
-#[cfg(feature = "stspin220")]
-pub mod stspin220;
+pub mod drivers;
 
 mod step_mode;
 

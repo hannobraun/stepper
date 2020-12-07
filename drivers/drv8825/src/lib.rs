@@ -12,4 +12,4 @@
 #![no_std]
 #![deny(missing_docs)]
 
-pub use step_dir::{drv8825::*, *};
+pub use step_dir::{drivers::drv8825::*, *};

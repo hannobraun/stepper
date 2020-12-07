@@ -12,4 +12,4 @@
 #![no_std]
 #![deny(missing_docs)]
 
-pub use step_dir::{stspin220::*, *};
+pub use step_dir::{drivers::stspin220::*, *};
