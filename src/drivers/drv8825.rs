@@ -18,7 +18,7 @@
 //! use step_dir::{
 //!     embedded_time::{duration::Microseconds, Clock as _},
 //!     drivers::drv8825::DRV8825,
-//!     Dir, Step as _,
+//!     Dir, Driver,
 //! };
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
@@ -59,7 +59,9 @@
 //! // need an implementation of `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP and DIR pins.
-//! let mut driver = DRV8825::from_step_dir_pins(step, dir);
+//! let mut driver = Driver::new(
+//!     DRV8825::from_step_dir_pins(step, dir)
+//! );
 //!
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {

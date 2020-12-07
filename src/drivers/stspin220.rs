@@ -18,7 +18,7 @@
 //! use step_dir::{
 //!     embedded_time::{duration::Microseconds, Clock as _},
 //!     drivers::stspin220::STSPIN220,
-//!     Dir, Step as _,
+//!     Dir, Driver,
 //! };
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
@@ -60,7 +60,9 @@
 //! // `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP/MODE3 and DIR/MODE4 pins.
-//! let mut driver = STSPIN220::from_step_dir_pins(step_mode3, dir_mode4);
+//! let mut driver = Driver::new(
+//!     STSPIN220::from_step_dir_pins(step_mode3, dir_mode4)
+//! );
 //!
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {
