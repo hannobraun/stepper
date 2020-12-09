@@ -26,11 +26,6 @@
 pub extern crate embedded_hal;
 pub extern crate embedded_time;
 
-/// Re-exports the traits from this library
-pub mod prelude {
-    pub use crate::traits::{SetStepMode as _, Step as _};
-}
-
 pub mod drivers;
 pub mod traits;
 
