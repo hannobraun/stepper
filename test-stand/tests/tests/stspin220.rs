@@ -17,18 +17,20 @@ use test_stand::{
         },
     },
     rotary_encoder_hal::Rotary,
-    step_dir::{drivers::stspin220::STSPIN220, StepMode256},
+    step_dir::{drivers::stspin220::STSPIN220, Driver, StepMode256},
     test_step,
 };
 
 struct Context {
-    driver: STSPIN220<
-        (),
-        GpioPin<PIO0_16, Output>,
-        GpioPin<PIO0_17, Output>,
-        GpioPin<PIO0_18, Output>,
-        GpioPin<PIO0_19, Output>,
-        GpioPin<PIO0_20, Output>,
+    driver: Driver<
+        STSPIN220<
+            (),
+            GpioPin<PIO0_16, Output>,
+            GpioPin<PIO0_17, Output>,
+            GpioPin<PIO0_18, Output>,
+            GpioPin<PIO0_19, Output>,
+            GpioPin<PIO0_20, Output>,
+        >,
     >,
     timer: mrt::Channel<MRT0>,
     rotary: Rotary<GpioPin<PIO0_0, Input>, GpioPin<PIO0_1, Input>>,
@@ -39,7 +41,9 @@ struct Context {
 mod tests {
     #[init]
     fn init() -> super::Context {
-        use super::{gpio, lpc8xx_hal, mrt, Rotary, StepMode256, STSPIN220};
+        use super::{
+            gpio, lpc8xx_hal, mrt, Driver, Rotary, StepMode256, STSPIN220,
+        };
 
         let p = lpc8xx_hal::Peripherals::take().unwrap();
 
@@ -88,6 +92,7 @@ mod tests {
                 &timer,
             )
             .unwrap();
+        let driver = Driver::new(driver);
 
         let rotary = Rotary::new(rotary_a, rotary_b);
 
