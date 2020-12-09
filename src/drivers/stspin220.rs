@@ -288,11 +288,11 @@ where
     type Step = StepMode3;
     type Error = OutputPinError;
 
-    fn dir_pin(&mut self) -> &mut Self::Dir {
+    fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir_mode4
     }
 
-    fn step_pin(&mut self) -> &mut Self::Step {
+    fn step(&mut self) -> &mut Self::Step {
         &mut self.step_mode3
     }
 }

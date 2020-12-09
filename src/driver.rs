@@ -84,12 +84,12 @@ impl<T> Driver<T> {
         match dir {
             Dir::Forward => self
                 .inner
-                .dir_pin()
+                .dir()
                 .try_set_high()
                 .map_err(|err| StepError::OutputPin(err))?,
             Dir::Backward => self
                 .inner
-                .dir_pin()
+                .dir()
                 .try_set_low()
                 .map_err(|err| StepError::OutputPin(err))?,
         }
@@ -98,7 +98,7 @@ impl<T> Driver<T> {
 
         // Start step pulse
         self.inner
-            .step_pin()
+            .step()
             .try_set_high()
             .map_err(|err| StepError::OutputPin(err))?;
 
@@ -106,7 +106,7 @@ impl<T> Driver<T> {
 
         // End step pulse
         self.inner
-            .step_pin()
+            .step()
             .try_set_low()
             .map_err(|err| StepError::OutputPin(err))?;
 
