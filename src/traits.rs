@@ -30,8 +30,20 @@ pub trait Step {
     /// The minimum length of a STEP pulse
     const PULSE_LENGTH: Nanoseconds;
 
+    /// The type of the DIR pin
+    type Dir;
+
+    /// The type of the STEP pin
+    type Step;
+
     /// The error that can occur while using this trait
     type Error;
+
+    /// Provides access to the DIR pin
+    fn dir_pin(&mut self) -> &mut Self::Dir;
+
+    /// Provides access to the STEP pin
+    fn step_pin(&mut self) -> &mut Self::Step;
 
     /// Rotates the motor one (micro-)step in the given direction
     ///

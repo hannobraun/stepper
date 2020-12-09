@@ -284,7 +284,17 @@ where
     const SETUP_TIME: Nanoseconds = Nanoseconds(100);
     const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
+    type Dir = DirMode4;
+    type Step = StepMode3;
     type Error = StepError<OutputPinError>;
+
+    fn dir_pin(&mut self) -> &mut Self::Dir {
+        &mut self.dir_mode4
+    }
+
+    fn step_pin(&mut self) -> &mut Self::Step {
+        &mut self.step_mode3
+    }
 
     /// Rotates the motor one (micro-)step in the given direction
     ///
@@ -310,11 +320,11 @@ where
     ) -> Result<(), Self::Error> {
         match dir {
             Dir::Forward => self
-                .dir_mode4
+                .dir_pin()
                 .try_set_high()
                 .map_err(|err| StepError::OutputPin(err))?,
             Dir::Backward => self
-                .dir_mode4
+                .dir_pin()
                 .try_set_low()
                 .map_err(|err| StepError::OutputPin(err))?,
         }
@@ -324,7 +334,7 @@ where
         clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
 
         // Start step pulse
-        self.step_mode3
+        self.step_pin()
             .try_set_high()
             .map_err(|err| StepError::OutputPin(err))?;
 
@@ -334,7 +344,7 @@ where
         clock.new_timer(Self::PULSE_LENGTH).start()?.wait()?;
 
         // End step pulse
-        self.step_mode3
+        self.step_pin()
             .try_set_low()
             .map_err(|err| StepError::OutputPin(err))?;
 
