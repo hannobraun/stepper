@@ -255,6 +255,11 @@ where
     Step: OutputPin<Error = OutputPinError>,
     Dir: OutputPin<Error = OutputPinError>,
 {
+    // 7.6 Timing Requirements (page 7)
+    // https://www.ti.com/lit/ds/symlink/drv8825.pdf
+    const SETUP_TIME: Nanoseconds = Nanoseconds(650);
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
+
     type Error = StepError<OutputPinError>;
 
     /// Rotates the motor one (micro-)step in the given direction
@@ -279,11 +284,6 @@ where
         dir: Direction,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
-        // 7.6 Timing Requirements (page 7)
-        // https://www.ti.com/lit/ds/symlink/drv8825.pdf
-        const SETUP_TIME: Nanoseconds = Nanoseconds(650);
-        const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
-
         match dir {
             Direction::Forward => self
                 .dir
@@ -297,7 +297,7 @@ where
 
         // According to the datasheet, we need to wait at least 650ns between
         // setting DIR and starting the STEP pulse
-        clock.new_timer(SETUP_TIME).start()?.wait()?;
+        clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
 
         // Start step pulse
         self.step
@@ -307,7 +307,7 @@ where
         // There are two delays we need to adhere to:
         // - The minimum DIR hold time of 650ns
         // - The minimum STEP high time of 1.9us
-        clock.new_timer(PULSE_LENGTH).start()?.wait()?;
+        clock.new_timer(Self::PULSE_LENGTH).start()?.wait()?;
 
         // End step pulse
         self.step

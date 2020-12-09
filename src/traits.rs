@@ -1,6 +1,6 @@
 //! Contains traits that can be implemented by Step/Dir drivers
 
-use embedded_time::Clock;
+use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::{Dir, StepMode};
 
@@ -24,6 +24,12 @@ pub trait SetStepMode {
 
 /// Blocking interface for making single steps
 pub trait Step {
+    /// The time that the DIR signal must be held for a change to apply
+    const SETUP_TIME: Nanoseconds;
+
+    /// The minimum length of a STEP pulse
+    const PULSE_LENGTH: Nanoseconds;
+
     /// The error that can occur while using this trait
     type Error;
 

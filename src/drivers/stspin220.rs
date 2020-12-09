@@ -281,6 +281,9 @@ where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
+    const SETUP_TIME: Nanoseconds = Nanoseconds(100);
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
+
     type Error = StepError<OutputPinError>;
 
     /// Rotates the motor one (micro-)step in the given direction
@@ -305,9 +308,6 @@ where
         dir: Dir,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
-        const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(100);
-        const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
-
         match dir {
             Dir::Forward => self
                 .dir_mode4
@@ -321,7 +321,7 @@ where
 
         // According to the datasheet, we need to wait at least 100 ns between
         // setting DIR and starting the STEP pulse.
-        clock.new_timer(DIR_SETUP_DELAY).start()?.wait()?;
+        clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
 
         // Start step pulse
         self.step_mode3
@@ -331,7 +331,7 @@ where
         // There are two delays we need to adhere to:
         // - The minimum DIR hold time of 100 ns.
         // - The minimum STCK high time, also 100 ns.
-        clock.new_timer(PULSE_LENGTH).start()?.wait()?;
+        clock.new_timer(Self::PULSE_LENGTH).start()?.wait()?;
 
         // End step pulse
         self.step_mode3
