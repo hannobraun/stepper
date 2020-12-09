@@ -1,3 +1,4 @@
+use embedded_hal::digital::OutputPin as _;
 use embedded_time::{Clock, TimeError};
 
 use crate::{
@@ -76,11 +77,40 @@ impl<T> Driver<T> {
         &mut self,
         dir: Dir,
         clock: &Clk,
-    ) -> Result<(), T::Error>
+    ) -> Result<(), StepError<T::Error>>
     where
         T: Step,
     {
-        self.inner.step(dir, clock)
+        match dir {
+            Dir::Forward => self
+                .inner
+                .dir_pin()
+                .try_set_high()
+                .map_err(|err| StepError::OutputPin(err))?,
+            Dir::Backward => self
+                .inner
+                .dir_pin()
+                .try_set_low()
+                .map_err(|err| StepError::OutputPin(err))?,
+        }
+
+        clock.new_timer(T::SETUP_TIME).start()?.wait()?;
+
+        // Start step pulse
+        self.inner
+            .step_pin()
+            .try_set_high()
+            .map_err(|err| StepError::OutputPin(err))?;
+
+        clock.new_timer(T::PULSE_LENGTH).start()?.wait()?;
+
+        // End step pulse
+        self.inner
+            .step_pin()
+            .try_set_low()
+            .map_err(|err| StepError::OutputPin(err))?;
+
+        Ok(())
     }
 }
 

@@ -82,7 +82,7 @@ use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::{
     traits::{SetStepMode, Step as StepTrait},
-    Dir as Direction, ModeError, StepError, StepMode32,
+    ModeError, StepMode32,
 };
 
 /// The DRV8825 driver API
@@ -262,7 +262,7 @@ where
 
     type Dir = Dir;
     type Step = Step;
-    type Error = StepError<OutputPinError>;
+    type Error = OutputPinError;
 
     fn dir_pin(&mut self) -> &mut Self::Dir {
         &mut self.dir
@@ -270,61 +270,6 @@ where
 
     fn step_pin(&mut self) -> &mut Self::Step {
         &mut self.step
-    }
-
-    /// Rotates the motor one (micro-)step in the given direction
-    ///
-    /// Sets the DIR pin according to the `dir` argument, initiates a step pulse
-    /// by setting STEP HIGH, then ends the step pulse by setting STEP LOW
-    /// again. The method blocks while this is going on.
-    ///
-    /// This should result in the motor making one step. To achieve a specific
-    /// speed, the user must call this method at the appropriate frequency.
-    ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    ///
-    /// Any errors that occur are wrapped in a [`StepError`] and returned to the
-    /// user directly. This might leave the driver API in an invalid state, for
-    /// example if STEP has been set HIGH, but an error occurs before it can be
-    /// set LOW again.
-    fn step<Clk: Clock>(
-        &mut self,
-        dir: Direction,
-        clock: &Clk,
-    ) -> Result<(), Self::Error> {
-        match dir {
-            Direction::Forward => self
-                .dir_pin()
-                .try_set_high()
-                .map_err(|err| StepError::OutputPin(err))?,
-            Direction::Backward => self
-                .dir_pin()
-                .try_set_low()
-                .map_err(|err| StepError::OutputPin(err))?,
-        }
-
-        // According to the datasheet, we need to wait at least 650ns between
-        // setting DIR and starting the STEP pulse
-        clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
-
-        // Start step pulse
-        self.step_pin()
-            .try_set_high()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        // There are two delays we need to adhere to:
-        // - The minimum DIR hold time of 650ns
-        // - The minimum STEP high time of 1.9us
-        clock.new_timer(Self::PULSE_LENGTH).start()?.wait()?;
-
-        // End step pulse
-        self.step_pin()
-            .try_set_low()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        Ok(())
     }
 }
 

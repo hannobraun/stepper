@@ -86,7 +86,7 @@ use embedded_time::{
 
 use crate::{
     traits::{SetStepMode, Step},
-    Dir, ModeError, StepError, StepMode256,
+    ModeError, StepMode256,
 };
 
 /// The STSPIN220 driver API
@@ -286,7 +286,7 @@ where
 
     type Dir = DirMode4;
     type Step = StepMode3;
-    type Error = StepError<OutputPinError>;
+    type Error = OutputPinError;
 
     fn dir_pin(&mut self) -> &mut Self::Dir {
         &mut self.dir_mode4
@@ -294,61 +294,6 @@ where
 
     fn step_pin(&mut self) -> &mut Self::Step {
         &mut self.step_mode3
-    }
-
-    /// Rotates the motor one (micro-)step in the given direction
-    ///
-    /// Sets the DIR/MODE4 pin according to the `dir` argument, initiates a step
-    /// pulse by setting STEP/MODE3 HIGH, then ends the step pulse by setting
-    /// STEP/MODE4 LOW again. The method blocks while this is going on.
-    ///
-    /// This should result in the motor making one step. To achieve a specific
-    /// speed, the user must call this method at the appropriate frequency.
-    ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    ///
-    /// Any errors that occur are wrapped in a [`StepError`] and returned to the
-    /// user directly. This might leave the driver API in an invalid state, for
-    /// example if STEP/MODE3 has been set HIGH, but an error occurs before it
-    /// can be set LOW again.
-    fn step<Clk: Clock>(
-        &mut self,
-        dir: Dir,
-        clock: &Clk,
-    ) -> Result<(), Self::Error> {
-        match dir {
-            Dir::Forward => self
-                .dir_pin()
-                .try_set_high()
-                .map_err(|err| StepError::OutputPin(err))?,
-            Dir::Backward => self
-                .dir_pin()
-                .try_set_low()
-                .map_err(|err| StepError::OutputPin(err))?,
-        }
-
-        // According to the datasheet, we need to wait at least 100 ns between
-        // setting DIR and starting the STEP pulse.
-        clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
-
-        // Start step pulse
-        self.step_pin()
-            .try_set_high()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        // There are two delays we need to adhere to:
-        // - The minimum DIR hold time of 100 ns.
-        // - The minimum STCK high time, also 100 ns.
-        clock.new_timer(Self::PULSE_LENGTH).start()?.wait()?;
-
-        // End step pulse
-        self.step_pin()
-            .try_set_low()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        Ok(())
     }
 }
 

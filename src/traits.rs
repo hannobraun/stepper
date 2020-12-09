@@ -1,8 +1,9 @@
 //! Contains traits that can be implemented by Step/Dir drivers
 
+use embedded_hal::digital::OutputPin;
 use embedded_time::{duration::Nanoseconds, Clock};
 
-use crate::{Dir, StepMode};
+use crate::StepMode;
 
 /// Blocking interface for setting the step mode
 pub trait SetStepMode {
@@ -31,10 +32,10 @@ pub trait Step {
     const PULSE_LENGTH: Nanoseconds;
 
     /// The type of the DIR pin
-    type Dir;
+    type Dir: OutputPin<Error = Self::Error>;
 
     /// The type of the STEP pin
-    type Step;
+    type Step: OutputPin<Error = Self::Error>;
 
     /// The error that can occur while using this trait
     type Error;
@@ -44,18 +45,4 @@ pub trait Step {
 
     /// Provides access to the STEP pin
     fn step_pin(&mut self) -> &mut Self::Step;
-
-    /// Rotates the motor one (micro-)step in the given direction
-    ///
-    /// This should result in the motor making one step. To achieve a specific
-    /// speed, the user must call this method at the appropriate frequency.
-    ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    fn step<Clk: Clock>(
-        &mut self,
-        dir: Dir,
-        clock: &Clk,
-    ) -> Result<(), Self::Error>;
 }
