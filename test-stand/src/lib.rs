@@ -146,7 +146,8 @@ where
 
     timer.try_start(mrt::MAX_VALUE).unwrap();
     let step_timer = timer.new_timer(delay).start().unwrap();
-    driver.step(direction, timer).unwrap();
+    driver.set_direction(direction, timer).unwrap();
+    driver.step(timer).unwrap();
 
     let mut counts = 0;
 

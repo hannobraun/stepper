@@ -64,9 +64,10 @@
 //! );
 //!
 //! // Rotate stepper motor by a few steps.
+//! driver.set_direction(Direction::Forward, &clock)?;
 //! for _ in 0 .. 5 {
 //!     let timer = clock.new_timer(STEP_DELAY).start()?;
-//!     driver.step(Direction::Forward, &clock)?;
+//!     driver.step(&clock)?;
 //!     timer.wait()?;
 //! }
 //!

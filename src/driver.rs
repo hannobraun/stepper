@@ -64,24 +64,20 @@ impl<T> Driver<T> {
         self.inner.set_step_mode(step_mode, clock)
     }
 
-    /// Rotates the motor one (micro-)step in the given direction
-    ///
-    /// Steps the motor one step in the given direction, according to current
-    /// microstep configuration. To achieve a specific speed, the user must call
-    /// this method at the appropriate frequency.
+    /// Set direction for future movements
     ///
     /// Requires a reference to an `embedded_time::Clock` implementation to
     /// handle the timing. Please make sure that the timer doesn't overflow
     /// while this method is running.
-    pub fn step<Clk: Clock, Error>(
+    pub fn set_direction<Clk: Clock>(
         &mut self,
-        dir: Direction,
+        direction: Direction,
         clock: &Clk,
-    ) -> Result<(), StepError<Error>>
+    ) -> Result<(), StepError<T::Error>>
     where
-        T: Dir<Error = Error> + Step<Error = Error>,
+        T: Dir,
     {
-        match dir {
+        match direction {
             Direction::Forward => self
                 .inner
                 .dir()
@@ -96,6 +92,25 @@ impl<T> Driver<T> {
 
         clock.new_timer(T::SETUP_TIME).start()?.wait()?;
 
+        Ok(())
+    }
+
+    /// Rotates the motor one (micro-)step in the given direction
+    ///
+    /// Steps the motor one step in the direction that was previously set,
+    /// according to current microstep configuration. To achieve a specific
+    /// speed, the user must call this method at the appropriate frequency.
+    ///
+    /// Requires a reference to an `embedded_time::Clock` implementation to
+    /// handle the timing. Please make sure that the timer doesn't overflow
+    /// while this method is running.
+    pub fn step<Clk: Clock>(
+        &mut self,
+        clock: &Clk,
+    ) -> Result<(), StepError<T::Error>>
+    where
+        T: Step,
+    {
         // Start step pulse
         self.inner
             .step()
