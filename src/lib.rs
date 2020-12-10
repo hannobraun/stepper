@@ -36,7 +36,7 @@ pub use self::{driver::*, step_mode::*};
 
 /// Defines the direction in which to rotate the motor
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Dir {
+pub enum Direction {
     /// Rotate the motor forward
     ///
     /// This corresponds to whatever direction the motor rotates in when the

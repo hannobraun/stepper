@@ -12,7 +12,7 @@ pub extern crate step_dir;
 use core::fmt::Debug;
 
 use lpc8xx_hal::{cortex_m::asm, mrt};
-use rotary_encoder_hal::{Direction, Rotary};
+use rotary_encoder_hal::{Direction as EncoderDirection, Rotary};
 use step_dir::{
     embedded_hal::{
         digital::{InputPin, OutputPin},
@@ -20,7 +20,7 @@ use step_dir::{
     },
     embedded_time::{duration::Microseconds, Clock},
     traits::Step,
-    Dir, Driver,
+    Direction, Driver,
 };
 
 /// Causes probe-run to exit with exit code 0
@@ -47,15 +47,15 @@ pub fn test_step<D, Timer, A, B, DebugSignal>(
     DebugSignal: OutputPin,
     DebugSignal::Error: Debug,
 {
-    verify_steps(driver, timer, rotary, Dir::Forward, debug_signal);
-    verify_steps(driver, timer, rotary, Dir::Backward, debug_signal);
+    verify_steps(driver, timer, rotary, Direction::Forward, debug_signal);
+    verify_steps(driver, timer, rotary, Direction::Backward, debug_signal);
 }
 
 pub fn verify_steps<D, Timer, A, B, DebugSignal>(
     driver: &mut Driver<D>,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
-    direction: Dir,
+    direction: Direction,
     debug_signal: &mut DebugSignal,
 ) where
     D: Step,
@@ -126,7 +126,7 @@ pub fn step<D, Timer, A, B>(
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,
-    direction: Dir,
+    direction: Direction,
     check_direction: bool,
 ) -> u32
 where
@@ -140,8 +140,8 @@ where
     B::Error: Debug,
 {
     let expected_direction = match direction {
-        Dir::Forward => Direction::Clockwise,
-        Dir::Backward => Direction::CounterClockwise,
+        Direction::Forward => EncoderDirection::Clockwise,
+        Direction::Backward => EncoderDirection::CounterClockwise,
     };
 
     timer.try_start(mrt::MAX_VALUE).unwrap();
@@ -152,7 +152,7 @@ where
 
     loop {
         match rotary.update().unwrap() {
-            Direction::None => {}
+            EncoderDirection::None => {}
             direction if direction == expected_direction => {
                 counts += 1;
             }

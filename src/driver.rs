@@ -3,7 +3,7 @@ use embedded_time::{Clock, TimeError};
 
 use crate::{
     traits::{SetStepMode, Step},
-    Dir,
+    Direction,
 };
 
 /// Abstract interface to stepper motor drivers
@@ -75,19 +75,19 @@ impl<T> Driver<T> {
     /// while this method is running.
     pub fn step<Clk: Clock>(
         &mut self,
-        dir: Dir,
+        dir: Direction,
         clock: &Clk,
     ) -> Result<(), StepError<T::Error>>
     where
         T: Step,
     {
         match dir {
-            Dir::Forward => self
+            Direction::Forward => self
                 .inner
                 .dir()
                 .try_set_high()
                 .map_err(|err| StepError::OutputPin(err))?,
-            Dir::Backward => self
+            Direction::Backward => self
                 .inner
                 .dir()
                 .try_set_low()

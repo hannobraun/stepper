@@ -18,7 +18,7 @@
 //! use step_dir::{
 //!     embedded_time::{duration::Microseconds, Clock as _},
 //!     drivers::drv8825::DRV8825,
-//!     Dir, Driver,
+//!     Direction, Driver,
 //! };
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
@@ -66,7 +66,7 @@
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {
 //!     let timer = clock.new_timer(STEP_DELAY).start()?;
-//!     driver.step(Dir::Forward, &clock)?;
+//!     driver.step(Direction::Forward, &clock)?;
 //!     timer.wait()?;
 //! }
 //!
