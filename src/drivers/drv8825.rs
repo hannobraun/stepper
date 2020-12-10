@@ -12,13 +12,13 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::drv8825::StepError<core::convert::Infallible>
+//! #         step_dir::StepError<core::convert::Infallible>
 //! #     > {
 //! #
 //! use step_dir::{
 //!     embedded_time::{duration::Microseconds, Clock as _},
-//!     drv8825::DRV8825,
-//!     Dir, Step as _,
+//!     drivers::drv8825::DRV8825,
+//!     Dir, Driver,
 //! };
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
@@ -59,7 +59,9 @@
 //! // need an implementation of `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP and DIR pins.
-//! let mut driver = DRV8825::from_step_dir_pins(step, dir);
+//! let mut driver = Driver::new(
+//!     DRV8825::from_step_dir_pins(step, dir)
+//! );
 //!
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {
@@ -76,9 +78,12 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{duration::Nanoseconds, Clock, TimeError};
+use embedded_time::{duration::Nanoseconds, Clock};
 
-use crate::{Dir as Direction, SetStepMode, Step as StepTrait, StepMode32};
+use crate::{
+    traits::{SetStepMode, Step as StepTrait},
+    ModeError, StepMode32,
+};
 
 /// The DRV8825 driver API
 ///
@@ -250,98 +255,21 @@ where
     Step: OutputPin<Error = OutputPinError>,
     Dir: OutputPin<Error = OutputPinError>,
 {
-    type Error = StepError<OutputPinError>;
+    // 7.6 Timing Requirements (page 7)
+    // https://www.ti.com/lit/ds/symlink/drv8825.pdf
+    const SETUP_TIME: Nanoseconds = Nanoseconds(650);
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
 
-    /// Rotates the motor one (micro-)step in the given direction
-    ///
-    /// Sets the DIR pin according to the `dir` argument, initiates a step pulse
-    /// by setting STEP HIGH, then ends the step pulse by setting STEP LOW
-    /// again. The method blocks while this is going on.
-    ///
-    /// This should result in the motor making one step. To achieve a specific
-    /// speed, the user must call this method at the appropriate frequency.
-    ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    ///
-    /// Any errors that occur are wrapped in a [`StepError`] and returned to the
-    /// user directly. This might leave the driver API in an invalid state, for
-    /// example if STEP has been set HIGH, but an error occurs before it can be
-    /// set LOW again.
-    fn step<Clk: Clock>(
-        &mut self,
-        dir: Direction,
-        clock: &Clk,
-    ) -> Result<(), Self::Error> {
-        // 7.6 Timing Requirements (page 7)
-        // https://www.ti.com/lit/ds/symlink/drv8825.pdf
-        const SETUP_TIME: Nanoseconds = Nanoseconds(650);
-        const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
+    type Dir = Dir;
+    type Step = Step;
+    type Error = OutputPinError;
 
-        match dir {
-            Direction::Forward => self
-                .dir
-                .try_set_high()
-                .map_err(|err| StepError::OutputPin(err))?,
-            Direction::Backward => self
-                .dir
-                .try_set_low()
-                .map_err(|err| StepError::OutputPin(err))?,
-        }
-
-        // According to the datasheet, we need to wait at least 650ns between
-        // setting DIR and starting the STEP pulse
-        clock.new_timer(SETUP_TIME).start()?.wait()?;
-
-        // Start step pulse
-        self.step
-            .try_set_high()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        // There are two delays we need to adhere to:
-        // - The minimum DIR hold time of 650ns
-        // - The minimum STEP high time of 1.9us
-        clock.new_timer(PULSE_LENGTH).start()?.wait()?;
-
-        // End step pulse
-        self.step
-            .try_set_low()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        Ok(())
+    fn dir(&mut self) -> &mut Self::Dir {
+        &mut self.dir
     }
-}
 
-/// An error that can occur while setting the microstepping mode
-#[derive(Debug, Eq, PartialEq)]
-pub enum ModeError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for ModeError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
-    }
-}
-
-/// An error that can occur while making a step
-#[derive(Debug, Eq, PartialEq)]
-pub enum StepError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
+    fn step(&mut self) -> &mut Self::Step {
+        &mut self.step
     }
 }
 

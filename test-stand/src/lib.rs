@@ -19,7 +19,8 @@ use step_dir::{
         timer,
     },
     embedded_time::{duration::Microseconds, Clock},
-    Dir, Step,
+    traits::Step,
+    Dir, Driver,
 };
 
 /// Causes probe-run to exit with exit code 0
@@ -29,14 +30,14 @@ pub fn exit() -> ! {
     }
 }
 
-pub fn test_step<Driver, Timer, A, B, DebugSignal>(
-    driver: &mut Driver,
+pub fn test_step<D, Timer, A, B, DebugSignal>(
+    driver: &mut Driver<D>,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
 ) where
-    Driver: Step,
-    Driver::Error: Debug,
+    D: Step,
+    D::Error: Debug,
     Timer: timer::CountDown<Time = u32> + Clock,
     Timer::Error: Debug,
     A: InputPin,
@@ -50,15 +51,15 @@ pub fn test_step<Driver, Timer, A, B, DebugSignal>(
     verify_steps(driver, timer, rotary, Dir::Backward, debug_signal);
 }
 
-pub fn verify_steps<Driver, Timer, A, B, DebugSignal>(
-    driver: &mut Driver,
+pub fn verify_steps<D, Timer, A, B, DebugSignal>(
+    driver: &mut Driver<D>,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
     direction: Dir,
     debug_signal: &mut DebugSignal,
 ) where
-    Driver: Step,
-    Driver::Error: Debug,
+    D: Step,
+    D::Error: Debug,
     Timer: timer::CountDown<Time = u32> + Clock,
     Timer::Error: Debug,
     A: InputPin,
@@ -120,8 +121,8 @@ pub fn verify_steps<Driver, Timer, A, B, DebugSignal>(
     assert_eq!(counts_expected, counts);
 }
 
-pub fn step<Driver, Timer, A, B>(
-    driver: &mut Driver,
+pub fn step<D, Timer, A, B>(
+    driver: &mut Driver<D>,
     timer: &mut Timer,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,
@@ -129,8 +130,8 @@ pub fn step<Driver, Timer, A, B>(
     check_direction: bool,
 ) -> u32
 where
-    Driver: Step,
-    Driver::Error: Debug,
+    D: Step,
+    D::Error: Debug,
     Timer: timer::CountDown<Time = u32> + Clock,
     Timer::Error: Debug,
     A: InputPin,

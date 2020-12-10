@@ -1,5 +1,5 @@
 [package]
-name = "drv8825"
+name    = "drv8825"
 version = "0.3.0"
 authors = [
     "Hanno Braun <hanno@braun-embedded.com>",

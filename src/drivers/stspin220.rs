@@ -12,13 +12,13 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::stspin220::StepError<core::convert::Infallible>
+//! #         step_dir::StepError<core::convert::Infallible>
 //! #     > {
 //! #
 //! use step_dir::{
 //!     embedded_time::{duration::Microseconds, Clock as _},
-//!     stspin220::STSPIN220,
-//!     Dir, Step as _,
+//!     drivers::stspin220::STSPIN220,
+//!     Dir, Driver,
 //! };
 //!
 //! const STEP_DELAY: Microseconds = Microseconds(500);
@@ -60,7 +60,9 @@
 //! // `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP/MODE3 and DIR/MODE4 pins.
-//! let mut driver = STSPIN220::from_step_dir_pins(step_mode3, dir_mode4);
+//! let mut driver = Driver::new(
+//!     STSPIN220::from_step_dir_pins(step_mode3, dir_mode4)
+//! );
 //!
 //! // Rotate stepper motor by a few steps.
 //! for _ in 0 .. 5 {
@@ -79,10 +81,13 @@
 use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::{
     duration::{Microseconds, Nanoseconds},
-    Clock, TimeError,
+    Clock,
 };
 
-use crate::{Dir, SetStepMode, Step, StepMode256};
+use crate::{
+    traits::{SetStepMode, Step},
+    ModeError, StepMode256,
+};
 
 /// The STSPIN220 driver API
 ///
@@ -276,64 +281,19 @@ where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
-    type Error = StepError<OutputPinError>;
+    const SETUP_TIME: Nanoseconds = Nanoseconds(100);
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
-    /// Rotates the motor one (micro-)step in the given direction
-    ///
-    /// Sets the DIR/MODE4 pin according to the `dir` argument, initiates a step
-    /// pulse by setting STEP/MODE3 HIGH, then ends the step pulse by setting
-    /// STEP/MODE4 LOW again. The method blocks while this is going on.
-    ///
-    /// This should result in the motor making one step. To achieve a specific
-    /// speed, the user must call this method at the appropriate frequency.
-    ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    ///
-    /// Any errors that occur are wrapped in a [`StepError`] and returned to the
-    /// user directly. This might leave the driver API in an invalid state, for
-    /// example if STEP/MODE3 has been set HIGH, but an error occurs before it
-    /// can be set LOW again.
-    fn step<Clk: Clock>(
-        &mut self,
-        dir: Dir,
-        clock: &Clk,
-    ) -> Result<(), Self::Error> {
-        const DIR_SETUP_DELAY: Nanoseconds = Nanoseconds(100);
-        const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
+    type Dir = DirMode4;
+    type Step = StepMode3;
+    type Error = OutputPinError;
 
-        match dir {
-            Dir::Forward => self
-                .dir_mode4
-                .try_set_high()
-                .map_err(|err| StepError::OutputPin(err))?,
-            Dir::Backward => self
-                .dir_mode4
-                .try_set_low()
-                .map_err(|err| StepError::OutputPin(err))?,
-        }
+    fn dir(&mut self) -> &mut Self::Dir {
+        &mut self.dir_mode4
+    }
 
-        // According to the datasheet, we need to wait at least 100 ns between
-        // setting DIR and starting the STEP pulse.
-        clock.new_timer(DIR_SETUP_DELAY).start()?.wait()?;
-
-        // Start step pulse
-        self.step_mode3
-            .try_set_high()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        // There are two delays we need to adhere to:
-        // - The minimum DIR hold time of 100 ns.
-        // - The minimum STCK high time, also 100 ns.
-        clock.new_timer(PULSE_LENGTH).start()?.wait()?;
-
-        // End step pulse
-        self.step_mode3
-            .try_set_low()
-            .map_err(|err| StepError::OutputPin(err))?;
-
-        Ok(())
+    fn step(&mut self) -> &mut Self::Step {
+        &mut self.step_mode3
     }
 }
 
@@ -353,37 +313,5 @@ pub fn step_mode_to_signals(
         M64 => (High, High, Low, High),
         M128 => (High, Low, Low, Low),
         M256 => (High, High, Low, Low),
-    }
-}
-
-/// An error that can occur while setting the microstepping mode
-#[derive(Debug, Eq, PartialEq)]
-pub enum ModeError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for ModeError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
-    }
-}
-
-/// An error that can occur while making a step
-#[derive(Debug, Eq, PartialEq)]
-pub enum StepError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
     }
 }
