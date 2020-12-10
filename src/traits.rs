@@ -5,7 +5,7 @@ use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::StepMode;
 
-/// Blocking interface for setting the step mode
+/// Implemented by drivers that support controlling the microstepping mode
 pub trait SetStepMode {
     /// The error that can occur while using this trait
     type Error;
@@ -23,7 +23,7 @@ pub trait SetStepMode {
     ) -> Result<(), Self::Error>;
 }
 
-/// Blocking interface for making single steps
+/// Implemented by drivers that support controlling the STEP and DIR signals
 pub trait Step {
     /// The time that the DIR signal must be held for a change to apply
     const SETUP_TIME: Nanoseconds;
