@@ -5,6 +5,21 @@ use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::StepMode;
 
+/// Enable microstepping mode control for a driver
+///
+/// The `Resources` type parameter defines the hardware resources required for
+/// controlling microstepping mode.
+pub trait EnableStepModeControl<Resources> {
+    /// The type of the driver once microstepping mode control has been enabled
+    type WithStepModeControl: SetStepMode;
+
+    /// Enable microstepping mode control
+    fn enable_step_mode_control(
+        self,
+        res: Resources,
+    ) -> Self::WithStepModeControl;
+}
+
 /// Implemented by drivers that support controlling the microstepping mode
 pub trait SetStepMode {
     /// The error that can occur while using this trait
@@ -23,6 +38,21 @@ pub trait SetStepMode {
     ) -> Result<(), Self::Error>;
 }
 
+/// Enable direction control for a driver
+///
+/// The `Resources` type parameter defines the hardware resources required for
+/// direction control.
+pub trait EnableDirectionControl<Resources> {
+    /// The type of the driver once direction control has been enabled
+    type WithDirectionControl: Dir;
+
+    /// Enable direction control
+    fn enable_direction_control(
+        self,
+        res: Resources,
+    ) -> Self::WithDirectionControl;
+}
+
 /// Implemented by drivers that support controlling the DIR signal
 pub trait Dir {
     /// The time that the DIR signal must be held for a change to apply
@@ -36,6 +66,18 @@ pub trait Dir {
 
     /// Provides access to the DIR pin
     fn dir(&mut self) -> &mut Self::Dir;
+}
+
+/// Enable step control for a driver
+///
+/// The `Resources` type parameter defines the hardware resources required for
+/// step control.
+pub trait EnableStepControl<Resources> {
+    /// The type of the driver once direction control has been enabled
+    type WithStepControl: Step;
+
+    /// Enable step control
+    fn enable_step_control(self, res: Resources) -> Self::WithStepControl;
 }
 
 /// Implemented by drivers that support controlling the STEP signal
