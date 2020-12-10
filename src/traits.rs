@@ -23,25 +23,31 @@ pub trait SetStepMode {
     ) -> Result<(), Self::Error>;
 }
 
-/// Implemented by drivers that support controlling the STEP and DIR signals
-pub trait Step {
+/// Implemented by drivers that support controlling the DIR signal
+pub trait Dir {
     /// The time that the DIR signal must be held for a change to apply
     const SETUP_TIME: Nanoseconds;
 
-    /// The minimum length of a STEP pulse
-    const PULSE_LENGTH: Nanoseconds;
-
     /// The type of the DIR pin
     type Dir: OutputPin<Error = Self::Error>;
-
-    /// The type of the STEP pin
-    type Step: OutputPin<Error = Self::Error>;
 
     /// The error that can occur while using this trait
     type Error;
 
     /// Provides access to the DIR pin
     fn dir(&mut self) -> &mut Self::Dir;
+}
+
+/// Implemented by drivers that support controlling the STEP signal
+pub trait Step {
+    /// The minimum length of a STEP pulse
+    const PULSE_LENGTH: Nanoseconds;
+
+    /// The type of the STEP pin
+    type Step: OutputPin<Error = Self::Error>;
+
+    /// The error that can occur while using this trait
+    type Error;
 
     /// Provides access to the STEP pin
     fn step(&mut self) -> &mut Self::Step;

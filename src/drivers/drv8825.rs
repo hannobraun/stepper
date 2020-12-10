@@ -81,7 +81,7 @@ use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::{
-    traits::{SetStepMode, Step as StepTrait},
+    traits::{Dir as DirTrait, SetStepMode, Step as StepTrait},
     ModeError, StepMode32,
 };
 
@@ -249,24 +249,34 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> StepTrait
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> DirTrait
     for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
-    Step: OutputPin<Error = OutputPinError>,
     Dir: OutputPin<Error = OutputPinError>,
 {
     // 7.6 Timing Requirements (page 7)
     // https://www.ti.com/lit/ds/symlink/drv8825.pdf
     const SETUP_TIME: Nanoseconds = Nanoseconds(650);
-    const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
 
     type Dir = Dir;
-    type Step = Step;
     type Error = OutputPinError;
 
     fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir
     }
+}
+
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> StepTrait
+    for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
+where
+    Step: OutputPin<Error = OutputPinError>,
+{
+    // 7.6 Timing Requirements (page 7)
+    // https://www.ti.com/lit/ds/symlink/drv8825.pdf
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds(1900);
+
+    type Step = Step;
+    type Error = OutputPinError;
 
     fn step(&mut self) -> &mut Self::Step {
         &mut self.step

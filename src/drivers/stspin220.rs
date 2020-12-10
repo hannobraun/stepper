@@ -85,7 +85,7 @@ use embedded_time::{
 };
 
 use crate::{
-    traits::{SetStepMode, Step},
+    traits::{Dir, SetStepMode, Step},
     ModeError, StepMode256,
 };
 
@@ -275,22 +275,38 @@ impl<
         StepMode3,
         DirMode4,
         OutputPinError,
-    > Step
+    > Dir
     for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 where
-    StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
     const SETUP_TIME: Nanoseconds = Nanoseconds(100);
-    const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
     type Dir = DirMode4;
-    type Step = StepMode3;
     type Error = OutputPinError;
 
     fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir_mode4
     }
+}
+
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
+    > Step
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
+where
+    StepMode3: OutputPin<Error = OutputPinError>,
+{
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
+
+    type Step = StepMode3;
+    type Error = OutputPinError;
 
     fn step(&mut self) -> &mut Self::Step {
         &mut self.step_mode3

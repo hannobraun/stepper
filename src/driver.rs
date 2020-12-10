@@ -2,7 +2,7 @@ use embedded_hal::digital::OutputPin as _;
 use embedded_time::{Clock, TimeError};
 
 use crate::{
-    traits::{SetStepMode, Step},
+    traits::{Dir, SetStepMode, Step},
     Direction,
 };
 
@@ -73,13 +73,13 @@ impl<T> Driver<T> {
     /// Requires a reference to an `embedded_time::Clock` implementation to
     /// handle the timing. Please make sure that the timer doesn't overflow
     /// while this method is running.
-    pub fn step<Clk: Clock>(
+    pub fn step<Clk: Clock, Error>(
         &mut self,
         dir: Direction,
         clock: &Clk,
-    ) -> Result<(), StepError<T::Error>>
+    ) -> Result<(), StepError<Error>>
     where
-        T: Step,
+        T: Dir<Error = Error> + Step<Error = Error>,
     {
         match dir {
             Direction::Forward => self
