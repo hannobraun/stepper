@@ -16,5 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install Cortex-M0+ target for test stand
+      run: |
+        rustup target install thumbv6m-none-eabi
     - name: Run build script
       run: ./scripts/build.sh
