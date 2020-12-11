@@ -76,12 +76,15 @@ impl<T> Driver<T> {
         }
     }
 
-    /// Sets the step mode
+    /// Sets the microstepping mode
     ///
     /// This method is only available, if the wrapped driver supports
     /// microstepping, and supports setting the step mode through software. Some
     /// driver might not support microstepping at all, or only allow setting the
     /// step mode by changing physical switches.
+    ///
+    /// You might need to call [`Driver::enable_step_mode_control`] to make this
+    /// method available.
     pub fn set_step_mode<Clk: Clock>(
         &mut self,
         step_mode: T::StepMode,
@@ -124,6 +127,9 @@ impl<T> Driver<T> {
     /// Requires a reference to an `embedded_time::Clock` implementation to
     /// handle the timing. Please make sure that the timer doesn't overflow
     /// while this method is running.
+    ///
+    /// You might need to call [`Driver::enable_direction_control`] to make this
+    /// method available.
     pub fn set_direction<Clk: Clock>(
         &mut self,
         direction: Direction,
@@ -185,6 +191,9 @@ impl<T> Driver<T> {
     /// Requires a reference to an `embedded_time::Clock` implementation to
     /// handle the timing. Please make sure that the timer doesn't overflow
     /// while this method is running.
+    ///
+    /// You might need to call [`Driver::enable_step_control`] to make this
+    /// method available.
     pub fn step<Clk: Clock>(
         &mut self,
         clock: &Clk,
