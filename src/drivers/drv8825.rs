@@ -178,6 +178,11 @@ where
     Mode1: OutputPin<Error = OutputPinError>,
     Mode2: OutputPin<Error = OutputPinError>,
 {
+    // 7.6 Timing Requirements (page 7)
+    // https://www.ti.com/lit/ds/symlink/drv8825.pdf
+    const SETUP_TIME: Nanoseconds = Nanoseconds(650);
+    const HOLD_TIME: Nanoseconds = Nanoseconds(650);
+
     type Error = ModeError<OutputPinError>;
     type StepMode = StepMode32;
 
@@ -190,10 +195,6 @@ where
         step_mode: StepMode32,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
-        // 7.6 Timing Requirements (page 7)
-        // https://www.ti.com/lit/ds/symlink/drv8825.pdf
-        const SETUP_TIME: Nanoseconds = Nanoseconds(650);
-
         // Reset the device's internal logic and disable the h-bridge drivers.
         self.reset
             .try_set_low()
@@ -212,7 +213,7 @@ where
             .map_err(|err| ModeError::OutputPin(err))?;
 
         // Need to wait for the MODEx input setup time.
-        clock.new_timer(SETUP_TIME).start()?.wait()?;
+        clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
 
         // Re-enable the h-bridge drivers using the new configuration.
         self.reset
@@ -221,7 +222,7 @@ where
 
         // Now the mode pins need to stay as they are for the MODEx input hold
         // time, for the settings to take effect.
-        clock.new_timer(SETUP_TIME).start()?.wait()?;
+        clock.new_timer(Self::HOLD_TIME).start()?.wait()?;
 
         Ok(())
     }

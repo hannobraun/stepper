@@ -22,6 +22,12 @@ pub trait EnableStepModeControl<Resources> {
 
 /// Implemented by drivers that support controlling the microstepping mode
 pub trait SetStepMode {
+    /// The time the mode signals need to be held before re-enabling the driver
+    const SETUP_TIME: Nanoseconds;
+
+    /// The time the mode signals need to be held after re-enabling the driver
+    const HOLD_TIME: Nanoseconds;
+
     /// The error that can occur while using this trait
     type Error;
 

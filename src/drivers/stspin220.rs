@@ -80,13 +80,10 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{
-    duration::{Microseconds, Nanoseconds},
-    Clock,
-};
+use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::{
-    traits::{SetDirection, EnableStepModeControl, SetStepMode, Step},
+    traits::{EnableStepModeControl, SetDirection, SetStepMode, Step},
     ModeError, StepMode256,
 };
 
@@ -198,8 +195,10 @@ where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
-    type Error = ModeError<OutputPinError>;
+    const SETUP_TIME: Nanoseconds = Nanoseconds(1_000);
+    const HOLD_TIME: Nanoseconds = Nanoseconds(100_000);
 
+    type Error = ModeError<OutputPinError>;
     type StepMode = StepMode256;
 
     /// Sets the step mode
@@ -211,9 +210,6 @@ where
         step_mode: Self::StepMode,
         clock: &Clk,
     ) -> Result<(), Self::Error> {
-        const MODE_SETUP_TIME: Microseconds = Microseconds(1);
-        const MODE_HOLD_TIME: Microseconds = Microseconds(100);
-
         // Force driver into standby mode.
         self.standby_reset
             .try_set_low()
@@ -235,7 +231,10 @@ where
             .map_err(|err| ModeError::OutputPin(err))?;
 
         // Need to wait for the MODEx input setup time.
-        clock.new_timer(MODE_SETUP_TIME).start()?.wait()?;
+        clock
+            .new_timer(<Self as SetStepMode>::SETUP_TIME)
+            .start()?
+            .wait()?;
 
         // Leave standby mode.
         self.standby_reset
@@ -244,7 +243,7 @@ where
 
         // Now the mode pins need to stay as they are for the MODEx input hold
         // time, for the settings to take effect.
-        clock.new_timer(MODE_HOLD_TIME).start()?.wait()?;
+        clock.new_timer(Self::HOLD_TIME).start()?.wait()?;
 
         Ok(())
     }
