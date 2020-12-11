@@ -96,13 +96,14 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_step_mode_control`] to make this
     /// method available.
-    pub fn set_step_mode<Clk: Clock>(
+    pub fn set_step_mode<Clk>(
         &mut self,
         step_mode: T::StepMode,
         clock: &Clk,
     ) -> Result<(), T::Error>
     where
         T: SetStepMode,
+        Clk: Clock,
     {
         self.inner.set_step_mode(step_mode, clock)
     }
@@ -154,13 +155,14 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_direction_control`] to make this
     /// method available.
-    pub fn set_direction<Clk: Clock>(
+    pub fn set_direction<Clk>(
         &mut self,
         direction: Direction,
         clock: &Clk,
     ) -> Result<(), StepError<T::Error>>
     where
         T: Dir,
+        Clk: Clock,
     {
         match direction {
             Direction::Forward => self
@@ -218,12 +220,10 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_step_control`] to make this
     /// method available.
-    pub fn step<Clk: Clock>(
-        &mut self,
-        clock: &Clk,
-    ) -> Result<(), StepError<T::Error>>
+    pub fn step<Clk>(&mut self, clock: &Clk) -> Result<(), StepError<T::Error>>
     where
         T: Step,
+        Clk: Clock,
     {
         // Start step pulse
         self.inner
