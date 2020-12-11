@@ -83,7 +83,7 @@ use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::{
     traits::{
-        Dir as DirTrait, EnableStepModeControl, SetStepMode, Step as StepTrait,
+        EnableStepModeControl, SetDirection, SetStepMode, Step as StepTrait,
     },
     ModeError, StepMode32,
 };
@@ -227,7 +227,7 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> DirTrait
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> SetDirection
     for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Dir: OutputPin<Error = OutputPinError>,

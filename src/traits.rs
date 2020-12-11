@@ -44,7 +44,7 @@ pub trait SetStepMode {
 /// direction control.
 pub trait EnableDirectionControl<Resources> {
     /// The type of the driver once direction control has been enabled
-    type WithDirectionControl: Dir;
+    type WithDirectionControl: SetDirection;
 
     /// Enable direction control
     fn enable_direction_control(
@@ -54,7 +54,7 @@ pub trait EnableDirectionControl<Resources> {
 }
 
 /// Implemented by drivers that support controlling the DIR signal
-pub trait Dir {
+pub trait SetDirection {
     /// The time that the DIR signal must be held for a change to apply
     const SETUP_TIME: Nanoseconds;
 

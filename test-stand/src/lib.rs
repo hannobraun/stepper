@@ -19,7 +19,7 @@ use step_dir::{
         timer,
     },
     embedded_time::{duration::Microseconds, Clock},
-    traits::{Dir, Step},
+    traits::{SetDirection, Step},
     Direction, Driver,
 };
 
@@ -36,7 +36,7 @@ pub fn test_step<D, Timer, A, B, DebugSignal, Error>(
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
 ) where
-    D: Dir<Error = Error> + Step<Error = Error>,
+    D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
     Timer: timer::CountDown<Time = u32> + Clock,
     Timer::Error: Debug,
@@ -58,7 +58,7 @@ pub fn verify_steps<D, Timer, A, B, DebugSignal, Error>(
     direction: Direction,
     debug_signal: &mut DebugSignal,
 ) where
-    D: Dir<Error = Error> + Step<Error = Error>,
+    D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
     Timer: timer::CountDown<Time = u32> + Clock,
     Timer::Error: Debug,
@@ -130,7 +130,7 @@ pub fn step<D, Timer, A, B, Error>(
     check_direction: bool,
 ) -> u32
 where
-    D: Dir<Error = Error> + Step<Error = Error>,
+    D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
     Timer: timer::CountDown<Time = u32> + Clock,
     Timer::Error: Debug,

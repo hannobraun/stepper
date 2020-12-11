@@ -86,7 +86,7 @@ use embedded_time::{
 };
 
 use crate::{
-    traits::{Dir, EnableStepModeControl, SetStepMode, Step},
+    traits::{SetDirection, EnableStepModeControl, SetStepMode, Step},
     ModeError, StepMode256,
 };
 
@@ -258,7 +258,7 @@ impl<
         StepMode3,
         DirMode4,
         OutputPinError,
-    > Dir
+    > SetDirection
     for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 where
     DirMode4: OutputPin<Error = OutputPinError>,

@@ -3,7 +3,7 @@ use embedded_time::{Clock, TimeError};
 
 use crate::{
     traits::{
-        Dir, EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, EnableDirectionControl, EnableStepControl, EnableStepModeControl,
         SetStepMode, Step,
     },
     Direction,
@@ -133,7 +133,7 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<
         Driver<T::WithDirectionControl>,
-        StepError<<T::WithDirectionControl as Dir>::Error>,
+        StepError<<T::WithDirectionControl as SetDirection>::Error>,
     >
     where
         T: EnableDirectionControl<Resources>,
@@ -161,7 +161,7 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<(), StepError<T::Error>>
     where
-        T: Dir,
+        T: SetDirection,
         Clk: Clock,
     {
         match direction {
