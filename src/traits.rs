@@ -1,7 +1,7 @@
 //! Contains traits that can be implemented by Step/Dir drivers
 
 use embedded_hal::digital::OutputPin;
-use embedded_time::{duration::Nanoseconds, Clock};
+use embedded_time::duration::Nanoseconds;
 
 use crate::StepMode;
 
@@ -36,12 +36,17 @@ pub trait SetStepMode {
     /// This crate includes a number of enums that can be used for this purpose.
     type StepMode: StepMode;
 
-    /// Sets the step mode
-    fn set_step_mode<Clk: Clock>(
+    /// Apply the new step mode configuration
+    ///
+    /// Typically this puts the driver into reset and sets the mode pins
+    /// according to the new step mode.
+    fn apply_mode_config(
         &mut self,
         step_mode: Self::StepMode,
-        clock: &Clk,
     ) -> Result<(), Self::Error>;
+
+    /// Re-enable the driver after the mode has been set
+    fn enable_driver(&mut self) -> Result<(), Self::Error>;
 }
 
 /// Enable direction control for a driver

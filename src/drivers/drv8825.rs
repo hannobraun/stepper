@@ -79,13 +79,13 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{duration::Nanoseconds, Clock};
+use embedded_time::duration::Nanoseconds;
 
 use crate::{
     traits::{
         EnableStepModeControl, SetDirection, SetStepMode, Step as StepTrait,
     },
-    ModeError, StepMode32,
+    StepMode32,
 };
 
 /// The DRV8825 driver API
@@ -183,48 +183,27 @@ where
     const SETUP_TIME: Nanoseconds = Nanoseconds(650);
     const HOLD_TIME: Nanoseconds = Nanoseconds(650);
 
-    type Error = ModeError<OutputPinError>;
+    type Error = OutputPinError;
     type StepMode = StepMode32;
 
-    /// Sets the step mode
-    ///
-    /// This method is only available, if all the pins required for setting the
-    /// step mode have been provided using [`DRV8825::enable_mode_control`].
-    fn set_step_mode<Clk: Clock>(
+    fn apply_mode_config(
         &mut self,
-        step_mode: StepMode32,
-        clock: &Clk,
+        step_mode: Self::StepMode,
     ) -> Result<(), Self::Error> {
         // Reset the device's internal logic and disable the h-bridge drivers.
-        self.reset
-            .try_set_low()
-            .map_err(|err| ModeError::OutputPin(err))?;
+        self.reset.try_set_low()?;
 
         // Set mode signals.
         let (mode0, mode1, mode2) = step_mode_to_signals(&step_mode);
-        self.mode0
-            .try_set_state(mode0)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.mode1
-            .try_set_state(mode1)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.mode2
-            .try_set_state(mode2)
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Need to wait for the MODEx input setup time.
-        clock.new_timer(Self::SETUP_TIME).start()?.wait()?;
-
-        // Re-enable the h-bridge drivers using the new configuration.
-        self.reset
-            .try_set_high()
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Now the mode pins need to stay as they are for the MODEx input hold
-        // time, for the settings to take effect.
-        clock.new_timer(Self::HOLD_TIME).start()?.wait()?;
+        self.mode0.try_set_state(mode0)?;
+        self.mode1.try_set_state(mode1)?;
+        self.mode2.try_set_state(mode2)?;
 
         Ok(())
+    }
+
+    fn enable_driver(&mut self) -> Result<(), Self::Error> {
+        self.reset.try_set_high()
     }
 }
 

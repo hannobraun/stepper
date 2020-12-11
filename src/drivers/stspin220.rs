@@ -80,11 +80,11 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{duration::Nanoseconds, Clock};
+use embedded_time::duration::Nanoseconds;
 
 use crate::{
     traits::{EnableStepModeControl, SetDirection, SetStepMode, Step},
-    ModeError, StepMode256,
+    StepMode256,
 };
 
 /// The STSPIN220 driver API
@@ -198,54 +198,29 @@ where
     const SETUP_TIME: Nanoseconds = Nanoseconds(1_000);
     const HOLD_TIME: Nanoseconds = Nanoseconds(100_000);
 
-    type Error = ModeError<OutputPinError>;
+    type Error = OutputPinError;
     type StepMode = StepMode256;
 
-    /// Sets the step mode
-    ///
-    /// This method is only available, if all the pins required for setting the
-    /// step mode have been provided using [`STSPIN220::enable_mode_control`].
-    fn set_step_mode<Clk: Clock>(
+    fn apply_mode_config(
         &mut self,
         step_mode: Self::StepMode,
-        clock: &Clk,
     ) -> Result<(), Self::Error> {
         // Force driver into standby mode.
-        self.standby_reset
-            .try_set_low()
-            .map_err(|err| ModeError::OutputPin(err))?;
+        self.standby_reset.try_set_low()?;
 
         // Set mode signals.
         let (mode1, mode2, mode3, mode4) = step_mode_to_signals(&step_mode);
-        self.mode1
-            .try_set_state(mode1)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.mode2
-            .try_set_state(mode2)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.step_mode3
-            .try_set_state(mode3)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.dir_mode4
-            .try_set_state(mode4)
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Need to wait for the MODEx input setup time.
-        clock
-            .new_timer(<Self as SetStepMode>::SETUP_TIME)
-            .start()?
-            .wait()?;
-
-        // Leave standby mode.
-        self.standby_reset
-            .try_set_high()
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Now the mode pins need to stay as they are for the MODEx input hold
-        // time, for the settings to take effect.
-        clock.new_timer(Self::HOLD_TIME).start()?.wait()?;
+        self.mode1.try_set_state(mode1)?;
+        self.mode2.try_set_state(mode2)?;
+        self.step_mode3.try_set_state(mode3)?;
+        self.dir_mode4.try_set_state(mode4)?;
 
         Ok(())
+    }
+
+    fn enable_driver(&mut self) -> Result<(), Self::Error> {
+        // Leave standby mode.
+        self.standby_reset.try_set_high()
     }
 }
 

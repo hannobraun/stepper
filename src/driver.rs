@@ -3,8 +3,8 @@ use embedded_time::{Clock, TimeError};
 
 use crate::{
     traits::{
-        SetDirection, EnableDirectionControl, EnableStepControl, EnableStepModeControl,
-        SetStepMode, Step,
+        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, SetStepMode, Step,
     },
     Direction,
 };
@@ -75,16 +75,18 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<
         Driver<T::WithStepModeControl>,
-        <T::WithStepModeControl as SetStepMode>::Error,
+        ModeError<<T::WithStepModeControl as SetStepMode>::Error>,
     >
     where
         T: EnableStepModeControl<Resources>,
         Clk: Clock,
     {
-        let mut inner = self.inner.enable_step_mode_control(res);
-        inner.set_step_mode(initial, clock)?;
+        let mut self_ = Driver {
+            inner: self.inner.enable_step_mode_control(res),
+        };
+        self_.set_step_mode(initial, clock)?;
 
-        Ok(Driver { inner })
+        Ok(self_)
     }
 
     /// Sets the microstepping mode
@@ -100,12 +102,26 @@ impl<T> Driver<T> {
         &mut self,
         step_mode: T::StepMode,
         clock: &Clk,
-    ) -> Result<(), T::Error>
+    ) -> Result<(), ModeError<T::Error>>
     where
         T: SetStepMode,
         Clk: Clock,
     {
-        self.inner.set_step_mode(step_mode, clock)
+        self.inner
+            .apply_mode_config(step_mode)
+            .map_err(|err| ModeError::OutputPin(err))?;
+
+        clock.new_timer(T::SETUP_TIME).start()?.wait()?;
+
+        self.inner
+            .enable_driver()
+            .map_err(|err| ModeError::OutputPin(err))?;
+
+        // Now the mode pins need to stay as they are for the MODEx input hold
+        // time, for the settings to take effect.
+        clock.new_timer(T::HOLD_TIME).start()?.wait()?;
+
+        Ok(())
     }
 
     /// Enable direction control
