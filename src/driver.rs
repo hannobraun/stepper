@@ -56,6 +56,10 @@ impl<T> Driver<T> {
     /// the microstepping mode. Once this method has been called, the
     /// [`Driver::set_step_mode`] method becomes available.
     ///
+    /// Takes an initial step mode value and a reference to an
+    /// `embedded_time::Clock` implementation to handle the timing. Please make
+    /// sure that the timer doesn't overflow while this method is running.
+    ///
     /// Takes the hardware resources that are required for controlling the
     /// microstepping mode as an argument. What exactly those are depends on the
     /// specific driver. Typically they are the output pins that are connected
@@ -64,16 +68,23 @@ impl<T> Driver<T> {
     /// This method is only available, if the driver supports enabling step mode
     /// control. It might no longer be available, once step mode control has
     /// been enabled.
-    pub fn enable_step_mode_control<Resources>(
+    pub fn enable_step_mode_control<Resources, Clk>(
         self,
         res: Resources,
-    ) -> Driver<T::WithStepModeControl>
+        initial: <T::WithStepModeControl as SetStepMode>::StepMode,
+        clock: &Clk,
+    ) -> Result<
+        Driver<T::WithStepModeControl>,
+        <T::WithStepModeControl as SetStepMode>::Error,
+    >
     where
         T: EnableStepModeControl<Resources>,
+        Clk: Clock,
     {
-        Driver {
-            inner: self.inner.enable_step_mode_control(res),
-        }
+        let mut inner = self.inner.enable_step_mode_control(res);
+        inner.set_step_mode(initial, clock)?;
+
+        Ok(Driver { inner })
     }
 
     /// Sets the microstepping mode
@@ -102,6 +113,10 @@ impl<T> Driver<T> {
     /// the motor direction. Once this method has been called, the
     /// [`Driver::set_direction`] method becomes available.
     ///
+    /// Takes an initial direction value and a reference to an
+    /// `embedded_time::Clock` implementation to handle the timing. Please make
+    /// sure that the timer doesn't overflow while this method is running.
+    ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
     /// driver. Typically it's going to be the output pin that is connected to
@@ -110,16 +125,25 @@ impl<T> Driver<T> {
     /// This method is only available, if the driver supports enabling direction
     /// control. It might no longer be available, once direction control has
     /// been enabled.
-    pub fn enable_direction_control<Resources>(
+    pub fn enable_direction_control<Resources, Clk>(
         self,
         res: Resources,
-    ) -> Driver<T::WithDirectionControl>
+        initial: Direction,
+        clock: &Clk,
+    ) -> Result<
+        Driver<T::WithDirectionControl>,
+        StepError<<T::WithDirectionControl as Dir>::Error>,
+    >
     where
         T: EnableDirectionControl<Resources>,
+        Clk: Clock,
     {
-        Driver {
+        let mut self_ = Driver {
             inner: self.inner.enable_direction_control(res),
-        }
+        };
+        self_.set_direction(initial, clock)?;
+
+        Ok(self_)
     }
 
     /// Set direction for future movements
