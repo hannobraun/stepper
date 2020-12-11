@@ -83,16 +83,14 @@ mod tests {
         let mut timer = mrt.mrt0;
 
         timer.start(mrt::MAX_VALUE);
-        let driver = STSPIN220::from_step_dir_pins(step_mode3, dir_mode4)
-            .enable_mode_control(
-                standby_reset,
-                mode1,
-                mode2,
+        let driver = STSPIN220::from_step_dir_pins(step_mode3, dir_mode4);
+        let driver = Driver::new(driver)
+            .enable_step_mode_control(
+                (standby_reset, mode1, mode2),
                 StepMode256::Full,
                 &timer,
             )
             .unwrap();
-        let driver = Driver::new(driver);
 
         let rotary = Rotary::new(rotary_a, rotary_b);
 

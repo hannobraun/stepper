@@ -86,7 +86,7 @@ use embedded_time::{
 };
 
 use crate::{
-    traits::{Dir, SetStepMode, Step},
+    traits::{Dir, EnableStepModeControl, SetStepMode, Step},
     ModeError, StepMode256,
 };
 
@@ -146,56 +146,38 @@ impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
     }
 }
 
-impl<EnableFault, StepMode3, DirMode4>
-    STSPIN220<EnableFault, (), (), (), StepMode3, DirMode4>
-{
-    /// Enables support for step mode control and sets the initial step mode
-    ///
-    /// Consumes this instance of `STSPIN220` and returns another instance that
-    /// has support for controlling the step mode. Requires the additional pins
-    /// for doing so, namely STBY/RESET, MODE1, and MODE2. It expects the types
-    /// that represent those pins to implement [`OutputPin`].
-    ///
-    /// This method is only available when those pins have not been provided
-    /// yet. After this method has been called once, you can use
-    /// [`STSPIN220::set_step_mode`] to change the step mode again.
-    pub fn enable_mode_control<
+impl<
+        EnableFault,
         StandbyReset,
         Mode1,
         Mode2,
-        Clk,
+        StepMode3,
+        DirMode4,
         OutputPinError,
-    >(
+    > EnableStepModeControl<(StandbyReset, Mode1, Mode2)>
+    for STSPIN220<EnableFault, (), (), (), StepMode3, DirMode4>
+where
+    StandbyReset: OutputPin<Error = OutputPinError>,
+    Mode1: OutputPin<Error = OutputPinError>,
+    Mode2: OutputPin<Error = OutputPinError>,
+    StepMode3: OutputPin<Error = OutputPinError>,
+    DirMode4: OutputPin<Error = OutputPinError>,
+{
+    type WithStepModeControl =
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
+
+    fn enable_step_mode_control(
         self,
-        standby_reset: StandbyReset,
-        mode1: Mode1,
-        mode2: Mode2,
-        step_mode: StepMode256,
-        clock: &Clk,
-    ) -> Result<
-        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>,
-        ModeError<OutputPinError>,
-    >
-    where
-        StandbyReset: OutputPin<Error = OutputPinError>,
-        Mode1: OutputPin<Error = OutputPinError>,
-        Mode2: OutputPin<Error = OutputPinError>,
-        StepMode3: OutputPin<Error = OutputPinError>,
-        DirMode4: OutputPin<Error = OutputPinError>,
-        Clk: Clock,
-    {
-        let mut self_ = STSPIN220 {
+        (standby_reset, mode1, mode2): (StandbyReset, Mode1, Mode2),
+    ) -> Self::WithStepModeControl {
+        STSPIN220 {
             enable_fault: self.enable_fault,
             standby_reset,
             mode1,
             mode2,
             step_mode3: self.step_mode3,
             dir_mode4: self.dir_mode4,
-        };
-
-        self_.set_step_mode(step_mode, clock)?;
-
-        Ok(self_)
+        }
     }
 }
 

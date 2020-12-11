@@ -82,7 +82,9 @@ use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::{duration::Nanoseconds, Clock};
 
 use crate::{
-    traits::{Dir as DirTrait, SetStepMode, Step as StepTrait},
+    traits::{
+        Dir as DirTrait, EnableStepModeControl, SetStepMode, Step as StepTrait,
+    },
     ModeError, StepMode32,
 };
 
@@ -138,44 +140,23 @@ impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
     }
 }
 
-impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
-    /// Enables support for step mode control and sets the initial step mode
-    ///
-    /// Consumes this instance of `DRV8825` and returns another instance that
-    /// has support for controlling the step mode. Requires the additional pins
-    /// for doing so, namely RESET, MODE0, MODE1, and MODE2. It expects the
-    /// types that represent those pins to implement [`OutputPin`].
-    ///
-    /// This method is only available when those pins have not been provided
-    /// yet. After this method has been called once, you can use
-    /// [`DRV8825::set_step_mode`] to change the step mode again.
-    pub fn enable_mode_control<
-        Reset,
-        Mode0,
-        Mode1,
-        Mode2,
-        Clk,
-        OutputPinError,
-    >(
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableStepModeControl<(Reset, Mode0, Mode1, Mode2)>
+    for DRV8825<(), (), (), (), (), (), (), Step, Dir>
+where
+    Reset: OutputPin<Error = OutputPinError>,
+    Mode0: OutputPin<Error = OutputPinError>,
+    Mode1: OutputPin<Error = OutputPinError>,
+    Mode2: OutputPin<Error = OutputPinError>,
+{
+    type WithStepModeControl =
+        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+
+    fn enable_step_mode_control(
         self,
-        reset: Reset,
-        mode0: Mode0,
-        mode1: Mode1,
-        mode2: Mode2,
-        step_mode: StepMode32,
-        clock: &Clk,
-    ) -> Result<
-        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>,
-        ModeError<OutputPinError>,
-    >
-    where
-        Reset: OutputPin<Error = OutputPinError>,
-        Mode0: OutputPin<Error = OutputPinError>,
-        Mode1: OutputPin<Error = OutputPinError>,
-        Mode2: OutputPin<Error = OutputPinError>,
-        Clk: Clock,
-    {
-        let mut self_ = DRV8825 {
+        (reset, mode0, mode1, mode2): (Reset, Mode0, Mode1, Mode2),
+    ) -> Self::WithStepModeControl {
+        DRV8825 {
             enable: self.enable,
             fault: self.fault,
             sleep: self.sleep,
@@ -185,11 +166,7 @@ impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
             mode2,
             step: self.step,
             dir: self.dir,
-        };
-
-        self_.set_step_mode(step_mode, clock)?;
-
-        Ok(self_)
+        }
     }
 }
 
