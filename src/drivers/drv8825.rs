@@ -193,8 +193,18 @@ where
         // Reset the device's internal logic and disable the h-bridge drivers.
         self.reset.try_set_low()?;
 
+        use PinState::*;
+        use StepMode32::*;
+        let (mode0, mode1, mode2) = match step_mode {
+            Full => (Low, Low, Low),
+            M2 => (High, Low, Low),
+            M4 => (Low, High, Low),
+            M8 => (High, High, Low),
+            M16 => (Low, Low, High),
+            M32 => (High, High, High),
+        };
+
         // Set mode signals.
-        let (mode0, mode1, mode2) = step_mode_to_signals(&step_mode);
         self.mode0.try_set_state(mode0)?;
         self.mode1.try_set_state(mode1)?;
         self.mode2.try_set_state(mode2)?;
@@ -238,22 +248,5 @@ where
 
     fn step(&mut self) -> &mut Self::Step {
         &mut self.step
-    }
-}
-
-/// Provides the pin signals for the given step mode
-fn step_mode_to_signals(
-    step_mode: &StepMode32,
-) -> (PinState, PinState, PinState) {
-    use PinState::*;
-    use StepMode32::*;
-
-    match step_mode {
-        Full => (Low, Low, Low),
-        M2 => (High, Low, Low),
-        M4 => (Low, High, Low),
-        M8 => (High, High, Low),
-        M16 => (Low, Low, High),
-        M32 => (High, High, High),
     }
 }

@@ -208,8 +208,21 @@ where
         // Force driver into standby mode.
         self.standby_reset.try_set_low()?;
 
+        use PinState::*;
+        use StepMode256::*;
+        let (mode1, mode2, mode3, mode4) = match step_mode {
+            Full => (Low, Low, Low, Low),
+            M2 => (High, Low, High, Low),
+            M4 => (Low, High, Low, High),
+            M8 => (High, High, High, Low),
+            M16 => (High, High, High, High),
+            M32 => (Low, High, Low, Low),
+            M64 => (High, High, Low, High),
+            M128 => (High, Low, Low, Low),
+            M256 => (High, High, Low, Low),
+        };
+
         // Set mode signals.
-        let (mode1, mode2, mode3, mode4) = step_mode_to_signals(&step_mode);
         self.mode1.try_set_state(mode1)?;
         self.mode2.try_set_state(mode2)?;
         self.step_mode3.try_set_state(mode3)?;
@@ -267,24 +280,5 @@ where
 
     fn step(&mut self) -> &mut Self::Step {
         &mut self.step_mode3
-    }
-}
-
-/// Provides the pin signals for the given step mode
-pub fn step_mode_to_signals(
-    step_mode: &StepMode256,
-) -> (PinState, PinState, PinState, PinState) {
-    use PinState::*;
-    use StepMode256::*;
-    match step_mode {
-        Full => (Low, Low, Low, Low),
-        M2 => (High, Low, High, Low),
-        M4 => (Low, High, Low, High),
-        M8 => (High, High, High, Low),
-        M16 => (High, High, High, High),
-        M32 => (Low, High, Low, Low),
-        M64 => (High, High, Low, High),
-        M128 => (High, Low, Low, Low),
-        M256 => (High, High, Low, Low),
     }
 }
