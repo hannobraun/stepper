@@ -83,7 +83,10 @@ use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{
-    traits::{EnableStepModeControl, SetDirection, SetStepMode, Step},
+    traits::{
+        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, SetStepMode, Step,
+    },
     StepMode256,
 };
 
@@ -245,6 +248,37 @@ impl<
         StepMode3,
         DirMode4,
         OutputPinError,
+    > EnableDirectionControl<DirMode4>
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, ()>
+where
+    DirMode4: OutputPin<Error = OutputPinError>,
+{
+    type WithDirectionControl =
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
+
+    fn enable_direction_control(
+        self,
+        dir_mode4: DirMode4,
+    ) -> Self::WithDirectionControl {
+        STSPIN220 {
+            enable_fault: self.enable_fault,
+            standby_reset: self.standby_reset,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step_mode3: self.step_mode3,
+            dir_mode4,
+        }
+    }
+}
+
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
     > SetDirection
     for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 where
@@ -257,6 +291,37 @@ where
 
     fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir_mode4
+    }
+}
+
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
+    > EnableStepControl<StepMode3>
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, (), DirMode4>
+where
+    StepMode3: OutputPin<Error = OutputPinError>,
+{
+    type WithStepControl =
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
+
+    fn enable_step_control(
+        self,
+        step_mode3: StepMode3,
+    ) -> Self::WithStepControl {
+        STSPIN220 {
+            enable_fault: self.enable_fault,
+            standby_reset: self.standby_reset,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step_mode3,
+            dir_mode4: self.dir_mode4,
+        }
     }
 }
 

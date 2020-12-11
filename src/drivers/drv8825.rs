@@ -83,7 +83,8 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::{
     traits::{
-        EnableStepModeControl, SetDirection, SetStepMode, Step as StepTrait,
+        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, SetStepMode, Step as StepTrait,
     },
     StepMode32,
 };
@@ -217,6 +218,30 @@ where
     }
 }
 
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableDirectionControl<Dir>
+    for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, ()>
+where
+    Dir: OutputPin<Error = OutputPinError>,
+{
+    type WithDirectionControl =
+        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+
+    fn enable_direction_control(self, dir: Dir) -> Self::WithDirectionControl {
+        DRV8825 {
+            enable: self.enable,
+            fault: self.fault,
+            sleep: self.sleep,
+            reset: self.reset,
+            mode0: self.mode0,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step: self.step,
+            dir,
+        }
+    }
+}
+
 impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> SetDirection
     for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
@@ -231,6 +256,30 @@ where
 
     fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir
+    }
+}
+
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableStepControl<Step>
+    for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, (), Dir>
+where
+    Step: OutputPin<Error = OutputPinError>,
+{
+    type WithStepControl =
+        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+
+    fn enable_step_control(self, step: Step) -> Self::WithStepControl {
+        DRV8825 {
+            enable: self.enable,
+            fault: self.fault,
+            sleep: self.sleep,
+            reset: self.reset,
+            mode0: self.mode0,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step,
+            dir: self.dir,
+        }
     }
 }
 
