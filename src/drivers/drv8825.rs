@@ -59,12 +59,11 @@
 //! // need an implementation of `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP and DIR pins.
-//! let mut driver = Driver::new(
-//!     DRV8825::from_step_dir_pins(step, dir)
-//! );
+//! let mut driver = Driver::new(DRV8825::new())
+//!     .enable_direction_control(dir, Direction::Forward, &clock)?
+//!     .enable_step_control(step);
 //!
 //! // Rotate stepper motor by a few steps.
-//! driver.set_direction(Direction::Forward, &clock)?;
 //! for _ in 0 .. 5 {
 //!     let timer = clock.new_timer(STEP_DELAY).start()?;
 //!     driver.step(&clock)?;
@@ -91,9 +90,8 @@ use crate::{
 
 /// The DRV8825 driver API
 ///
-/// You can create an instance of this struct by calling
-/// [`DRV8825::from_step_dir_pins`]. See [module documentation] for a full
-/// example that uses this API.
+/// You can create an instance of this struct by calling [`DRV8825::new`]. See
+/// [module documentation] for a full example that uses this API.
 ///
 /// [module documentation]: index.html
 pub struct DRV8825<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
@@ -109,24 +107,13 @@ pub struct DRV8825<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
     dir: Dir,
 }
 
-impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
+impl DRV8825<(), (), (), (), (), (), (), (), ()> {
     /// Create a new instance of `DRV8825`
     ///
-    /// Creates an instance of this struct from just the STEP and DIR pins. It
-    /// expects the types that represent those pins to implement [`OutputPin`].
-    ///
-    /// The resulting instance can be used to step the motor using
-    /// [`DRV8825::step`]. All other capabilities of the DRV8825, like
-    /// the power-up sequence, selecting a step mode, or controlling the power
-    /// state, explicitly enabled, or managed externally.
-    ///
-    /// To enable additional capabilities, see
-    /// [`DRV8825::enable_mode_control`].
-    pub fn from_step_dir_pins<Error>(step: Step, dir: Dir) -> Self
-    where
-        Step: OutputPin<Error = Error>,
-        Dir: OutputPin<Error = Error>,
-    {
+    /// The resulting instance won't be able to do anything yet. You can call
+    /// the various `enable_` methods of [`Driver`](crate::Driver) to rectify
+    /// that.
+    pub fn new() -> Self {
         Self {
             enable: (),
             fault: (),
@@ -135,8 +122,8 @@ impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
             mode0: (),
             mode1: (),
             mode2: (),
-            step,
-            dir,
+            step: (),
+            dir: (),
         }
     }
 }

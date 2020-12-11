@@ -60,12 +60,11 @@
 //! // `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP/MODE3 and DIR/MODE4 pins.
-//! let mut driver = Driver::new(
-//!     STSPIN220::from_step_dir_pins(step_mode3, dir_mode4)
-//! );
+//! let mut driver = Driver::new(STSPIN220::new())
+//!     .enable_direction_control(dir_mode4, Direction::Forward, &clock)?
+//!     .enable_step_control(step_mode3);
 //!
 //! // Rotate stepper motor by a few steps.
-//! driver.set_direction(Direction::Forward, &clock)?;
 //! for _ in 0 .. 5 {
 //!     let timer = clock.new_timer(STEP_DELAY).start()?;
 //!     driver.step(&clock)?;
@@ -92,9 +91,8 @@ use crate::{
 
 /// The STSPIN220 driver API
 ///
-/// You can create an instance of this struct by calling
-/// [`STSPIN220::from_step_dir_pins`]. See [module documentation] for a full
-/// example that uses this API.
+/// You can create an instance of this struct by calling [`STSPIN220::new`]. See
+/// [module documentation] for a full example that uses this API.
 ///
 /// [module documentation]: index.html
 pub struct STSPIN220<
@@ -113,35 +111,20 @@ pub struct STSPIN220<
     dir_mode4: DirMode4,
 }
 
-impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
+impl STSPIN220<(), (), (), (), (), ()> {
     /// Create a new instance of `STSPIN220`
     ///
-    /// Creates an instance of this struct from just the STEP/MODE3 and
-    /// DIR/MODE4 pins. It expects the types that represent those pins to
-    /// implement [`OutputPin`].
-    ///
-    /// The resulting instance can be used to step the motor using
-    /// [`STSPIN220::step`]. All other capabilities of the STSPIN220, like
-    /// the power-up sequence, selecting a step mode, or controlling the power
-    /// state, explicitly enabled, or managed externally.
-    ///
-    /// To enable additional capabilities, see
-    /// [`STSPIN220::enable_mode_control`].
-    pub fn from_step_dir_pins<Error>(
-        step_mode3: StepMode3,
-        dir_mode4: DirMode4,
-    ) -> Self
-    where
-        StepMode3: OutputPin<Error = Error>,
-        DirMode4: OutputPin<Error = Error>,
-    {
+    /// The resulting instance won't be able to do anything yet. You can call
+    /// the various `enable_` methods of [`Driver`](crate::Driver) to rectify
+    /// that.
+    pub fn new() -> Self {
         Self {
             enable_fault: (),
             standby_reset: (),
             mode1: (),
             mode2: (),
-            step_mode3,
-            dir_mode4,
+            step_mode3: (),
+            dir_mode4: (),
         }
     }
 }
