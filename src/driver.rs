@@ -105,13 +105,11 @@ impl<T> Driver<T> {
     {
         self.inner
             .apply_mode_config(step_mode)
-            .map_err(|err| Error::OutputPin(err))?;
+            .map_err(|err| Error::Pin(err))?;
 
         clock.new_timer(T::SETUP_TIME).start()?.wait()?;
 
-        self.inner
-            .enable_driver()
-            .map_err(|err| Error::OutputPin(err))?;
+        self.inner.enable_driver().map_err(|err| Error::Pin(err))?;
 
         // Now the mode pins need to stay as they are for the MODEx input hold
         // time, for the settings to take effect.
@@ -181,12 +179,12 @@ impl<T> Driver<T> {
                 .inner
                 .dir()
                 .try_set_high()
-                .map_err(|err| Error::OutputPin(err))?,
+                .map_err(|err| Error::Pin(err))?,
             Direction::Backward => self
                 .inner
                 .dir()
                 .try_set_low()
-                .map_err(|err| Error::OutputPin(err))?,
+                .map_err(|err| Error::Pin(err))?,
         }
 
         clock.new_timer(T::SETUP_TIME).start()?.wait()?;
@@ -241,7 +239,7 @@ impl<T> Driver<T> {
         self.inner
             .step()
             .try_set_high()
-            .map_err(|err| Error::OutputPin(err))?;
+            .map_err(|err| Error::Pin(err))?;
 
         clock.new_timer(T::PULSE_LENGTH).start()?.wait()?;
 
@@ -249,7 +247,7 @@ impl<T> Driver<T> {
         self.inner
             .step()
             .try_set_low()
-            .map_err(|err| Error::OutputPin(err))?;
+            .map_err(|err| Error::Pin(err))?;
 
         Ok(())
     }
@@ -257,17 +255,17 @@ impl<T> Driver<T> {
 
 /// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum Error<OutputPinError> {
+pub enum Error<PinError> {
     /// An error originated from using the [`OutputPin`] trait
     ///
     /// [`OutputPin`]: embedded_hal::digital::OutputPin
-    OutputPin(OutputPinError),
+    Pin(PinError),
 
     /// An error originated from working with a timer
     Time(TimeError),
 }
 
-impl<OutputPinError> From<TimeError> for Error<OutputPinError> {
+impl<PinError> From<TimeError> for Error<PinError> {
     fn from(err: TimeError) -> Self {
         Self::Time(err)
     }
