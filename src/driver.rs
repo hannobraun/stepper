@@ -71,7 +71,7 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<
         Driver<T::WithStepModeControl>,
-        ModeError<<T::WithStepModeControl as SetStepMode>::Error>,
+        Error<<T::WithStepModeControl as SetStepMode>::Error>,
     >
     where
         T: EnableStepModeControl<Resources>,
@@ -98,20 +98,20 @@ impl<T> Driver<T> {
         &mut self,
         step_mode: T::StepMode,
         clock: &Clk,
-    ) -> Result<(), ModeError<T::Error>>
+    ) -> Result<(), Error<T::Error>>
     where
         T: SetStepMode,
         Clk: Clock,
     {
         self.inner
             .apply_mode_config(step_mode)
-            .map_err(|err| ModeError::OutputPin(err))?;
+            .map_err(|err| Error::OutputPin(err))?;
 
         clock.new_timer(T::SETUP_TIME).start()?.wait()?;
 
         self.inner
             .enable_driver()
-            .map_err(|err| ModeError::OutputPin(err))?;
+            .map_err(|err| Error::OutputPin(err))?;
 
         // Now the mode pins need to stay as they are for the MODEx input hold
         // time, for the settings to take effect.
@@ -145,7 +145,7 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<
         Driver<T::WithDirectionControl>,
-        StepError<<T::WithDirectionControl as SetDirection>::Error>,
+        Error<<T::WithDirectionControl as SetDirection>::Error>,
     >
     where
         T: EnableDirectionControl<Resources>,
@@ -171,7 +171,7 @@ impl<T> Driver<T> {
         &mut self,
         direction: Direction,
         clock: &Clk,
-    ) -> Result<(), StepError<T::Error>>
+    ) -> Result<(), Error<T::Error>>
     where
         T: SetDirection,
         Clk: Clock,
@@ -181,12 +181,12 @@ impl<T> Driver<T> {
                 .inner
                 .dir()
                 .try_set_high()
-                .map_err(|err| StepError::OutputPin(err))?,
+                .map_err(|err| Error::OutputPin(err))?,
             Direction::Backward => self
                 .inner
                 .dir()
                 .try_set_low()
-                .map_err(|err| StepError::OutputPin(err))?,
+                .map_err(|err| Error::OutputPin(err))?,
         }
 
         clock.new_timer(T::SETUP_TIME).start()?.wait()?;
@@ -232,7 +232,7 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_step_control`] to make this
     /// method available.
-    pub fn step<Clk>(&mut self, clock: &Clk) -> Result<(), StepError<T::Error>>
+    pub fn step<Clk>(&mut self, clock: &Clk) -> Result<(), Error<T::Error>>
     where
         T: Step,
         Clk: Clock,
@@ -241,7 +241,7 @@ impl<T> Driver<T> {
         self.inner
             .step()
             .try_set_high()
-            .map_err(|err| StepError::OutputPin(err))?;
+            .map_err(|err| Error::OutputPin(err))?;
 
         clock.new_timer(T::PULSE_LENGTH).start()?.wait()?;
 
@@ -249,15 +249,15 @@ impl<T> Driver<T> {
         self.inner
             .step()
             .try_set_low()
-            .map_err(|err| StepError::OutputPin(err))?;
+            .map_err(|err| Error::OutputPin(err))?;
 
         Ok(())
     }
 }
 
-/// An error that can occur while setting the microstepping mode
+/// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum ModeError<OutputPinError> {
+pub enum Error<OutputPinError> {
     /// An error originated from using the [`OutputPin`] trait
     ///
     /// [`OutputPin`]: embedded_hal::digital::OutputPin
@@ -267,25 +267,7 @@ pub enum ModeError<OutputPinError> {
     Time(TimeError),
 }
 
-impl<OutputPinError> From<TimeError> for ModeError<OutputPinError> {
-    fn from(err: TimeError) -> Self {
-        Self::Time(err)
-    }
-}
-
-/// An error that can occur while making a step
-#[derive(Debug, Eq, PartialEq)]
-pub enum StepError<OutputPinError> {
-    /// An error originated from using the [`OutputPin`] trait
-    ///
-    /// [`OutputPin`]: embedded_hal::digital::OutputPin
-    OutputPin(OutputPinError),
-
-    /// An error originated from working with a timer
-    Time(TimeError),
-}
-
-impl<OutputPinError> From<TimeError> for StepError<OutputPinError> {
+impl<OutputPinError> From<TimeError> for Error<OutputPinError> {
     fn from(err: TimeError) -> Self {
         Self::Time(err)
     }

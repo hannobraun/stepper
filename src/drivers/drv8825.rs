@@ -12,7 +12,7 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::StepError<core::convert::Infallible>
+//! #         step_dir::Error<core::convert::Infallible>
 //! #     > {
 //! #
 //! use step_dir::{
