@@ -262,11 +262,11 @@ pub enum Error<PinError> {
     Pin(PinError),
 
     /// An error originated from working with a timer
-    Time(TimeError),
+    Timer(TimeError),
 }
 
 impl<PinError> From<TimeError> for Error<PinError> {
     fn from(err: TimeError) -> Self {
-        Self::Time(err)
+        Self::Timer(err)
     }
 }
