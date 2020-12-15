@@ -71,7 +71,7 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<
         Driver<T::WithStepModeControl>,
-        Error<<T::WithStepModeControl as SetStepMode>::Error>,
+        Error<<T::WithStepModeControl as SetStepMode>::Error, TimeError>,
     >
     where
         T: EnableStepModeControl<Resources>,
@@ -98,7 +98,7 @@ impl<T> Driver<T> {
         &mut self,
         step_mode: T::StepMode,
         clock: &Clk,
-    ) -> Result<(), Error<T::Error>>
+    ) -> Result<(), Error<T::Error, TimeError>>
     where
         T: SetStepMode,
         Clk: Clock,
@@ -143,7 +143,7 @@ impl<T> Driver<T> {
         clock: &Clk,
     ) -> Result<
         Driver<T::WithDirectionControl>,
-        Error<<T::WithDirectionControl as SetDirection>::Error>,
+        Error<<T::WithDirectionControl as SetDirection>::Error, TimeError>,
     >
     where
         T: EnableDirectionControl<Resources>,
@@ -169,7 +169,7 @@ impl<T> Driver<T> {
         &mut self,
         direction: Direction,
         clock: &Clk,
-    ) -> Result<(), Error<T::Error>>
+    ) -> Result<(), Error<T::Error, TimeError>>
     where
         T: SetDirection,
         Clk: Clock,
@@ -230,7 +230,10 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_step_control`] to make this
     /// method available.
-    pub fn step<Clk>(&mut self, clock: &Clk) -> Result<(), Error<T::Error>>
+    pub fn step<Clk>(
+        &mut self,
+        clock: &Clk,
+    ) -> Result<(), Error<T::Error, TimeError>>
     where
         T: Step,
         Clk: Clock,
@@ -255,17 +258,17 @@ impl<T> Driver<T> {
 
 /// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum Error<PinError> {
+pub enum Error<PinError, TimerError> {
     /// An error originated from using the [`OutputPin`] trait
     ///
     /// [`OutputPin`]: embedded_hal::digital::OutputPin
     Pin(PinError),
 
     /// An error originated from working with a timer
-    Timer(TimeError),
+    Timer(TimerError),
 }
 
-impl<PinError> From<TimeError> for Error<PinError> {
+impl<PinError> From<TimeError> for Error<PinError, TimeError> {
     fn from(err: TimeError) -> Self {
         Self::Timer(err)
     }
