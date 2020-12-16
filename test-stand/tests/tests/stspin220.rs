@@ -42,8 +42,7 @@ mod tests {
     #[init]
     fn init() -> super::Context {
         use super::{
-            gpio, lpc8xx_hal, mrt, Direction, Driver, Rotary, StepMode256,
-            STSPIN220,
+            gpio, lpc8xx_hal, Direction, Driver, Rotary, StepMode256, STSPIN220,
         };
 
         let p = lpc8xx_hal::Peripherals::take().unwrap();
@@ -83,15 +82,14 @@ mod tests {
 
         let mut timer = mrt.mrt0;
 
-        timer.start(mrt::MAX_VALUE);
         let driver = Driver::from_inner(STSPIN220::new())
             .enable_step_control(step_mode3)
-            .enable_direction_control(dir_mode4, Direction::Forward, &timer)
+            .enable_direction_control(dir_mode4, Direction::Forward, &mut timer)
             .unwrap()
             .enable_step_mode_control(
                 (standby_reset, mode1, mode2),
                 StepMode256::Full,
-                &timer,
+                &mut timer,
             )
             .unwrap();
 
