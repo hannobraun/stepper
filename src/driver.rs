@@ -111,8 +111,6 @@ impl<T> Driver<T> {
 
         self.inner.enable_driver().map_err(|err| Error::Pin(err))?;
 
-        // Now the mode pins need to stay as they are for the MODEx input hold
-        // time, for the settings to take effect.
         clock.new_timer(T::HOLD_TIME).start()?.wait()?;
 
         Ok(())
