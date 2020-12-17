@@ -1,10 +1,11 @@
+mod set_direction;
 mod step;
 
-pub use self::step::StepFuture;
+pub use self::{set_direction::SetDirectionFuture, step::StepFuture};
 
 use core::convert::{TryFrom, TryInto as _};
 
-use embedded_hal::{digital::OutputPin as _, timer};
+use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
 use nb::block;
 
@@ -205,7 +206,7 @@ impl<T> Driver<T> {
         let mut self_ = Driver {
             inner: self.inner.enable_direction_control(res),
         };
-        self_.set_direction(initial, timer)?;
+        self_.set_direction(initial, timer).wait()?;
 
         Ok(self_)
     }
@@ -214,43 +215,17 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_direction_control`] to make this
     /// method available.
-    pub fn set_direction<Timer>(
-        &mut self,
+    pub fn set_direction<'r, Timer>(
+        &'r mut self,
         direction: Direction,
-        timer: &mut Timer,
-    ) -> Result<
-        (),
-        Error<
-            T::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
-            Timer::Error,
-        >,
-    >
+        timer: &'r mut Timer,
+    ) -> SetDirectionFuture<'r, T, Timer>
     where
         T: SetDirection,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        match direction {
-            Direction::Forward => self
-                .inner
-                .dir()
-                .try_set_high()
-                .map_err(|err| Error::Pin(err))?,
-            Direction::Backward => self
-                .inner
-                .dir()
-                .try_set_low()
-                .map_err(|err| Error::Pin(err))?,
-        }
-
-        let ticks: Timer::Time = T::SETUP_TIME
-            .try_into()
-            .map_err(|err| Error::TimeConversion(err))?;
-        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
-        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
-
-        Ok(())
+        SetDirectionFuture::new(direction, self, timer)
     }
 
     /// Enable step control
