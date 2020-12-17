@@ -1,13 +1,16 @@
 mod set_direction;
+mod set_step_mode;
 mod step;
 
-pub use self::{set_direction::SetDirectionFuture, step::StepFuture};
+pub use self::{
+    set_direction::SetDirectionFuture, set_step_mode::SetStepModeFuture,
+    step::StepFuture,
+};
 
-use core::convert::{TryFrom, TryInto as _};
+use core::convert::TryFrom;
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
-use nb::block;
 
 use crate::{
     traits::{
@@ -119,7 +122,7 @@ impl<T> Driver<T> {
         let mut self_ = Driver {
             inner: self.inner.enable_step_mode_control(res),
         };
-        self_.set_step_mode(initial, timer)?;
+        self_.set_step_mode(initial, timer).wait()?;
 
         Ok(self_)
     }
@@ -133,42 +136,17 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_step_mode_control`] to make this
     /// method available.
-    pub fn set_step_mode<Timer>(
-        &mut self,
+    pub fn set_step_mode<'r, Timer>(
+        &'r mut self,
         step_mode: T::StepMode,
-        timer: &mut Timer,
-    ) -> Result<
-        (),
-        Error<
-            T::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
-            Timer::Error,
-        >,
-    >
+        timer: &'r mut Timer,
+    ) -> SetStepModeFuture<'r, T, Timer>
     where
         T: SetStepMode,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        self.inner
-            .apply_mode_config(step_mode)
-            .map_err(|err| Error::Pin(err))?;
-
-        let ticks: Timer::Time = T::SETUP_TIME
-            .try_into()
-            .map_err(|err| Error::TimeConversion(err))?;
-        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
-        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
-
-        self.inner.enable_driver().map_err(|err| Error::Pin(err))?;
-
-        let ticks: Timer::Time = T::HOLD_TIME
-            .try_into()
-            .map_err(|err| Error::TimeConversion(err))?;
-        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
-        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
-
-        Ok(())
+        SetStepModeFuture::new(step_mode, self, timer)
     }
 
     /// Enable direction control
