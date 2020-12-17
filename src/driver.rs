@@ -1,7 +1,7 @@
 use core::convert::{TryFrom, TryInto as _};
 
 use embedded_hal::{digital::OutputPin as _, timer};
-use embedded_time::{duration::Nanoseconds, TimeError};
+use embedded_time::duration::Nanoseconds;
 use nb::block;
 
 use crate::{
@@ -334,12 +334,4 @@ pub enum Error<PinError, TimeConversionError, TimerError> {
 
     /// An error originated from working with a timer
     Timer(TimerError),
-}
-
-impl<PinError, TimeConversionError> From<TimeError>
-    for Error<PinError, TimeConversionError, TimeError>
-{
-    fn from(err: TimeError) -> Self {
-        Self::Timer(err)
-    }
 }
