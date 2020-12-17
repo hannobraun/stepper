@@ -18,7 +18,7 @@ use super::{Driver, Error};
 pub struct StepFuture<'r, T, Timer> {
     driver: &'r mut Driver<T>,
     timer: &'r mut Timer,
-    state: StepState,
+    state: State,
 }
 
 impl<'r, T, Timer> StepFuture<'r, T, Timer>
@@ -31,7 +31,7 @@ where
         Self {
             driver,
             timer,
-            state: StepState::Initial,
+            state: State::Initial,
         }
     }
 
@@ -61,7 +61,7 @@ where
         >,
     > {
         match self.state {
-            StepState::Initial => {
+            State::Initial => {
                 // Start step pulse
                 self.driver
                     .inner
@@ -76,10 +76,10 @@ where
                     .try_start(ticks)
                     .map_err(|err| Error::Timer(err))?;
 
-                self.state = StepState::PulseStarted;
+                self.state = State::PulseStarted;
                 Poll::Pending
             }
-            StepState::PulseStarted => {
+            State::PulseStarted => {
                 match self.timer.try_wait() {
                     Ok(()) => {
                         // End step pulse
@@ -89,17 +89,17 @@ where
                             .try_set_low()
                             .map_err(|err| Error::Pin(err))?;
 
-                        self.state = StepState::Finished;
+                        self.state = State::Finished;
                         Poll::Ready(Ok(()))
                     }
                     Err(nb::Error::Other(err)) => {
-                        self.state = StepState::Finished;
+                        self.state = State::Finished;
                         Poll::Ready(Err(Error::Timer(err)))
                     }
                     Err(nb::Error::WouldBlock) => Poll::Pending,
                 }
             }
-            StepState::Finished => Poll::Ready(Ok(())),
+            State::Finished => Poll::Ready(Ok(())),
         }
     }
 
@@ -125,7 +125,7 @@ where
     }
 }
 
-enum StepState {
+enum State {
     Initial,
     PulseStarted,
     Finished,
