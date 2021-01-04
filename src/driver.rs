@@ -319,6 +319,14 @@ impl<T> Driver<T> {
 
         Ok(())
     }
+
+    /// Returns the step pulse length of the wrapped driver
+    pub fn pulse_length(&self) -> Nanoseconds
+    where
+        T: Step,
+    {
+        T::PULSE_LENGTH
+    }
 }
 
 /// An error that can occur while using this API

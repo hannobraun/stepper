@@ -142,7 +142,10 @@ where
     driver.step(timer).unwrap();
 
     timer.start(mrt::MAX_VALUE);
-    let step_timer = timer.new_timer(delay - D::PULSE_LENGTH).start().unwrap();
+    let step_timer = timer
+        .new_timer(delay - driver.pulse_length())
+        .start()
+        .unwrap();
 
     let mut counts = 0;
 
