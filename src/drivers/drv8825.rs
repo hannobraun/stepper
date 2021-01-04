@@ -59,12 +59,11 @@
 //! // need an implementation of `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP and DIR pins.
-//! let mut driver = Driver::new(
-//!     DRV8825::from_step_dir_pins(step, dir)
-//! );
+//! let mut driver = Driver::new(DRV8825::new())
+//!     .enable_direction_control(dir, Direction::Forward, &clock)?
+//!     .enable_step_control(step);
 //!
 //! // Rotate stepper motor by a few steps.
-//! driver.set_direction(Direction::Forward, &clock)?;
 //! for _ in 0 .. 5 {
 //!     let timer = clock.new_timer(STEP_DELAY).start()?;
 //!     driver.step(&clock)?;
@@ -79,18 +78,20 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{duration::Nanoseconds, Clock};
+use embedded_time::duration::Nanoseconds;
 
 use crate::{
-    traits::{Dir as DirTrait, SetStepMode, Step as StepTrait},
-    ModeError, StepMode32,
+    traits::{
+        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, SetStepMode, Step as StepTrait,
+    },
+    StepMode32,
 };
 
 /// The DRV8825 driver API
 ///
-/// You can create an instance of this struct by calling
-/// [`DRV8825::from_step_dir_pins`]. See [module documentation] for a full
-/// example that uses this API.
+/// You can create an instance of this struct by calling [`DRV8825::new`]. See
+/// [module documentation] for a full example that uses this API.
 ///
 /// [module documentation]: index.html
 pub struct DRV8825<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
@@ -106,24 +107,13 @@ pub struct DRV8825<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
     dir: Dir,
 }
 
-impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
+impl DRV8825<(), (), (), (), (), (), (), (), ()> {
     /// Create a new instance of `DRV8825`
     ///
-    /// Creates an instance of this struct from just the STEP and DIR pins. It
-    /// expects the types that represent those pins to implement [`OutputPin`].
-    ///
-    /// The resulting instance can be used to step the motor using
-    /// [`DRV8825::step`]. All other capabilities of the DRV8825, like
-    /// the power-up sequence, selecting a step mode, or controlling the power
-    /// state, explicitly enabled, or managed externally.
-    ///
-    /// To enable additional capabilities, see
-    /// [`DRV8825::enable_mode_control`].
-    pub fn from_step_dir_pins<Error>(step: Step, dir: Dir) -> Self
-    where
-        Step: OutputPin<Error = Error>,
-        Dir: OutputPin<Error = Error>,
-    {
+    /// The resulting instance won't be able to do anything yet. You can call
+    /// the various `enable_` methods of [`Driver`](crate::Driver) to rectify
+    /// that.
+    pub fn new() -> Self {
         Self {
             enable: (),
             fault: (),
@@ -132,50 +122,29 @@ impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
             mode0: (),
             mode1: (),
             mode2: (),
-            step,
-            dir,
+            step: (),
+            dir: (),
         }
     }
 }
 
-impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
-    /// Enables support for step mode control and sets the initial step mode
-    ///
-    /// Consumes this instance of `DRV8825` and returns another instance that
-    /// has support for controlling the step mode. Requires the additional pins
-    /// for doing so, namely RESET, MODE0, MODE1, and MODE2. It expects the
-    /// types that represent those pins to implement [`OutputPin`].
-    ///
-    /// This method is only available when those pins have not been provided
-    /// yet. After this method has been called once, you can use
-    /// [`DRV8825::set_step_mode`] to change the step mode again.
-    pub fn enable_mode_control<
-        Reset,
-        Mode0,
-        Mode1,
-        Mode2,
-        Clk,
-        OutputPinError,
-    >(
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableStepModeControl<(Reset, Mode0, Mode1, Mode2)>
+    for DRV8825<(), (), (), (), (), (), (), Step, Dir>
+where
+    Reset: OutputPin<Error = OutputPinError>,
+    Mode0: OutputPin<Error = OutputPinError>,
+    Mode1: OutputPin<Error = OutputPinError>,
+    Mode2: OutputPin<Error = OutputPinError>,
+{
+    type WithStepModeControl =
+        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+
+    fn enable_step_mode_control(
         self,
-        reset: Reset,
-        mode0: Mode0,
-        mode1: Mode1,
-        mode2: Mode2,
-        step_mode: StepMode32,
-        clock: &Clk,
-    ) -> Result<
-        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>,
-        ModeError<OutputPinError>,
-    >
-    where
-        Reset: OutputPin<Error = OutputPinError>,
-        Mode0: OutputPin<Error = OutputPinError>,
-        Mode1: OutputPin<Error = OutputPinError>,
-        Mode2: OutputPin<Error = OutputPinError>,
-        Clk: Clock,
-    {
-        let mut self_ = DRV8825 {
+        (reset, mode0, mode1, mode2): (Reset, Mode0, Mode1, Mode2),
+    ) -> Self::WithStepModeControl {
+        DRV8825 {
             enable: self.enable,
             fault: self.fault,
             sleep: self.sleep,
@@ -185,11 +154,7 @@ impl<Step, Dir> DRV8825<(), (), (), (), (), (), (), Step, Dir> {
             mode2,
             step: self.step,
             dir: self.dir,
-        };
-
-        self_.set_step_mode(step_mode, clock)?;
-
-        Ok(self_)
+        }
     }
 }
 
@@ -201,56 +166,70 @@ where
     Mode1: OutputPin<Error = OutputPinError>,
     Mode2: OutputPin<Error = OutputPinError>,
 {
-    type Error = ModeError<OutputPinError>;
+    // 7.6 Timing Requirements (page 7)
+    // https://www.ti.com/lit/ds/symlink/drv8825.pdf
+    const SETUP_TIME: Nanoseconds = Nanoseconds(650);
+    const HOLD_TIME: Nanoseconds = Nanoseconds(650);
+
+    type Error = OutputPinError;
     type StepMode = StepMode32;
 
-    /// Sets the step mode
-    ///
-    /// This method is only available, if all the pins required for setting the
-    /// step mode have been provided using [`DRV8825::enable_mode_control`].
-    fn set_step_mode<Clk: Clock>(
+    fn apply_mode_config(
         &mut self,
-        step_mode: StepMode32,
-        clock: &Clk,
+        step_mode: Self::StepMode,
     ) -> Result<(), Self::Error> {
-        // 7.6 Timing Requirements (page 7)
-        // https://www.ti.com/lit/ds/symlink/drv8825.pdf
-        const SETUP_TIME: Nanoseconds = Nanoseconds(650);
-
         // Reset the device's internal logic and disable the h-bridge drivers.
-        self.reset
-            .try_set_low()
-            .map_err(|err| ModeError::OutputPin(err))?;
+        self.reset.try_set_low()?;
+
+        use PinState::*;
+        use StepMode32::*;
+        let (mode0, mode1, mode2) = match step_mode {
+            Full => (Low, Low, Low),
+            M2 => (High, Low, Low),
+            M4 => (Low, High, Low),
+            M8 => (High, High, Low),
+            M16 => (Low, Low, High),
+            M32 => (High, High, High),
+        };
 
         // Set mode signals.
-        let (mode0, mode1, mode2) = step_mode_to_signals(&step_mode);
-        self.mode0
-            .try_set_state(mode0)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.mode1
-            .try_set_state(mode1)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.mode2
-            .try_set_state(mode2)
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Need to wait for the MODEx input setup time.
-        clock.new_timer(SETUP_TIME).start()?.wait()?;
-
-        // Re-enable the h-bridge drivers using the new configuration.
-        self.reset
-            .try_set_high()
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Now the mode pins need to stay as they are for the MODEx input hold
-        // time, for the settings to take effect.
-        clock.new_timer(SETUP_TIME).start()?.wait()?;
+        self.mode0.try_set_state(mode0)?;
+        self.mode1.try_set_state(mode1)?;
+        self.mode2.try_set_state(mode2)?;
 
         Ok(())
     }
+
+    fn enable_driver(&mut self) -> Result<(), Self::Error> {
+        self.reset.try_set_high()
+    }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> DirTrait
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableDirectionControl<Dir>
+    for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, ()>
+where
+    Dir: OutputPin<Error = OutputPinError>,
+{
+    type WithDirectionControl =
+        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+
+    fn enable_direction_control(self, dir: Dir) -> Self::WithDirectionControl {
+        DRV8825 {
+            enable: self.enable,
+            fault: self.fault,
+            sleep: self.sleep,
+            reset: self.reset,
+            mode0: self.mode0,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step: self.step,
+            dir,
+        }
+    }
+}
+
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> SetDirection
     for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Dir: OutputPin<Error = OutputPinError>,
@@ -264,6 +243,30 @@ where
 
     fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir
+    }
+}
+
+impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableStepControl<Step>
+    for DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, (), Dir>
+where
+    Step: OutputPin<Error = OutputPinError>,
+{
+    type WithStepControl =
+        DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+
+    fn enable_step_control(self, step: Step) -> Self::WithStepControl {
+        DRV8825 {
+            enable: self.enable,
+            fault: self.fault,
+            sleep: self.sleep,
+            reset: self.reset,
+            mode0: self.mode0,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step,
+            dir: self.dir,
+        }
     }
 }
 
@@ -281,22 +284,5 @@ where
 
     fn step(&mut self) -> &mut Self::Step {
         &mut self.step
-    }
-}
-
-/// Provides the pin signals for the given step mode
-fn step_mode_to_signals(
-    step_mode: &StepMode32,
-) -> (PinState, PinState, PinState) {
-    use PinState::*;
-    use StepMode32::*;
-
-    match step_mode {
-        Full => (Low, Low, Low),
-        M2 => (High, Low, Low),
-        M4 => (Low, High, Low),
-        M8 => (High, High, Low),
-        M16 => (Low, Low, High),
-        M32 => (High, High, High),
     }
 }

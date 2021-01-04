@@ -2,7 +2,10 @@ use embedded_hal::digital::OutputPin as _;
 use embedded_time::{Clock, TimeError};
 
 use crate::{
-    traits::{Dir, SetStepMode, Step},
+    traits::{
+        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, SetStepMode, Step,
+    },
     Direction,
 };
 
@@ -47,21 +50,117 @@ impl<T> Driver<T> {
         self.inner
     }
 
-    /// Sets the step mode
+    /// Enable microstepping mode control
+    ///
+    /// Consumes `Driver` and returns a new instance that provides control over
+    /// the microstepping mode. Once this method has been called, the
+    /// [`Driver::set_step_mode`] method becomes available.
+    ///
+    /// Takes an initial step mode value and a reference to an
+    /// `embedded_time::Clock` implementation to handle the timing. Please make
+    /// sure that the timer doesn't overflow while this method is running.
+    ///
+    /// Takes the hardware resources that are required for controlling the
+    /// microstepping mode as an argument. What exactly those are depends on the
+    /// specific driver. Typically they are the output pins that are connected
+    /// to the mode pins of the driver.
+    ///
+    /// This method is only available, if the driver supports enabling step mode
+    /// control. It might no longer be available, once step mode control has
+    /// been enabled.
+    pub fn enable_step_mode_control<Resources, Clk>(
+        self,
+        res: Resources,
+        initial: <T::WithStepModeControl as SetStepMode>::StepMode,
+        clock: &Clk,
+    ) -> Result<
+        Driver<T::WithStepModeControl>,
+        ModeError<<T::WithStepModeControl as SetStepMode>::Error>,
+    >
+    where
+        T: EnableStepModeControl<Resources>,
+        Clk: Clock,
+    {
+        let mut self_ = Driver {
+            inner: self.inner.enable_step_mode_control(res),
+        };
+        self_.set_step_mode(initial, clock)?;
+
+        Ok(self_)
+    }
+
+    /// Sets the microstepping mode
     ///
     /// This method is only available, if the wrapped driver supports
     /// microstepping, and supports setting the step mode through software. Some
     /// driver might not support microstepping at all, or only allow setting the
     /// step mode by changing physical switches.
-    pub fn set_step_mode<Clk: Clock>(
+    ///
+    /// You might need to call [`Driver::enable_step_mode_control`] to make this
+    /// method available.
+    pub fn set_step_mode<Clk>(
         &mut self,
         step_mode: T::StepMode,
         clock: &Clk,
-    ) -> Result<(), T::Error>
+    ) -> Result<(), ModeError<T::Error>>
     where
         T: SetStepMode,
+        Clk: Clock,
     {
-        self.inner.set_step_mode(step_mode, clock)
+        self.inner
+            .apply_mode_config(step_mode)
+            .map_err(|err| ModeError::OutputPin(err))?;
+
+        clock.new_timer(T::SETUP_TIME).start()?.wait()?;
+
+        self.inner
+            .enable_driver()
+            .map_err(|err| ModeError::OutputPin(err))?;
+
+        // Now the mode pins need to stay as they are for the MODEx input hold
+        // time, for the settings to take effect.
+        clock.new_timer(T::HOLD_TIME).start()?.wait()?;
+
+        Ok(())
+    }
+
+    /// Enable direction control
+    ///
+    /// Consumes `Driver` and returns a new instance that provides control over
+    /// the motor direction. Once this method has been called, the
+    /// [`Driver::set_direction`] method becomes available.
+    ///
+    /// Takes an initial direction value and a reference to an
+    /// `embedded_time::Clock` implementation to handle the timing. Please make
+    /// sure that the timer doesn't overflow while this method is running.
+    ///
+    /// Takes the hardware resources that are required for controlling the
+    /// direction as an argument. What exactly those are depends on the specific
+    /// driver. Typically it's going to be the output pin that is connected to
+    /// the driver's DIR pin.
+    ///
+    /// This method is only available, if the driver supports enabling direction
+    /// control. It might no longer be available, once direction control has
+    /// been enabled.
+    pub fn enable_direction_control<Resources, Clk>(
+        self,
+        res: Resources,
+        initial: Direction,
+        clock: &Clk,
+    ) -> Result<
+        Driver<T::WithDirectionControl>,
+        StepError<<T::WithDirectionControl as SetDirection>::Error>,
+    >
+    where
+        T: EnableDirectionControl<Resources>,
+        Clk: Clock,
+    {
+        let mut self_ = Driver {
+            inner: self.inner.enable_direction_control(res),
+        };
+        self_.set_direction(initial, clock)?;
+
+        Ok(self_)
     }
 
     /// Set direction for future movements
@@ -69,13 +168,17 @@ impl<T> Driver<T> {
     /// Requires a reference to an `embedded_time::Clock` implementation to
     /// handle the timing. Please make sure that the timer doesn't overflow
     /// while this method is running.
-    pub fn set_direction<Clk: Clock>(
+    ///
+    /// You might need to call [`Driver::enable_direction_control`] to make this
+    /// method available.
+    pub fn set_direction<Clk>(
         &mut self,
         direction: Direction,
         clock: &Clk,
     ) -> Result<(), StepError<T::Error>>
     where
-        T: Dir,
+        T: SetDirection,
+        Clk: Clock,
     {
         match direction {
             Direction::Forward => self
@@ -95,6 +198,32 @@ impl<T> Driver<T> {
         Ok(())
     }
 
+    /// Enable step control
+    ///
+    /// Consumes `Driver` and returns a new instance that provides control over
+    /// stepping the motor. Once this method has been called, the
+    /// [`Driver::step`] method becomes available.
+    ///
+    /// Takes the hardware resources that are required for controlling the
+    /// direction as an argument. What exactly those are depends on the specific
+    /// driver. Typically it's going to be the output pin that is connected to
+    /// the driver's STEP pin.
+    ///
+    /// This method is only available, if the driver supports enabling step
+    /// control. It might no longer be available, once step control has been
+    /// enabled.
+    pub fn enable_step_control<Resources>(
+        self,
+        res: Resources,
+    ) -> Driver<T::WithStepControl>
+    where
+        T: EnableStepControl<Resources>,
+    {
+        Driver {
+            inner: self.inner.enable_step_control(res),
+        }
+    }
+
     /// Rotates the motor one (micro-)step in the given direction
     ///
     /// Steps the motor one step in the direction that was previously set,
@@ -104,12 +233,13 @@ impl<T> Driver<T> {
     /// Requires a reference to an `embedded_time::Clock` implementation to
     /// handle the timing. Please make sure that the timer doesn't overflow
     /// while this method is running.
-    pub fn step<Clk: Clock>(
-        &mut self,
-        clock: &Clk,
-    ) -> Result<(), StepError<T::Error>>
+    ///
+    /// You might need to call [`Driver::enable_step_control`] to make this
+    /// method available.
+    pub fn step<Clk>(&mut self, clock: &Clk) -> Result<(), StepError<T::Error>>
     where
         T: Step,
+        Clk: Clock,
     {
         // Start step pulse
         self.inner

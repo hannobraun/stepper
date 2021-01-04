@@ -60,12 +60,11 @@
 //! // `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP/MODE3 and DIR/MODE4 pins.
-//! let mut driver = Driver::new(
-//!     STSPIN220::from_step_dir_pins(step_mode3, dir_mode4)
-//! );
+//! let mut driver = Driver::new(STSPIN220::new())
+//!     .enable_direction_control(dir_mode4, Direction::Forward, &clock)?
+//!     .enable_step_control(step_mode3);
 //!
 //! // Rotate stepper motor by a few steps.
-//! driver.set_direction(Direction::Forward, &clock)?;
 //! for _ in 0 .. 5 {
 //!     let timer = clock.new_timer(STEP_DELAY).start()?;
 //!     driver.step(&clock)?;
@@ -80,21 +79,20 @@
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
 use embedded_hal::digital::{OutputPin, PinState};
-use embedded_time::{
-    duration::{Microseconds, Nanoseconds},
-    Clock,
-};
+use embedded_time::duration::Nanoseconds;
 
 use crate::{
-    traits::{Dir, SetStepMode, Step},
-    ModeError, StepMode256,
+    traits::{
+        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
+        SetDirection, SetStepMode, Step,
+    },
+    StepMode256,
 };
 
 /// The STSPIN220 driver API
 ///
-/// You can create an instance of this struct by calling
-/// [`STSPIN220::from_step_dir_pins`]. See [module documentation] for a full
-/// example that uses this API.
+/// You can create an instance of this struct by calling [`STSPIN220::new`]. See
+/// [module documentation] for a full example that uses this API.
 ///
 /// [module documentation]: index.html
 pub struct STSPIN220<
@@ -113,89 +111,56 @@ pub struct STSPIN220<
     dir_mode4: DirMode4,
 }
 
-impl<StepMode3, DirMode4> STSPIN220<(), (), (), (), StepMode3, DirMode4> {
+impl STSPIN220<(), (), (), (), (), ()> {
     /// Create a new instance of `STSPIN220`
     ///
-    /// Creates an instance of this struct from just the STEP/MODE3 and
-    /// DIR/MODE4 pins. It expects the types that represent those pins to
-    /// implement [`OutputPin`].
-    ///
-    /// The resulting instance can be used to step the motor using
-    /// [`STSPIN220::step`]. All other capabilities of the STSPIN220, like
-    /// the power-up sequence, selecting a step mode, or controlling the power
-    /// state, explicitly enabled, or managed externally.
-    ///
-    /// To enable additional capabilities, see
-    /// [`STSPIN220::enable_mode_control`].
-    pub fn from_step_dir_pins<Error>(
-        step_mode3: StepMode3,
-        dir_mode4: DirMode4,
-    ) -> Self
-    where
-        StepMode3: OutputPin<Error = Error>,
-        DirMode4: OutputPin<Error = Error>,
-    {
+    /// The resulting instance won't be able to do anything yet. You can call
+    /// the various `enable_` methods of [`Driver`](crate::Driver) to rectify
+    /// that.
+    pub fn new() -> Self {
         Self {
             enable_fault: (),
             standby_reset: (),
             mode1: (),
             mode2: (),
-            step_mode3,
-            dir_mode4,
+            step_mode3: (),
+            dir_mode4: (),
         }
     }
 }
 
-impl<EnableFault, StepMode3, DirMode4>
-    STSPIN220<EnableFault, (), (), (), StepMode3, DirMode4>
-{
-    /// Enables support for step mode control and sets the initial step mode
-    ///
-    /// Consumes this instance of `STSPIN220` and returns another instance that
-    /// has support for controlling the step mode. Requires the additional pins
-    /// for doing so, namely STBY/RESET, MODE1, and MODE2. It expects the types
-    /// that represent those pins to implement [`OutputPin`].
-    ///
-    /// This method is only available when those pins have not been provided
-    /// yet. After this method has been called once, you can use
-    /// [`STSPIN220::set_step_mode`] to change the step mode again.
-    pub fn enable_mode_control<
+impl<
+        EnableFault,
         StandbyReset,
         Mode1,
         Mode2,
-        Clk,
+        StepMode3,
+        DirMode4,
         OutputPinError,
-    >(
+    > EnableStepModeControl<(StandbyReset, Mode1, Mode2)>
+    for STSPIN220<EnableFault, (), (), (), StepMode3, DirMode4>
+where
+    StandbyReset: OutputPin<Error = OutputPinError>,
+    Mode1: OutputPin<Error = OutputPinError>,
+    Mode2: OutputPin<Error = OutputPinError>,
+    StepMode3: OutputPin<Error = OutputPinError>,
+    DirMode4: OutputPin<Error = OutputPinError>,
+{
+    type WithStepModeControl =
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
+
+    fn enable_step_mode_control(
         self,
-        standby_reset: StandbyReset,
-        mode1: Mode1,
-        mode2: Mode2,
-        step_mode: StepMode256,
-        clock: &Clk,
-    ) -> Result<
-        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>,
-        ModeError<OutputPinError>,
-    >
-    where
-        StandbyReset: OutputPin<Error = OutputPinError>,
-        Mode1: OutputPin<Error = OutputPinError>,
-        Mode2: OutputPin<Error = OutputPinError>,
-        StepMode3: OutputPin<Error = OutputPinError>,
-        DirMode4: OutputPin<Error = OutputPinError>,
-        Clk: Clock,
-    {
-        let mut self_ = STSPIN220 {
+        (standby_reset, mode1, mode2): (StandbyReset, Mode1, Mode2),
+    ) -> Self::WithStepModeControl {
+        STSPIN220 {
             enable_fault: self.enable_fault,
             standby_reset,
             mode1,
             mode2,
             step_mode3: self.step_mode3,
             dir_mode4: self.dir_mode4,
-        };
-
-        self_.set_step_mode(step_mode, clock)?;
-
-        Ok(self_)
+        }
     }
 }
 
@@ -216,55 +181,45 @@ where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
-    type Error = ModeError<OutputPinError>;
+    const SETUP_TIME: Nanoseconds = Nanoseconds(1_000);
+    const HOLD_TIME: Nanoseconds = Nanoseconds(100_000);
 
+    type Error = OutputPinError;
     type StepMode = StepMode256;
 
-    /// Sets the step mode
-    ///
-    /// This method is only available, if all the pins required for setting the
-    /// step mode have been provided using [`STSPIN220::enable_mode_control`].
-    fn set_step_mode<Clk: Clock>(
+    fn apply_mode_config(
         &mut self,
         step_mode: Self::StepMode,
-        clock: &Clk,
     ) -> Result<(), Self::Error> {
-        const MODE_SETUP_TIME: Microseconds = Microseconds(1);
-        const MODE_HOLD_TIME: Microseconds = Microseconds(100);
-
         // Force driver into standby mode.
-        self.standby_reset
-            .try_set_low()
-            .map_err(|err| ModeError::OutputPin(err))?;
+        self.standby_reset.try_set_low()?;
+
+        use PinState::*;
+        use StepMode256::*;
+        let (mode1, mode2, mode3, mode4) = match step_mode {
+            Full => (Low, Low, Low, Low),
+            M2 => (High, Low, High, Low),
+            M4 => (Low, High, Low, High),
+            M8 => (High, High, High, Low),
+            M16 => (High, High, High, High),
+            M32 => (Low, High, Low, Low),
+            M64 => (High, High, Low, High),
+            M128 => (High, Low, Low, Low),
+            M256 => (High, High, Low, Low),
+        };
 
         // Set mode signals.
-        let (mode1, mode2, mode3, mode4) = step_mode_to_signals(&step_mode);
-        self.mode1
-            .try_set_state(mode1)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.mode2
-            .try_set_state(mode2)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.step_mode3
-            .try_set_state(mode3)
-            .map_err(|err| ModeError::OutputPin(err))?;
-        self.dir_mode4
-            .try_set_state(mode4)
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Need to wait for the MODEx input setup time.
-        clock.new_timer(MODE_SETUP_TIME).start()?.wait()?;
-
-        // Leave standby mode.
-        self.standby_reset
-            .try_set_high()
-            .map_err(|err| ModeError::OutputPin(err))?;
-
-        // Now the mode pins need to stay as they are for the MODEx input hold
-        // time, for the settings to take effect.
-        clock.new_timer(MODE_HOLD_TIME).start()?.wait()?;
+        self.mode1.try_set_state(mode1)?;
+        self.mode2.try_set_state(mode2)?;
+        self.step_mode3.try_set_state(mode3)?;
+        self.dir_mode4.try_set_state(mode4)?;
 
         Ok(())
+    }
+
+    fn enable_driver(&mut self) -> Result<(), Self::Error> {
+        // Leave standby mode.
+        self.standby_reset.try_set_high()
     }
 }
 
@@ -276,7 +231,38 @@ impl<
         StepMode3,
         DirMode4,
         OutputPinError,
-    > Dir
+    > EnableDirectionControl<DirMode4>
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, ()>
+where
+    DirMode4: OutputPin<Error = OutputPinError>,
+{
+    type WithDirectionControl =
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
+
+    fn enable_direction_control(
+        self,
+        dir_mode4: DirMode4,
+    ) -> Self::WithDirectionControl {
+        STSPIN220 {
+            enable_fault: self.enable_fault,
+            standby_reset: self.standby_reset,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step_mode3: self.step_mode3,
+            dir_mode4,
+        }
+    }
+}
+
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
+    > SetDirection
     for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>
 where
     DirMode4: OutputPin<Error = OutputPinError>,
@@ -288,6 +274,37 @@ where
 
     fn dir(&mut self) -> &mut Self::Dir {
         &mut self.dir_mode4
+    }
+}
+
+impl<
+        EnableFault,
+        StandbyReset,
+        Mode1,
+        Mode2,
+        StepMode3,
+        DirMode4,
+        OutputPinError,
+    > EnableStepControl<StepMode3>
+    for STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, (), DirMode4>
+where
+    StepMode3: OutputPin<Error = OutputPinError>,
+{
+    type WithStepControl =
+        STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
+
+    fn enable_step_control(
+        self,
+        step_mode3: StepMode3,
+    ) -> Self::WithStepControl {
+        STSPIN220 {
+            enable_fault: self.enable_fault,
+            standby_reset: self.standby_reset,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step_mode3,
+            dir_mode4: self.dir_mode4,
+        }
     }
 }
 
@@ -311,24 +328,5 @@ where
 
     fn step(&mut self) -> &mut Self::Step {
         &mut self.step_mode3
-    }
-}
-
-/// Provides the pin signals for the given step mode
-pub fn step_mode_to_signals(
-    step_mode: &StepMode256,
-) -> (PinState, PinState, PinState, PinState) {
-    use PinState::*;
-    use StepMode256::*;
-    match step_mode {
-        Full => (Low, Low, Low, Low),
-        M2 => (High, Low, High, Low),
-        M4 => (Low, High, Low, High),
-        M8 => (High, High, High, Low),
-        M16 => (High, High, High, High),
-        M32 => (Low, High, Low, Low),
-        M64 => (High, High, Low, High),
-        M128 => (High, Low, Low, Low),
-        M256 => (High, High, Low, Low),
     }
 }

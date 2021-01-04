@@ -17,7 +17,7 @@ use test_stand::{
         },
     },
     rotary_encoder_hal::Rotary,
-    step_dir::{drivers::stspin220::STSPIN220, Driver, StepMode256},
+    step_dir::{drivers::stspin220::STSPIN220, Direction, Driver, StepMode256},
     test_step,
 };
 
@@ -42,7 +42,8 @@ mod tests {
     #[init]
     fn init() -> super::Context {
         use super::{
-            gpio, lpc8xx_hal, mrt, Driver, Rotary, StepMode256, STSPIN220,
+            gpio, lpc8xx_hal, mrt, Direction, Driver, Rotary, StepMode256,
+            STSPIN220,
         };
 
         let p = lpc8xx_hal::Peripherals::take().unwrap();
@@ -83,16 +84,16 @@ mod tests {
         let mut timer = mrt.mrt0;
 
         timer.start(mrt::MAX_VALUE);
-        let driver = STSPIN220::from_step_dir_pins(step_mode3, dir_mode4)
-            .enable_mode_control(
-                standby_reset,
-                mode1,
-                mode2,
+        let driver = Driver::new(STSPIN220::new())
+            .enable_step_control(step_mode3)
+            .enable_direction_control(dir_mode4, Direction::Forward, &timer)
+            .unwrap()
+            .enable_step_mode_control(
+                (standby_reset, mode1, mode2),
                 StepMode256::Full,
                 &timer,
             )
             .unwrap();
-        let driver = Driver::new(driver);
 
         let rotary = Rotary::new(rotary_a, rotary_b);
 
