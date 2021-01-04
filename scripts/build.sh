@@ -12,7 +12,4 @@ cargo doc &&
 # Test Stand
 (
     cd test-stand
-    cargo build --tests -p tests) &&
-
-# generate-drivers task
-cargo task generate-drivers
+    cargo build --tests -p tests)
