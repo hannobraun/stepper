@@ -1,5 +1,8 @@
-use embedded_hal::digital::OutputPin as _;
-use embedded_time::{Clock, TimeError};
+use core::convert::{TryFrom, TryInto as _};
+
+use embedded_hal::{digital::OutputPin as _, timer};
+use embedded_time::duration::Nanoseconds;
+use nb::block;
 
 use crate::{
     traits::{
@@ -13,6 +16,36 @@ use crate::{
 ///
 /// Wraps a concrete driver and uses the traits that the concrete driver
 /// implements to provide an abstract API.
+///
+/// # Notes on timer use
+///
+/// Some of this struct's methods take a timer argument. This is expected to be
+/// an implementation of [`embedded_hal::timer::CountDown`], with the additional
+/// requirement that `CountDown::Time` has a `TryFrom<Nanoseconds>`
+/// implementation, where `Nanoseconds` refers to
+/// [`embedded_time::duration::Nanoseconds`].
+///
+/// Not every `CountDown` implementation provides this for its `Time` type, so
+/// it might be necessary that the user either adds this `embedded_time`
+/// integration to the HAL library they are using, or provides a wrapper around
+/// the `CountDown` implementation in their own code, adding the conversion
+/// there.
+///
+/// Every method that takes a timer argument internally performs the conversion
+/// from `Nanoseconds` to the timers `Time` type. Since the nanosecond values
+/// are constant and the `CountDown` implementation is known statically, the
+/// compiler should have enough information to perform this conversion at
+/// compile-time.
+///
+/// Unfortunately there is currently no way to make sure that this optimization
+/// actually happens. Additions like [RFC 2632], [RFC 2920], and possibly others
+/// along those lines, could help with this in the future. For now, users must
+/// manually inspect the generated code and tweak optimization settings (and
+/// possibly the HAL-specific conversion code), if this level of performance is
+/// required.
+///
+/// [RFC 2632]: https://github.com/rust-lang/rfcs/pull/2632
+/// [RFC 2920]: https://github.com/rust-lang/rfcs/pull/2920
 pub struct Driver<T> {
     inner: T,
 }
@@ -52,10 +85,6 @@ impl<T> Driver<T> {
     /// the microstepping mode. Once this method has been called, the
     /// [`Driver::set_step_mode`] method becomes available.
     ///
-    /// Takes an initial step mode value and a reference to an
-    /// `embedded_time::Clock` implementation to handle the timing. Please make
-    /// sure that the timer doesn't overflow while this method is running.
-    ///
     /// Takes the hardware resources that are required for controlling the
     /// microstepping mode as an argument. What exactly those are depends on the
     /// specific driver. Typically they are the output pins that are connected
@@ -64,23 +93,28 @@ impl<T> Driver<T> {
     /// This method is only available, if the driver supports enabling step mode
     /// control. It might no longer be available, once step mode control has
     /// been enabled.
-    pub fn enable_step_mode_control<Resources, Clk>(
+    pub fn enable_step_mode_control<Resources, Timer>(
         self,
         res: Resources,
         initial: <T::WithStepModeControl as SetStepMode>::StepMode,
-        clock: &Clk,
+        timer: &mut Timer,
     ) -> Result<
         Driver<T::WithStepModeControl>,
-        Error<<T::WithStepModeControl as SetStepMode>::Error, TimeError>,
+        Error<
+            <T::WithStepModeControl as SetStepMode>::Error,
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            Timer::Error,
+        >,
     >
     where
         T: EnableStepModeControl<Resources>,
-        Clk: Clock,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
     {
         let mut self_ = Driver {
             inner: self.inner.enable_step_mode_control(res),
         };
-        self_.set_step_mode(initial, clock)?;
+        self_.set_step_mode(initial, timer)?;
 
         Ok(self_)
     }
@@ -94,26 +128,40 @@ impl<T> Driver<T> {
     ///
     /// You might need to call [`Driver::enable_step_mode_control`] to make this
     /// method available.
-    pub fn set_step_mode<Clk>(
+    pub fn set_step_mode<Timer>(
         &mut self,
         step_mode: T::StepMode,
-        clock: &Clk,
-    ) -> Result<(), Error<T::Error, TimeError>>
+        timer: &mut Timer,
+    ) -> Result<
+        (),
+        Error<
+            T::Error,
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            Timer::Error,
+        >,
+    >
     where
         T: SetStepMode,
-        Clk: Clock,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
     {
         self.inner
             .apply_mode_config(step_mode)
             .map_err(|err| Error::Pin(err))?;
 
-        clock.new_timer(T::SETUP_TIME).start()?.wait()?;
+        let ticks: Timer::Time = T::SETUP_TIME
+            .try_into()
+            .map_err(|err| Error::TimeConversion(err))?;
+        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
+        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
 
         self.inner.enable_driver().map_err(|err| Error::Pin(err))?;
 
-        // Now the mode pins need to stay as they are for the MODEx input hold
-        // time, for the settings to take effect.
-        clock.new_timer(T::HOLD_TIME).start()?.wait()?;
+        let ticks: Timer::Time = T::HOLD_TIME
+            .try_into()
+            .map_err(|err| Error::TimeConversion(err))?;
+        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
+        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
 
         Ok(())
     }
@@ -124,10 +172,6 @@ impl<T> Driver<T> {
     /// the motor direction. Once this method has been called, the
     /// [`Driver::set_direction`] method becomes available.
     ///
-    /// Takes an initial direction value and a reference to an
-    /// `embedded_time::Clock` implementation to handle the timing. Please make
-    /// sure that the timer doesn't overflow while this method is running.
-    ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
     /// driver. Typically it's going to be the output pin that is connected to
@@ -136,43 +180,52 @@ impl<T> Driver<T> {
     /// This method is only available, if the driver supports enabling direction
     /// control. It might no longer be available, once direction control has
     /// been enabled.
-    pub fn enable_direction_control<Resources, Clk>(
+    pub fn enable_direction_control<Resources, Timer>(
         self,
         res: Resources,
         initial: Direction,
-        clock: &Clk,
+        timer: &mut Timer,
     ) -> Result<
         Driver<T::WithDirectionControl>,
-        Error<<T::WithDirectionControl as SetDirection>::Error, TimeError>,
+        Error<
+            <T::WithDirectionControl as SetDirection>::Error,
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            Timer::Error,
+        >,
     >
     where
         T: EnableDirectionControl<Resources>,
-        Clk: Clock,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
     {
         let mut self_ = Driver {
             inner: self.inner.enable_direction_control(res),
         };
-        self_.set_direction(initial, clock)?;
+        self_.set_direction(initial, timer)?;
 
         Ok(self_)
     }
 
     /// Set direction for future movements
     ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    ///
     /// You might need to call [`Driver::enable_direction_control`] to make this
     /// method available.
-    pub fn set_direction<Clk>(
+    pub fn set_direction<Timer>(
         &mut self,
         direction: Direction,
-        clock: &Clk,
-    ) -> Result<(), Error<T::Error, TimeError>>
+        timer: &mut Timer,
+    ) -> Result<
+        (),
+        Error<
+            T::Error,
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            Timer::Error,
+        >,
+    >
     where
         T: SetDirection,
-        Clk: Clock,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
     {
         match direction {
             Direction::Forward => self
@@ -187,7 +240,11 @@ impl<T> Driver<T> {
                 .map_err(|err| Error::Pin(err))?,
         }
 
-        clock.new_timer(T::SETUP_TIME).start()?.wait()?;
+        let ticks: Timer::Time = T::SETUP_TIME
+            .try_into()
+            .map_err(|err| Error::TimeConversion(err))?;
+        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
+        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
 
         Ok(())
     }
@@ -224,19 +281,23 @@ impl<T> Driver<T> {
     /// according to current microstep configuration. To achieve a specific
     /// speed, the user must call this method at the appropriate frequency.
     ///
-    /// Requires a reference to an `embedded_time::Clock` implementation to
-    /// handle the timing. Please make sure that the timer doesn't overflow
-    /// while this method is running.
-    ///
     /// You might need to call [`Driver::enable_step_control`] to make this
     /// method available.
-    pub fn step<Clk>(
+    pub fn step<Timer>(
         &mut self,
-        clock: &Clk,
-    ) -> Result<(), Error<T::Error, TimeError>>
+        timer: &mut Timer,
+    ) -> Result<
+        (),
+        Error<
+            T::Error,
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            Timer::Error,
+        >,
+    >
     where
         T: Step,
-        Clk: Clock,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
     {
         // Start step pulse
         self.inner
@@ -244,7 +305,11 @@ impl<T> Driver<T> {
             .try_set_high()
             .map_err(|err| Error::Pin(err))?;
 
-        clock.new_timer(T::PULSE_LENGTH).start()?.wait()?;
+        let ticks: Timer::Time = T::PULSE_LENGTH
+            .try_into()
+            .map_err(|err| Error::TimeConversion(err))?;
+        timer.try_start(ticks).map_err(|err| Error::Timer(err))?;
+        block!(timer.try_wait()).map_err(|err| Error::Timer(err))?;
 
         // End step pulse
         self.inner
@@ -258,18 +323,15 @@ impl<T> Driver<T> {
 
 /// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum Error<PinError, TimerError> {
+pub enum Error<PinError, TimeConversionError, TimerError> {
     /// An error originated from using the [`OutputPin`] trait
     ///
     /// [`OutputPin`]: embedded_hal::digital::OutputPin
     Pin(PinError),
 
+    /// An error occurred while converting time to timer ticks
+    TimeConversion(TimeConversionError),
+
     /// An error originated from working with a timer
     Timer(TimerError),
-}
-
-impl<PinError> From<TimeError> for Error<PinError, TimeError> {
-    fn from(err: TimeError) -> Self {
-        Self::Timer(err)
-    }
 }

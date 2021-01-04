@@ -138,10 +138,11 @@ where
         Direction::Backward => EncoderDirection::CounterClockwise,
     };
 
-    timer.start(mrt::MAX_VALUE);
-    let step_timer = timer.new_timer(delay).start().unwrap();
     driver.set_direction(direction, timer).unwrap();
     driver.step(timer).unwrap();
+
+    timer.start(mrt::MAX_VALUE);
+    let step_timer = timer.new_timer(delay - D::PULSE_LENGTH).start().unwrap();
 
     let mut counts = 0;
 
