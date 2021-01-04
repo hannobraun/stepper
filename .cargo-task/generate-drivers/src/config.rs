@@ -41,7 +41,7 @@ pub struct Package {
     pub authors: Vec<String>,
 }
 
-/// The 'Cargo.toml' file format. We're only concerned with the '[package]'
+/// The 'Cargo.toml' file format. We're only concerned with the '\[package\]'
 /// section at this time.
 #[derive(Debug, Deserialize)]
 pub struct Manifest {

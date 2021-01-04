@@ -11,13 +11,13 @@ pub extern crate step_dir;
 
 use core::fmt::Debug;
 
-use lpc8xx_hal::{cortex_m::asm, mrt};
+use lpc8xx_hal::{
+    cortex_m::asm,
+    mrt::{self, MRT0},
+};
 use rotary_encoder_hal::{Direction as EncoderDirection, Rotary};
 use step_dir::{
-    embedded_hal::{
-        digital::{InputPin, OutputPin},
-        timer,
-    },
+    embedded_hal::digital::{InputPin, OutputPin},
     embedded_time::{duration::Microseconds, Clock},
     traits::{SetDirection, Step},
     Direction, Driver,
@@ -30,16 +30,14 @@ pub fn exit() -> ! {
     }
 }
 
-pub fn test_step<D, Timer, A, B, DebugSignal, Error>(
+pub fn test_step<D, A, B, DebugSignal, Error>(
     driver: &mut Driver<D>,
-    timer: &mut Timer,
+    timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
 ) where
     D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
-    Timer: timer::CountDown<Time = u32> + Clock,
-    Timer::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -51,17 +49,15 @@ pub fn test_step<D, Timer, A, B, DebugSignal, Error>(
     verify_steps(driver, timer, rotary, Direction::Backward, debug_signal);
 }
 
-pub fn verify_steps<D, Timer, A, B, DebugSignal, Error>(
+pub fn verify_steps<D, A, B, DebugSignal, Error>(
     driver: &mut Driver<D>,
-    timer: &mut Timer,
+    timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     direction: Direction,
     debug_signal: &mut DebugSignal,
 ) where
     D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
-    Timer: timer::CountDown<Time = u32> + Clock,
-    Timer::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -121,9 +117,9 @@ pub fn verify_steps<D, Timer, A, B, DebugSignal, Error>(
     assert_eq!(counts_expected, counts);
 }
 
-pub fn step<D, Timer, A, B, Error>(
+pub fn step<D, A, B, Error>(
     driver: &mut Driver<D>,
-    timer: &mut Timer,
+    timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,
     direction: Direction,
@@ -132,8 +128,6 @@ pub fn step<D, Timer, A, B, Error>(
 where
     D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
-    Timer: timer::CountDown<Time = u32> + Clock,
-    Timer::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -144,7 +138,7 @@ where
         Direction::Backward => EncoderDirection::CounterClockwise,
     };
 
-    timer.try_start(mrt::MAX_VALUE).unwrap();
+    timer.start(mrt::MAX_VALUE);
     let step_timer = timer.new_timer(delay).start().unwrap();
     driver.set_direction(direction, timer).unwrap();
     driver.step(timer).unwrap();

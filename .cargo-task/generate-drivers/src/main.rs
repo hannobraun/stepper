@@ -6,11 +6,10 @@ use std::{
     path::PathBuf,
 };
 
+use cargo_task_util::ct_info;
 use serde_derive::Serialize;
 use serde_json::Value;
 use tinytemplate::{format_unescaped, TinyTemplate};
-
-mod cargo_task_util;
 
 mod config;
 use config::{load_cargo_toml, load_drivers_toml, Driver};
