@@ -84,7 +84,7 @@ mod tests {
         let mut timer = mrt.mrt0;
 
         timer.start(mrt::MAX_VALUE);
-        let driver = Driver::new(STSPIN220::new())
+        let driver = Driver::from_inner(STSPIN220::new())
             .enable_step_control(step_mode3)
             .enable_direction_control(dir_mode4, Direction::Forward, &timer)
             .unwrap()

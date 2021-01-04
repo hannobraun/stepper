@@ -19,11 +19,7 @@ pub struct Driver<T> {
 
 impl<T> Driver<T> {
     /// Create a new `Driver` instance from a concrete driver
-    ///
-    /// Since `Driver` only provides an abstract interface for _using_ a driver,
-    /// not for initializing it, you have to initialize a concrete driver and
-    /// pass it to this constructor.
-    pub fn new(inner: T) -> Self {
+    pub fn from_inner(inner: T) -> Self {
         Self { inner }
     }
 

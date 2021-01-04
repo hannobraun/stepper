@@ -60,7 +60,7 @@
 //! // `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP/MODE3 and DIR/MODE4 pins.
-//! let mut driver = Driver::new(STSPIN220::new())
+//! let mut driver = Driver::from_inner(STSPIN220::new())
 //!     .enable_direction_control(dir_mode4, Direction::Forward, &clock)?
 //!     .enable_step_control(step_mode3);
 //!

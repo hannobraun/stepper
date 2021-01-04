@@ -59,7 +59,7 @@
 //! // need an implementation of `embedded_hal::blocking::DelayUs`.
 //!
 //! // Create driver API from STEP and DIR pins.
-//! let mut driver = Driver::new(DRV8825::new())
+//! let mut driver = Driver::from_inner(DRV8825::new())
 //!     .enable_direction_control(dir, Direction::Forward, &clock)?
 //!     .enable_step_control(step);
 //!
