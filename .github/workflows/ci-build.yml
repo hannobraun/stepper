@@ -22,5 +22,6 @@ jobs:
     - name: Install cargo-task
       run: |
         cargo install cargo-task
+        cargo task ct-init
     - name: Run build script
       run: ./scripts/build.sh
