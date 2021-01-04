@@ -12,7 +12,10 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::StepError<core::convert::Infallible>
+//! #         step_dir::Error<
+//! #             core::convert::Infallible,
+//! #             embedded_time::TimeError,
+//! #         >
 //! #     > {
 //! #
 //! use step_dir::{
