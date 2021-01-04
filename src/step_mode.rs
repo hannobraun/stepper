@@ -6,7 +6,7 @@ use paste::paste;
 ///
 /// Required as a trait bound by `SetStepMode::StepMode`.
 pub trait StepMode:
-    Into<u16> + TryFrom<u16, Error = InvalidStepModeError>
+    Into<u16> + TryFrom<u16, Error = InvalidStepModeError> + Copy
 {
     /// The type of the iterator returned by [`StepMode::iter`]
     type Iter: Iterator<Item = Self>;

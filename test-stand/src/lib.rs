@@ -138,8 +138,8 @@ where
         Direction::Backward => EncoderDirection::CounterClockwise,
     };
 
-    driver.set_direction(direction, timer).unwrap();
-    driver.step(timer).unwrap();
+    driver.set_direction(direction, timer).wait().unwrap();
+    driver.step(timer).wait().unwrap();
 
     timer.start(mrt::MAX_VALUE);
     let step_timer = timer
