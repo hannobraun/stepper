@@ -14,11 +14,8 @@
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
 //! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
 //!
-//! Step/Dir defines traits that allow users to write code that is completely
-//! agnostic to the stepper motor driver it controls. Currently these traits are
-//! limited to *use* of the stepper motor drivers. There are no traits to
-//! abstract over driver *initialization*, which still requires driver-specific
-//! code.
+//! Please check out the documentation of [`Driver`], which is the main entry
+//! point to this API.
 
 #![cfg_attr(not(test), no_std)]
 #![deny(missing_docs, broken_intra_doc_links)]
