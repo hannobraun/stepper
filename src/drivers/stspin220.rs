@@ -1,10 +1,11 @@
 //! STSPIN220 Driver
 //!
-//! Platform-agnostic driver for the STSPIN220 stepper motor driver. This module
-//! can be used on any platform for which implementations of the required
-//! [embedded-hal] traits are available.
+//! Platform-agnostic driver API for the STSPIN220 stepper motor driver. Can be
+//! used on any platform for which implementations of the require [embedded-hal]
+//! traits are available.
 //!
-//! The entry point to this module is the [`STSPIN220`] struct.
+//! For the most part, users are not expected to use this API directly. Please
+//! check out [`Driver`](crate::Driver) instead.
 //!
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
@@ -21,10 +22,9 @@ use crate::{
 
 /// The STSPIN220 driver API
 ///
-/// You can create an instance of this struct by calling [`STSPIN220::new`]. See
-/// [module documentation] for a full example that uses this API.
-///
-/// [module documentation]: index.html
+/// Users are not expected to use this API directly, except to create an
+/// instance using [`STSPIN220::new`]. Please check out
+/// [`Driver`](crate::Driver) instead.
 pub struct STSPIN220<
     EnableFault,
     StandbyReset,
@@ -43,10 +43,6 @@ pub struct STSPIN220<
 
 impl STSPIN220<(), (), (), (), (), ()> {
     /// Create a new instance of `STSPIN220`
-    ///
-    /// The resulting instance won't be able to do anything yet. You can call
-    /// the various `enable_` methods of [`Driver`](crate::Driver) to rectify
-    /// that.
     pub fn new() -> Self {
         Self {
             enable_fault: (),
