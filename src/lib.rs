@@ -1,4 +1,4 @@
-//! Step/Dir - Library for controlling stepper motors
+//! Step/Dir - Universal Stepper Motor Interface
 //!
 //! Step/Dir provides a low-level interface which abstracts over stepper motor
 //! drivers that are controlled through STEP and DIR signals. Higher-level code

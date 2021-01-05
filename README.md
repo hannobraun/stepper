@@ -1,4 +1,4 @@
-# Step/Dir - Interface to stepper motor drivers [![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/braun-embedded/step-dir/workflows/CI%20Build/badge.svg)
+# Step/Dir - Universal Stepper Motor Interface [![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/braun-embedded/step-dir/workflows/CI%20Build/badge.svg)
 
 ## About
 
