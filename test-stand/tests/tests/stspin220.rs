@@ -17,7 +17,10 @@ use test_stand::{
         },
     },
     rotary_encoder_hal::Rotary,
-    step_dir::{drivers::stspin220::STSPIN220, Direction, Driver, StepMode256},
+    step_dir::{
+        drivers::stspin220::STSPIN220, step_mode::StepMode256, Direction,
+        Driver,
+    },
     test_step,
 };
 

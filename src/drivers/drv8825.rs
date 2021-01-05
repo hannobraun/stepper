@@ -12,11 +12,11 @@ use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{
+    step_mode::StepMode32,
     traits::{
         EnableDirectionControl, EnableStepControl, EnableStepModeControl,
         SetDirection, SetStepMode, Step as StepTrait,
     },
-    StepMode32,
 };
 
 /// The DRV8825 driver API

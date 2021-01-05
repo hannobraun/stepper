@@ -3,7 +3,7 @@
 use embedded_hal::digital::OutputPin;
 use embedded_time::duration::Nanoseconds;
 
-use crate::StepMode;
+use crate::step_mode::StepMode;
 
 /// Enable microstepping mode control for a driver
 ///

@@ -12,11 +12,11 @@ use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{
+    step_mode::StepMode256,
     traits::{
         EnableDirectionControl, EnableStepControl, EnableStepModeControl,
         SetDirection, SetStepMode, Step,
     },
-    StepMode256,
 };
 
 /// The STSPIN220 driver API
