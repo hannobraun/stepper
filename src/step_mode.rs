@@ -5,8 +5,6 @@ use core::convert::TryFrom;
 use paste::paste;
 
 /// Implemented for all step mode enums
-///
-/// Required as a trait bound by `SetStepMode::StepMode`.
 pub trait StepMode:
     Into<u16> + TryFrom<u16, Error = InvalidStepModeError> + Copy
 {
@@ -120,11 +118,8 @@ macro_rules! generate_step_mode_enums {
     ) => {
         paste! {
             #[doc =
-                "Defines the step mode with a resolution of up to " $max " \
-                microsteps\n\
-                \n\
-                Can be used by drivers for the `StepMode` associated type of \
-                `SetStepMode`."
+                "Defines the microstepping mode for drivers with a resolution \
+                of up to " $max " microsteps"
             ]
             #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
             pub enum [<StepMode $max>] {
