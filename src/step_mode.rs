@@ -1,3 +1,5 @@
+//! Types related to working with a driver's microstepping mode
+
 use core::convert::TryFrom;
 
 use paste::paste;

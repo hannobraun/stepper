@@ -27,12 +27,12 @@ pub extern crate embedded_hal;
 pub extern crate embedded_time;
 
 pub mod drivers;
+pub mod step_mode;
 pub mod traits;
 
 mod driver;
-mod step_mode;
 
-pub use self::{driver::*, step_mode::*};
+pub use self::driver::*;
 
 /// Defines the direction in which to rotate the motor
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
