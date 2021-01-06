@@ -23,7 +23,7 @@ This procedure should really be automated, but for now it is at least documented
 
 1. Make sure your local `master` branch is up-to-date:
 
-```
+``` bash
 git switch master
 git pull --rebase
 ```
@@ -32,13 +32,18 @@ git pull --rebase
 
 3. Create a release branch (replace `a.b.c` with actual version)
 
-```
+``` bash
 git switch -c publish-a.b.c
 ```
 
-4. Update changelog: Go through all pull requests since the last release and mention the relevant ones. Use changelog entries as the template. Commit this to the repository.
+4. Update changelog: Go through all pull requests since the last release and mention the relevant ones. Use existing changelog entries as the template. Commit this to the repository.
 
-5. Update versions in all `Cargo.toml` files, including dependencies on `step-dir` in drivers. Commit this to the repository.
+5. Update version in top-level `Cargo.toml` and re-generate driver crates. Commit changes.
+
+``` bash
+# missing: Update version in Cargo.toml
+cargo task generate-drivers
+```
 
 6. Push branch, open a pull request. This makes sure the CI runs and gives other maintainers a chance to weigh in.
 
@@ -48,14 +53,14 @@ git switch -c publish-a.b.c
 
 9. Tag the release
 
-```
+``` bash
 git tag va.b.c
 ```
 
 10. Merge pull request, clean up your local branch.
 
-```
-# merge pull request
+``` bash
+# missing: merge pull request
 git switch master
 git pull --rebase
 git remote prune origin
@@ -64,7 +69,7 @@ git branch -d publish-a.b.c
 
 11. Push the release tag
 
-```
+``` bash
 git push --tag
 ```
 
