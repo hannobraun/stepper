@@ -1,4 +1,4 @@
-# Step/Dir - Interface to stepper motor drivers [![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/braun-embedded/step-dir/workflows/CI%20Build/badge.svg)
+# Step/Dir - Universal Stepper Motor Interface [![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/braun-embedded/step-dir/workflows/CI%20Build/badge.svg)
 
 ## About
 
@@ -16,7 +16,9 @@ Please check out [the documentation](https://docs.rs/step-dir) to learn more.
 
 ## Status
 
-Step/Dir is usable, but still under active development. Its API is going to change, as more features and support for more drivers are added.
+Step/Dir is still under active development. Its API is going to change, as more features and support for more drivers are added.
+
+The library is definitely usable, but hasn't been proven in many use cases yet. If you find any problems, please feel free to open an issue on the GitHub repository.
 
 Step/Dir is maintained by:
 

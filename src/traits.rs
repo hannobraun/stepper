@@ -1,4 +1,24 @@
-//! Contains traits that can be implemented by Step/Dir drivers
+//! Traits that can be implemented by Step/Dir drivers
+//!
+//! Users are generally not expected to use these traits directly, except to
+//! specify trait bounds, where necessary. Please check out [`Driver`], which
+//! uses these traits to provide the public API.
+//!
+//! There are two kinds of traits in this module:
+//! 1. Those that provide a minimal and low-level interface over a specific
+//!    capability (like controlling the microstepping mode).
+//! 2. Those that provide an API for enabling these capabilities, taking the
+//!    the resources that are required to do so.
+//!
+//! When constructed, drivers usually do not provide access to any of their
+//! capabilities. This means users can specifically enable the capabilities they
+//! need, and do not have have to provide hardware resources (like output pins)
+//! for capabilities that they are not going to use.
+//!
+//! This approach also provides a lot of flexibility for non-standard use cases,
+//! for example if not all driver capabilities are controlled by software.
+//!
+//! [`Driver`]: crate::Driver
 
 use embedded_hal::digital::OutputPin;
 use embedded_time::duration::Nanoseconds;
@@ -10,7 +30,7 @@ use crate::step_mode::StepMode;
 /// The `Resources` type parameter defines the hardware resources required for
 /// controlling microstepping mode.
 pub trait EnableStepModeControl<Resources> {
-    /// The type of the driver once microstepping mode control has been enabled
+    /// The type of the driver after microstepping mode control has been enabled
     type WithStepModeControl: SetStepMode;
 
     /// Enable microstepping mode control
@@ -54,7 +74,7 @@ pub trait SetStepMode {
 /// The `Resources` type parameter defines the hardware resources required for
 /// direction control.
 pub trait EnableDirectionControl<Resources> {
-    /// The type of the driver once direction control has been enabled
+    /// The type of the driver after direction control has been enabled
     type WithDirectionControl: SetDirection;
 
     /// Enable direction control
@@ -84,7 +104,7 @@ pub trait SetDirection {
 /// The `Resources` type parameter defines the hardware resources required for
 /// step control.
 pub trait EnableStepControl<Resources> {
-    /// The type of the driver once direction control has been enabled
+    /// The type of the driver after direction control has been enabled
     type WithStepControl: Step;
 
     /// Enable step control

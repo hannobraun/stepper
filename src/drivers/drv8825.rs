@@ -1,10 +1,11 @@
 //! DRV8825 Driver
 //!
-//! Platform-agnostic driver for the DRV8825 stepper motor driver. This module
-//! can be used on any platform for which implementations of the required
-//! [embedded-hal] traits are available.
+//! Platform-agnostic driver API for the DRV8825 stepper motor driver. Can be
+//! used on any platform for which implementations of the require [embedded-hal]
+//! traits are available.
 //!
-//! The entry point to this module is the [`DRV8825`] struct.
+//! For the most part, users are not expected to use this API directly. Please
+//! check out [`Driver`](crate::Driver) instead.
 //!
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
@@ -21,10 +22,9 @@ use crate::{
 
 /// The DRV8825 driver API
 ///
-/// You can create an instance of this struct by calling [`DRV8825::new`]. See
-/// [module documentation] for a full example that uses this API.
-///
-/// [module documentation]: index.html
+/// Users are not expected to use this API directly, except to create an
+/// instance using [`DRV8825::new`]. Please check out [`Driver`](crate::Driver)
+/// instead.
 pub struct DRV8825<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
 {
     enable: Enable,
@@ -40,10 +40,6 @@ pub struct DRV8825<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
 
 impl DRV8825<(), (), (), (), (), (), (), (), ()> {
     /// Create a new instance of `DRV8825`
-    ///
-    /// The resulting instance won't be able to do anything yet. You can call
-    /// the various `enable_` methods of [`Driver`](crate::Driver) to rectify
-    /// that.
     pub fn new() -> Self {
         Self {
             enable: (),
