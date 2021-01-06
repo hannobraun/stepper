@@ -43,17 +43,15 @@ where
 
     /// Poll the future
     ///
-    /// The future must be polled for the operation to make progress. It must be
-    /// called once, to start the operation.
+    /// The future must be polled for the operation to make progress. The
+    /// operation won't start, until this method has been called once. Returns
+    /// [`Poll::Pending`], if the operation is not finished yet, or
+    /// [`Poll::Ready`], once it is
     ///
-    /// Once the operation has been started and this method returns
-    /// [`Poll::Pending`], the user can opt to keep calling it at a high
-    /// frequency (for example in a busy loop) until the future finishes.
-    /// Alternatively, the user can set up an interrupt that fires once the
-    /// timer finishes counting down, and call this method again once it does.
-    ///
-    /// This will return `Poll::Pending`, if the operation has not completed
-    /// yet, or `Poll::Ready`, once it has.
+    /// If this method returns [`Poll::Pending`], the user can opt to keep
+    /// calling it at a high frequency (see [`Self::wait`]) until the operation
+    /// completes, or set up an interrupt that fires once the timer finishes
+    /// counting down, and call this method again once it does.
     pub fn poll(
         &mut self,
     ) -> Poll<
@@ -122,10 +120,10 @@ where
         }
     }
 
-    /// Wait until the operation has finished
+    /// Wait until the operation completes
     ///
-    /// This method will call [`SetStepModeFuture::poll`] in a busy loop until
-    /// the operation has finished.
+    /// This method will call [`Self::poll`] in a busy loop until the operation
+    /// has finished.
     pub fn wait(
         &mut self,
     ) -> Result<
