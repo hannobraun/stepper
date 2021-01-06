@@ -1,3 +1,35 @@
+<a name="v0.4.0"></a>
+## v0.4.0 (2021-01-06)
+
+- Fix documentation on docs.rs (hopefully) ([#24])
+- Improve `Direction` enum ([#25], [#52])
+- Improve API for working with microstepping modes ([#27], [#64])
+- Fix and improve documentation ([#28], [#29], [#32], [#65])
+- Make driver crates more light-weight ([#35])
+- Add new `Driver` struct to serve as abstract API ([#46], [#54], [#56], [#59], [#62])
+- Separate setting direction and making steps ([#53])
+- Make interface non-blocking ([#61], [#57])
+
+[#24]: https://github.com/braun-embedded/step-dir/pull/24
+[#25]: https://github.com/braun-embedded/step-dir/pull/25
+[#27]: https://github.com/braun-embedded/step-dir/pull/27
+[#28]: https://github.com/braun-embedded/step-dir/pull/28
+[#29]: https://github.com/braun-embedded/step-dir/pull/29
+[#32]: https://github.com/braun-embedded/step-dir/pull/32
+[#35]: https://github.com/braun-embedded/step-dir/pull/35
+[#46]: https://github.com/braun-embedded/step-dir/pull/46
+[#52]: https://github.com/braun-embedded/step-dir/pull/52
+[#53]: https://github.com/braun-embedded/step-dir/pull/53
+[#54]: https://github.com/braun-embedded/step-dir/pull/54
+[#56]: https://github.com/braun-embedded/step-dir/pull/56
+[#57]: https://github.com/braun-embedded/step-dir/pull/57
+[#59]: https://github.com/braun-embedded/step-dir/pull/59
+[#61]: https://github.com/braun-embedded/step-dir/pull/61
+[#62]: https://github.com/braun-embedded/step-dir/pull/62
+[#64]: https://github.com/braun-embedded/step-dir/pull/64
+[#65]: https://github.com/braun-embedded/step-dir/pull/65
+
+
 <a name="v0.3.0"></a>
 ## v0.3.0 (2020-11-12)
 
