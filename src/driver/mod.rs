@@ -23,7 +23,8 @@ use crate::{
 /// Abstract interface to stepper motor drivers
 ///
 /// Wraps a concrete driver and uses the traits that the concrete driver
-/// implements to provide an abstract API.
+/// implements to provide an abstract API. You can construct an instance of this
+/// type using [`Driver::from_inner`].
 ///
 /// # Notes on timer use
 ///
@@ -89,9 +90,9 @@ impl<T> Driver<T> {
 
     /// Enable microstepping mode control
     ///
-    /// Consumes `Driver` and returns a new instance that provides control over
-    /// the microstepping mode. Once this method has been called, the
-    /// [`Driver::set_step_mode`] method becomes available.
+    /// Consumes this instance of `Driver` and returns a new instance that
+    /// provides control over the microstepping mode. Once this method has been
+    /// called, the [`Driver::set_step_mode`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
     /// microstepping mode as an argument. What exactly those are depends on the
@@ -131,8 +132,8 @@ impl<T> Driver<T> {
     ///
     /// This method is only available, if the wrapped driver supports
     /// microstepping, and supports setting the step mode through software. Some
-    /// driver might not support microstepping at all, or only allow setting the
-    /// step mode by changing physical switches.
+    /// drivers might not support microstepping at all, or only allow setting
+    /// the step mode by changing physical switches.
     ///
     /// You might need to call [`Driver::enable_step_mode_control`] to make this
     /// method available.
@@ -151,9 +152,9 @@ impl<T> Driver<T> {
 
     /// Enable direction control
     ///
-    /// Consumes `Driver` and returns a new instance that provides control over
-    /// the motor direction. Once this method has been called, the
-    /// [`Driver::set_direction`] method becomes available.
+    /// Consumes this instance of `Driver` and returns a new instance that
+    /// provides control over the motor direction. Once this method has been
+    /// called, the [`Driver::set_direction`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
@@ -208,9 +209,9 @@ impl<T> Driver<T> {
 
     /// Enable step control
     ///
-    /// Consumes `Driver` and returns a new instance that provides control over
-    /// stepping the motor. Once this method has been called, the
-    /// [`Driver::step`] method becomes available.
+    /// Consumes this instance of `Driver` and returns a new instance that
+    /// provides control over stepping the motor. Once this method has been
+    /// called, the [`Driver::step`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
@@ -235,8 +236,8 @@ impl<T> Driver<T> {
     /// Rotates the motor one (micro-)step in the given direction
     ///
     /// Steps the motor one step in the direction that was previously set,
-    /// according to current microstep configuration. To achieve a specific
-    /// speed, the user must call this method at the appropriate frequency.
+    /// according to current microstepping configuration. To achieve a specific
+    /// speed, the user must call this method at an appropriate frequency.
     ///
     /// You might need to call [`Driver::enable_step_control`] to make this
     /// method available.
@@ -253,6 +254,9 @@ impl<T> Driver<T> {
     }
 
     /// Returns the step pulse length of the wrapped driver
+    ///
+    /// The pulse length is also available through the [`Step`] trait. This
+    /// method provides a more convenient way to access it.
     pub fn pulse_length(&self) -> Nanoseconds
     where
         T: Step,
