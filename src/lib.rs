@@ -37,12 +37,12 @@ pub enum Direction {
     /// Rotate the motor forward
     ///
     /// This corresponds to whatever direction the motor rotates in when the
-    /// dir signal is set HIGH.
+    /// driver's DIR signal is set HIGH.
     Forward = 1,
 
     /// Rotate the motor backward
     ///
     /// This corresponds to whatever direction the motor rotates in when the
-    /// dir signal set is LOW.
+    /// driver's DIR signal set is LOW.
     Backward = -1,
 }
