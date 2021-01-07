@@ -26,6 +26,27 @@ Step/Dir is maintained by:
 - Jesse Braham ([@jessebraham](https://github.com/jessebraham))
 
 
+## Usage
+
+Step/Dir is a library written in Rust and designed for use in Rust projects. It will run on any platform supported by Rust, including microcontrollers.
+
+Add Step/Dir to your `Cargo.toml` like this:
+
+``` toml
+[dependencies.step-dir]
+version = "0.4" # make sure this is the latest version
+```
+
+If you just need to use a specific stepper driver, you can also depend on the crate for that specific driver. For example:
+
+``` toml
+[dependencies.drv8825]
+version = "0.4" # make sure this is the latest version
+```
+
+Please refer to the [API Reference] for more information.
+
+
 ## License
 
 This project is open source software, licensed under the terms of the [Zero Clause BSD License] (0BSD, for short). This basically means you can do anything with the software, without any restrictions, but you can't hold the authors liable for problems.
@@ -35,5 +56,6 @@ See [LICENSE.md] for full details.
 
 [DRV8825]: https://www.ti.com/product/DRV8825
 [STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
+[API Reference]: https://docs.rs/step-dir
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
 [LICENSE.md]: https://github.com/braun-embedded/step-dir/blob/master/LICENSE.md
