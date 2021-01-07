@@ -8,8 +8,8 @@ Step/Dir does not provide any higher-level features like acceleration ramps. It 
 
 Right now, Step/Dir supports the following drivers:
 
-- [DRV8825]
-- [STSPIN220]
+- [DRV8825] ([crate](https://crates.io/crates/drv8825))
+- [STSPIN220] ([crate](https://crates.io/crates/stspin220))
 
 Please check out [the documentation](https://docs.rs/step-dir) to learn more.
 
