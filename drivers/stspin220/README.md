@@ -1,4 +1,4 @@
-# STSPIN220 Driver [![crates.io](https://img.shields.io/crates/v/stspin220.svg)](https://crates.io/crates/stspin220) [![Documentation](https://docs.rs/stspin220/badge.svg)](https://docs.rs/stspin220) ![CI Build](https://github.com/braun-embedded/step-dir/workflows/CI%20Build/badge.svg)
+# STSPIN220 Driver [![crates.io](https://img.shields.io/crates/v/stspin220.svg)](https://crates.io/crates/stspin220) [![Documentation](https://docs.rs/stspin220/badge.svg)](https://docs.rs/stspin220) ![CI Build](https://github.com/flott-motion/step-dir/workflows/CI%20Build/badge.svg)
 
 ## About
 
@@ -18,4 +18,4 @@ See [LICENSE.md] for full details.
 [available from pololu]: https://www.pololu.com/category/260/
 [step/dir]: https://crates.io/crates/step-dir
 [zero clause bsd license]: https://opensource.org/licenses/0BSD
-[license.md]: https://github.com/braun-embedded/step-dir/blob/master/LICENSE.md
+[license.md]: https://github.com/flott-motion/step-dir/blob/master/LICENSE.md

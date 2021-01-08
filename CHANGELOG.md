@@ -10,24 +10,24 @@
 - Separate setting direction and making steps ([#53])
 - Make interface non-blocking ([#61], [#57])
 
-[#24]: https://github.com/braun-embedded/step-dir/pull/24
-[#25]: https://github.com/braun-embedded/step-dir/pull/25
-[#27]: https://github.com/braun-embedded/step-dir/pull/27
-[#28]: https://github.com/braun-embedded/step-dir/pull/28
-[#29]: https://github.com/braun-embedded/step-dir/pull/29
-[#32]: https://github.com/braun-embedded/step-dir/pull/32
-[#35]: https://github.com/braun-embedded/step-dir/pull/35
-[#46]: https://github.com/braun-embedded/step-dir/pull/46
-[#52]: https://github.com/braun-embedded/step-dir/pull/52
-[#53]: https://github.com/braun-embedded/step-dir/pull/53
-[#54]: https://github.com/braun-embedded/step-dir/pull/54
-[#56]: https://github.com/braun-embedded/step-dir/pull/56
-[#57]: https://github.com/braun-embedded/step-dir/pull/57
-[#59]: https://github.com/braun-embedded/step-dir/pull/59
-[#61]: https://github.com/braun-embedded/step-dir/pull/61
-[#62]: https://github.com/braun-embedded/step-dir/pull/62
-[#64]: https://github.com/braun-embedded/step-dir/pull/64
-[#65]: https://github.com/braun-embedded/step-dir/pull/65
+[#24]: https://github.com/flott-motion/step-dir/pull/24
+[#25]: https://github.com/flott-motion/step-dir/pull/25
+[#27]: https://github.com/flott-motion/step-dir/pull/27
+[#28]: https://github.com/flott-motion/step-dir/pull/28
+[#29]: https://github.com/flott-motion/step-dir/pull/29
+[#32]: https://github.com/flott-motion/step-dir/pull/32
+[#35]: https://github.com/flott-motion/step-dir/pull/35
+[#46]: https://github.com/flott-motion/step-dir/pull/46
+[#52]: https://github.com/flott-motion/step-dir/pull/52
+[#53]: https://github.com/flott-motion/step-dir/pull/53
+[#54]: https://github.com/flott-motion/step-dir/pull/54
+[#56]: https://github.com/flott-motion/step-dir/pull/56
+[#57]: https://github.com/flott-motion/step-dir/pull/57
+[#59]: https://github.com/flott-motion/step-dir/pull/59
+[#61]: https://github.com/flott-motion/step-dir/pull/61
+[#62]: https://github.com/flott-motion/step-dir/pull/62
+[#64]: https://github.com/flott-motion/step-dir/pull/64
+[#65]: https://github.com/flott-motion/step-dir/pull/65
 
 
 <a name="v0.3.0"></a>
@@ -37,10 +37,10 @@
 - Add support for DRV8825 ([#17])
 - Require embedded-hal 1.0.0-alpha.4 ([#16], [#21])
 
-[#15]: https://github.com/braun-embedded/step-dir/pull/15
-[#16]: https://github.com/braun-embedded/step-dir/pull/16
-[#17]: https://github.com/braun-embedded/step-dir/pull/17
-[#21]: https://github.com/braun-embedded/step-dir/pull/21
+[#15]: https://github.com/flott-motion/step-dir/pull/15
+[#16]: https://github.com/flott-motion/step-dir/pull/16
+[#17]: https://github.com/flott-motion/step-dir/pull/17
+[#21]: https://github.com/flott-motion/step-dir/pull/21
 
 
 <a name="v0.2.1"></a>
@@ -56,8 +56,8 @@
 - Include STSPIN220 driver in Step/Dir ([#9])
 - Initial release of Step/Dir library ([step-dir])
 
-[#8]: https://github.com/braun-embedded/step-dir/pull/8
-[#9]: https://github.com/braun-embedded/step-dir/pull/9
+[#8]: https://github.com/flott-motion/step-dir/pull/8
+[#9]: https://github.com/flott-motion/step-dir/pull/9
 [step-dir]: https://crates.io/crates/step-dir
 
 
