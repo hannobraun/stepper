@@ -8,7 +8,7 @@ authors = [
 edition = "2018"
 
 description = "Driver crate for the DRV8825 stepper motor driver"
-repository  = "https://github.com/braun-embedded/step-dir"
+repository  = "https://github.com/flott-motion/step-dir"
 license     = "0BSD"
 keywords    = ["step-dir", "stepper", "motor", "driver", "pololu"]
 categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
