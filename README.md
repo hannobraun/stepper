@@ -60,4 +60,4 @@ See [LICENSE.md] for full details.
 [STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
 [API Reference]: https://docs.rs/step-dir
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
-[LICENSE.md]: https://github.com/flott-motion/step-dir/blob/master/LICENSE.md
+[LICENSE.md]: https://github.com/flott-motion/step-dir/blob/main/LICENSE.md
