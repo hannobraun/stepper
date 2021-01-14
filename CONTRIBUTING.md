@@ -21,10 +21,10 @@ If a new release of some, but not all, crates is required, the version of all ot
 
 This procedure should really be automated, but for now it is at least documented.
 
-1. Make sure your local `master` branch is up-to-date:
+1. Make sure your local `main` branch is up-to-date:
 
 ``` bash
-git switch master
+git switch main
 git pull --rebase
 ```
 
@@ -61,7 +61,7 @@ git tag va.b.c
 
 ``` bash
 # missing: merge pull request
-git switch master
+git switch main
 git pull --rebase
 git remote prune origin
 git branch -d publish-a.b.c

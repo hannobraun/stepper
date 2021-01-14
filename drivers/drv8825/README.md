@@ -18,4 +18,4 @@ See [LICENSE.md] for full details.
 [available from pololu]: https://www.pololu.com/category/154/
 [step/dir]: https://crates.io/crates/step-dir
 [zero clause bsd license]: https://opensource.org/licenses/0BSD
-[license.md]: https://github.com/flott-motion/step-dir/blob/master/LICENSE.md
+[license.md]: https://github.com/flott-motion/step-dir/blob/main/LICENSE.md
