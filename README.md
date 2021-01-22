@@ -1,5 +1,7 @@
 # Step/Dir - Universal Stepper Motor Interface [![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/flott-motion/step-dir/workflows/CI%20Build/badge.svg)
 
+**Please consider supporting this project financially. More information below.**
+
 ## About
 
 Step/Dir provides a low-level interface which abstracts over stepper motor drivers that are controlled through STEP and DIR signals. Higher-level code written against its API can control any stepper motor driver supported by Step/Dir.
@@ -47,6 +49,13 @@ version = "0.4" # make sure this is the latest version
 ```
 
 Please refer to the [API Reference] for more information.
+
+
+## Support This Project
+
+If you're getting value out of Step/Dir, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
+
+[Hanno Braun][@hannobraun], maintainer and original creator of this library, is [accepting sponsorship](https://github.com/sponsors/hannobraun).
 
 
 ## License
