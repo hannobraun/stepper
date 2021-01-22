@@ -24,8 +24,8 @@ The library is definitely usable, but hasn't been proven in many use cases yet. 
 
 Step/Dir is maintained by:
 
-- Hanno Braun ([@hannobraun](https://github.com/hannobraun))
-- Jesse Braham ([@jessebraham](https://github.com/jessebraham))
+- Hanno Braun ([@hannobraun])
+- Jesse Braham ([@jessebraham])
 
 
 ## Usage
@@ -61,3 +61,6 @@ See [LICENSE.md] for full details.
 [API Reference]: https://docs.rs/step-dir
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
 [LICENSE.md]: https://github.com/flott-motion/step-dir/blob/main/LICENSE.md
+
+[@hannobraun]: https://github.com/hannobraun
+[@jessebraham]: https://github.com/jessebraham
