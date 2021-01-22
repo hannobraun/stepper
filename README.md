@@ -1,5 +1,7 @@
 # Step/Dir - Universal Stepper Motor Interface [![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/flott-motion/step-dir/workflows/CI%20Build/badge.svg)
 
+**Please consider supporting this project financially. More information below.**
+
 ## About
 
 Step/Dir provides a low-level interface which abstracts over stepper motor drivers that are controlled through STEP and DIR signals. Higher-level code written against its API can control any stepper motor driver supported by Step/Dir.
@@ -24,8 +26,8 @@ The library is definitely usable, but hasn't been proven in many use cases yet. 
 
 Step/Dir is maintained by:
 
-- Hanno Braun ([@hannobraun](https://github.com/hannobraun))
-- Jesse Braham ([@jessebraham](https://github.com/jessebraham))
+- Hanno Braun ([@hannobraun])
+- Jesse Braham ([@jessebraham])
 
 
 ## Usage
@@ -49,6 +51,13 @@ version = "0.4" # make sure this is the latest version
 Please refer to the [API Reference] for more information.
 
 
+## Support This Project
+
+If you're getting value out of Step/Dir, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
+
+[Hanno Braun][@hannobraun], maintainer and original creator of this library, is [accepting sponsorship](https://github.com/sponsors/hannobraun).
+
+
 ## License
 
 This project is open source software, licensed under the terms of the [Zero Clause BSD License] (0BSD, for short). This basically means you can do anything with the software, without any restrictions, but you can't hold the authors liable for problems.
@@ -61,3 +70,6 @@ See [LICENSE.md] for full details.
 [API Reference]: https://docs.rs/step-dir
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
 [LICENSE.md]: https://github.com/flott-motion/step-dir/blob/main/LICENSE.md
+
+[@hannobraun]: https://github.com/hannobraun
+[@jessebraham]: https://github.com/jessebraham
