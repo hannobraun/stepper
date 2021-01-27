@@ -51,7 +51,7 @@ version = "0.4" # make sure this is the latest version
 Please refer to the [API Reference] for more information.
 
 
-## Support This Project
+## Funding
 
 If you're getting value out of Step/Dir, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
 
