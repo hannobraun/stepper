@@ -1,5 +1,21 @@
 # Step/Dir - Changelog
 
+## v0.4.1 (2021-01-29)
+
+- Update documentation ([#69], [#71], [#76], [#77])
+- Move project to the Flott GitHub organization ([#70])
+- Change main branch to `main` ([#74])
+- Set up sponsorships ([#75])
+
+[#69]: https://github.com/flott-motion/step-dir/pull/69
+[#70]: https://github.com/flott-motion/step-dir/pull/70
+[#71]: https://github.com/flott-motion/step-dir/pull/71
+[#74]: https://github.com/flott-motion/step-dir/pull/74
+[#75]: https://github.com/flott-motion/step-dir/pull/75
+[#76]: https://github.com/flott-motion/step-dir/pull/76
+[#77]: https://github.com/flott-motion/step-dir/pull/77
+
+
 ## v0.4.0 (2021-01-06)
 
 - Fix documentation on docs.rs (hopefully) ([#24])
