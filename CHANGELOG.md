@@ -1,4 +1,21 @@
-<a name="v0.4.0"></a>
+# Step/Dir - Changelog
+
+## v0.4.1 (2021-01-29)
+
+- Update documentation ([#69], [#71], [#76], [#77])
+- Move project to the Flott GitHub organization ([#70])
+- Change main branch to `main` ([#74])
+- Set up sponsorships ([#75])
+
+[#69]: https://github.com/flott-motion/step-dir/pull/69
+[#70]: https://github.com/flott-motion/step-dir/pull/70
+[#71]: https://github.com/flott-motion/step-dir/pull/71
+[#74]: https://github.com/flott-motion/step-dir/pull/74
+[#75]: https://github.com/flott-motion/step-dir/pull/75
+[#76]: https://github.com/flott-motion/step-dir/pull/76
+[#77]: https://github.com/flott-motion/step-dir/pull/77
+
+
 ## v0.4.0 (2021-01-06)
 
 - Fix documentation on docs.rs (hopefully) ([#24])
@@ -30,7 +47,6 @@
 [#65]: https://github.com/flott-motion/step-dir/pull/65
 
 
-<a name="v0.3.0"></a>
 ## v0.3.0 (2020-11-12)
 
 - Extend API to support drivers with other microstepping resolutions ([#15])
@@ -43,13 +59,11 @@
 [#21]: https://github.com/flott-motion/step-dir/pull/21
 
 
-<a name="v0.2.1"></a>
 ## v0.2.1 (2020-10-20)
 
 - Fix build system problem that prevented `stspin220` crate from being published.
 
 
-<a name="v0.2.0"></a>
 ## v0.2.0 (2020-10-20)
 
 - Add abstract interface over stepper motor driver libraries ([#8])
@@ -61,7 +75,6 @@
 [step-dir]: https://crates.io/crates/step-dir
 
 
-<a name="v0.1.0"></a>
 ## v0.1.0 (2020-10-19)
 
 - Initial release of STSPIN220 Driver ([stspin220])
