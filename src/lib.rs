@@ -1,13 +1,14 @@
 //! Step/Dir - Universal Stepper Motor Interface
 //!
-//! Step/Dir provides a low-level interface which abstracts over stepper motor
-//! drivers that are controlled through STEP and DIR signals. Higher-level code
-//! written against its API can control any stepper motor driver supported by
-//! Step/Dir.
+//! Step/Dir aims to provide an interface that abstracts over stepper motor
+//! drivers and controllers, exposing high-level hardware features directly
+//! where available, or providing software fallbacks where hardware support is
+//! lacking.
 //!
-//! Step/Dir does not provide any higher-level features like acceleration ramps.
-//! It is intended to be a building block for code that implements these higher-
-//! level features.
+//! Step/Dir is part of the [Flott] motion control toolkit. Please also check
+//! out [RampMaker], a library for generating stepper acceleration ramps. In a
+//! future version, both libraries will be integrated, but for now they can be
+//! used separately to complement each other.
 //!
 //! Right now, Step/Dir supports the following drivers:
 //!
@@ -121,6 +122,9 @@
 //! # Ok(())
 //! # }
 //! ```
+//!
+//! [Flott]: https://flott-motion.org/
+//! [RampMaker]: https://crates.io/crates/ramp-maker
 
 #![cfg_attr(not(test), no_std)]
 #![deny(missing_docs, broken_intra_doc_links)]
