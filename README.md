@@ -55,7 +55,7 @@ Please refer to the [API Reference] for more information.
 
 ## Funding
 
-If you're getting value out of Step/Dir, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
+If you're getting value out of Step/Dir or other libraries from the [Flott] toolkit, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
 
 [Hanno Braun][@hannobraun], maintainer and original creator of this library, is [accepting sponsorship](https://github.com/sponsors/hannobraun).
 
