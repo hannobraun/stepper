@@ -1,6 +1,6 @@
 [package]
 name    = "stspin220"
-version = "0.4.0"
+version = "0.4.1"
 authors = [
     "Hanno Braun <hanno@braun-embedded.com>",
     "Jesse Braham <jesse@beta7.io>",
@@ -15,7 +15,7 @@ categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
 [dependencies.step-dir]
-version          = "0.4.0"
+version          = "0.4.1"
 path             = "../.."
 default-features = false
 features         = ["stspin220"]
