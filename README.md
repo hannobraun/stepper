@@ -6,25 +6,23 @@
 
 ## About
 
-Step/Dir provides a low-level interface which abstracts over stepper motor drivers that are controlled through STEP and DIR signals. Higher-level code written against its API can control any stepper motor driver supported by Step/Dir.
-
-Step/Dir does not provide any higher-level features, like acceleration ramps, movement to a position, or even movement at a specific speed. It is intended to be a building block for code that implements these higher-level features.
+Step/Dir aims to provide an interface that abstracts over stepper motor drivers and controllers, exposing high-level hardware features directly where available, or providing software fallbacks where hardware support is lacking.
 
 Right now, Step/Dir supports the following drivers:
 
 - [DRV8825] ([crate](https://crates.io/crates/drv8825))
 - [STSPIN220] ([crate](https://crates.io/crates/stspin220))
 
-Support for more drivers will be added in the future. Please consider helping out with this effort, if you need support for a driver that is currently missing.
+Support for more stepper drivers and controllers will be added in the future. Please consider helping out with this effort, if you need support for a driver or controller that is currently missing.
 
 Please check out [the documentation](https://docs.rs/step-dir) to learn more.
 
 
 ## Status
 
-Step/Dir is under active development. Its API is going to change, as more features and support for more drivers are added.
+Step/Dir is under active development. Its API is going to change, as more features are added and existing ones are improved. Support for drivers is very limited right now, and support for controllers is non-existent.
 
-The library is definitely usable, but hasn't been proven in many use cases yet. If you find any problems, please feel free to open an issue on the GitHub repository.
+The library is usable, but far from mature. If you find any problems, please open an issue on the GitHub repository.
 
 Step/Dir is maintained by:
 

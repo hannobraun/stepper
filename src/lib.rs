@@ -1,13 +1,9 @@
 //! Step/Dir - Universal Stepper Motor Interface
 //!
-//! Step/Dir provides a low-level interface which abstracts over stepper motor
-//! drivers that are controlled through STEP and DIR signals. Higher-level code
-//! written against its API can control any stepper motor driver supported by
-//! Step/Dir.
-//!
-//! Step/Dir does not provide any higher-level features like acceleration ramps.
-//! It is intended to be a building block for code that implements these higher-
-//! level features.
+//! Step/Dir aims to provide an interface that abstracts over stepper motor
+//! drivers and controllers, exposing high-level hardware features directly
+//! where available, or providing software fallbacks where hardware support is
+//! lacking.
 //!
 //! Right now, Step/Dir supports the following drivers:
 //!
