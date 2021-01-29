@@ -5,6 +5,11 @@
 //! where available, or providing software fallbacks where hardware support is
 //! lacking.
 //!
+//! Step/Dir is part of the [Flott] motion control toolkit. Please also check
+//! out [RampMaker], a library for generating stepper acceleration ramps. In a
+//! future version, both libraries will be integrated, but for now they can be
+//! used separately to complement each other.
+//!
 //! Right now, Step/Dir supports the following drivers:
 //!
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
@@ -117,6 +122,9 @@
 //! # Ok(())
 //! # }
 //! ```
+//!
+//! [Flott]: https://flott-motion.org/
+//! [RampMaker]: https://crates.io/crates/ramp-maker
 
 #![cfg_attr(not(test), no_std)]
 #![deny(missing_docs, broken_intra_doc_links)]

@@ -8,6 +8,8 @@
 
 Step/Dir aims to provide an interface that abstracts over stepper motor drivers and controllers, exposing high-level hardware features directly where available, or providing software fallbacks where hardware support is lacking.
 
+Step/Dir is part of the [Flott] motion control toolkit. Please also check out [RampMaker], a library for generating stepper acceleration ramps. In a future version, both libraries will be integrated, but for now they can be used separately to complement each other.
+
 Right now, Step/Dir supports the following drivers:
 
 - [DRV8825] ([crate](https://crates.io/crates/drv8825))
@@ -65,6 +67,8 @@ This project is open source software, licensed under the terms of the [Zero Clau
 See [LICENSE.md] for full details.
 
 
+[Flott]: https://flott-motion.org/
+[RampMaker]: https://crates.io/crates/ramp-maker
 [DRV8825]: https://www.ti.com/product/DRV8825
 [STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
 [API Reference]: https://docs.rs/step-dir
