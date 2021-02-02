@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This file documents the procedures for developing the Step/Dir project, be it as a contributor or a maintainer. Contribution, be it in the form of issues or pull requests, are always welcome, so don't be shy!
+This file documents the procedures for developing the Step/Dir project. It targets contributors and maintainers. Contributions, be it in the form of issues or pull requests, are always welcome, so don't be shy!
+
+At this point, this document is far from a comprehensive guide. It will be extended over time. Please open an issue, if anything is unclear, or if you need information not present here.
 
 
 ## Release management
