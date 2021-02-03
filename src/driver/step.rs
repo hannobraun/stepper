@@ -16,7 +16,7 @@ use super::{Error, Stepper};
 /// [`core::future::Future`]. This might change, as using futures for embedded
 /// development becomes more practical.
 pub struct StepFuture<'r, T, Timer> {
-    driver: &'r mut Stepper<T>,
+    stepper: &'r mut Stepper<T>,
     timer: &'r mut Timer,
     state: State,
 }
@@ -28,11 +28,11 @@ where
     Timer::Time: TryFrom<Nanoseconds>,
 {
     pub(super) fn new(
-        driver: &'r mut Stepper<T>,
+        stepper: &'r mut Stepper<T>,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
-            driver,
+            stepper,
             timer,
             state: State::Initial,
         }
@@ -64,7 +64,7 @@ where
         match self.state {
             State::Initial => {
                 // Start step pulse
-                self.driver
+                self.stepper
                     .inner
                     .step()
                     .try_set_high()
@@ -84,7 +84,7 @@ where
                 match self.timer.try_wait() {
                     Ok(()) => {
                         // End step pulse
-                        self.driver
+                        self.stepper
                             .inner
                             .step()
                             .try_set_low()
