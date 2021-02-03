@@ -15,7 +15,7 @@
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
 //! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
 //!
-//! Please check out the documentation of [`Driver`], which is the main entry
+//! Please check out the documentation of [`Stepper`], which is the main entry
 //! point to this API.
 //!
 //! # Example
@@ -33,7 +33,7 @@
 //! #
 //! use step_dir::{
 //!     embedded_time::duration::Nanoseconds,
-//!     Direction, Driver,
+//!     Direction, Stepper,
 //! };
 //!
 //! // This constant defines how much time there is between two steps. Changing
@@ -42,7 +42,7 @@
 //!
 //! # // Use a real driver to make things easy, without making the example seem
 //! # // to specific to one driver.
-//! # type MyDriver = step_dir::drivers::drv8825::DRV8825<
+//! # type MyStepper = step_dir::drivers::drv8825::DRV8825<
 //! #     (), (), (), (), (), (), (), (), ()
 //! # >;
 //! #
@@ -89,11 +89,12 @@
 //! // again, we'll use a mock here for the sake of demonstration.
 //! let mut timer = Timer;
 //!
-//! // Now we need to initialize the driver API. We do this by creating a
-//! // driver-specific API (`MyDriver`), then wrapping that into the generic API
-//! // (`Driver`). `MyDriver` is a placeholder. In a real use-case, you'd
-//! // typically use one of the drivers from the `step_dir::drivers` module, but
-//! // any driver that implements the traits from `step_dir::traits` will work.
+//! // Now we need to initialize the stepper API. We do this by creating a
+//! // driver/controller-specific API (`MyStepper`), then wrapping that into the
+//! // generic API (`Stepper`). `MyStepper` is a placeholder. In a real
+//! // use-case, you'd typically use one of the drivers from the
+//! // `step_dir::drivers` module, but any driver that implements the traits
+//! // from `step_dir::traits` will work.
 //! //
 //! // By default, drivers can't do anything directly after being initialized.
 //! // This means they also don't require any hardware resources, which makes
@@ -101,7 +102,7 @@
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
-//! let mut driver = Driver::from_inner(MyDriver::new())
+//! let mut stepper = Stepper::from_inner(MyStepper::new())
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
 //!     .enable_step_control(step);
 //!
@@ -110,13 +111,13 @@
 //!     // The `step` method returns a future. We just use it to block until the
 //!     // operation completes, but you can also use the API in a non-blocking
 //!     // way.
-//!     driver.step(&mut timer).wait()?;
+//!     stepper.step(&mut timer).wait()?;
 //!
 //!     // After telling the driver to make a step, we need to make sure to call
 //!     // the step method again after an appropriate amount of time. Let's just
 //!     // wait for the right time, using this example `delay_ns` function. How
 //!     // you do this in your own code is up to you.
-//!     delay_ns(STEP_DELAY - driver.pulse_length());
+//!     delay_ns(STEP_DELAY - stepper.pulse_length());
 //! }
 //! #
 //! # Ok(())

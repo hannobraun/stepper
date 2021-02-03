@@ -20,7 +20,7 @@ use step_dir::{
     embedded_hal::digital::{InputPin, OutputPin},
     embedded_time::{duration::Microseconds, Clock},
     traits::{SetDirection, Step},
-    Direction, Driver,
+    Direction, Stepper,
 };
 
 /// Causes probe-run to exit with exit code 0
@@ -31,7 +31,7 @@ pub fn exit() -> ! {
 }
 
 pub fn test_step<D, A, B, DebugSignal, Error>(
-    driver: &mut Driver<D>,
+    stepper: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
@@ -45,12 +45,12 @@ pub fn test_step<D, A, B, DebugSignal, Error>(
     DebugSignal: OutputPin,
     DebugSignal::Error: Debug,
 {
-    verify_steps(driver, timer, rotary, Direction::Forward, debug_signal);
-    verify_steps(driver, timer, rotary, Direction::Backward, debug_signal);
+    verify_steps(stepper, timer, rotary, Direction::Forward, debug_signal);
+    verify_steps(stepper, timer, rotary, Direction::Backward, debug_signal);
 }
 
 pub fn verify_steps<D, A, B, DebugSignal, Error>(
-    driver: &mut Driver<D>,
+    stepper: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     direction: Direction,
@@ -93,9 +93,9 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
     //
     // Here we step the motor until we read a count, then move half the number
     // of steps that make up a count, to get us to a desired middle position.
-    while step(driver, timer, rotary, STEP_DELAY, direction, false) == 0 {}
+    while step(stepper, timer, rotary, STEP_DELAY, direction, false) == 0 {}
     for _ in 0..STEPS_PER_COUNT / 2 {
-        step(driver, timer, rotary, STEP_DELAY, direction, false);
+        step(stepper, timer, rotary, STEP_DELAY, direction, false);
     }
 
     // Setup movement is over. Lower test signal.
@@ -106,7 +106,7 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
 
     let mut counts = 0;
     for _ in 0..steps {
-        counts += step(driver, timer, rotary, STEP_DELAY, direction, true);
+        counts += step(stepper, timer, rotary, STEP_DELAY, direction, true);
     }
 
     defmt::info!(
@@ -118,7 +118,7 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
 }
 
 pub fn step<D, A, B, Error>(
-    driver: &mut Driver<D>,
+    stepper: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,
@@ -138,12 +138,12 @@ where
         Direction::Backward => EncoderDirection::CounterClockwise,
     };
 
-    driver.set_direction(direction, timer).wait().unwrap();
-    driver.step(timer).wait().unwrap();
+    stepper.set_direction(direction, timer).wait().unwrap();
+    stepper.step(timer).wait().unwrap();
 
     timer.start(mrt::MAX_VALUE);
     let step_timer = timer
-        .new_timer(delay - driver.pulse_length())
+        .new_timer(delay - stepper.pulse_length())
         .start()
         .unwrap();
 

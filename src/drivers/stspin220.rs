@@ -5,7 +5,7 @@
 //! traits are available.
 //!
 //! For the most part, users are not expected to use this API directly. Please
-//! check out [`Driver`](crate::Driver) instead.
+//! check out [`Stepper`](crate::Stepper) instead.
 //!
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
@@ -24,7 +24,7 @@ use crate::{
 ///
 /// Users are not expected to use this API directly, except to create an
 /// instance using [`STSPIN220::new`]. Please check out
-/// [`Driver`](crate::Driver) instead.
+/// [`Stepper`](crate::Stepper) instead.
 pub struct STSPIN220<
     EnableFault,
     StandbyReset,
