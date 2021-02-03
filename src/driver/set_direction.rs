@@ -17,7 +17,7 @@ use super::{Error, Stepper};
 /// development becomes more practical.
 pub struct SetDirectionFuture<'r, T, Timer> {
     direction: Direction,
-    driver: &'r mut Stepper<T>,
+    stepper: &'r mut Stepper<T>,
     timer: &'r mut Timer,
     state: State,
 }
@@ -30,12 +30,12 @@ where
 {
     pub(super) fn new(
         direction: Direction,
-        driver: &'r mut Stepper<T>,
+        stepper: &'r mut Stepper<T>,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
             direction,
-            driver,
+            stepper,
             timer,
             state: State::Initial,
         }
@@ -68,13 +68,13 @@ where
             State::Initial => {
                 match self.direction {
                     Direction::Forward => self
-                        .driver
+                        .stepper
                         .inner
                         .dir()
                         .try_set_high()
                         .map_err(|err| Error::Pin(err))?,
                     Direction::Backward => self
-                        .driver
+                        .stepper
                         .inner
                         .dir()
                         .try_set_low()
