@@ -42,7 +42,7 @@
 //!
 //! # // Use a real driver to make things easy, without making the example seem
 //! # // to specific to one driver.
-//! # type MyDriver = step_dir::drivers::drv8825::DRV8825<
+//! # type MyStepper = step_dir::drivers::drv8825::DRV8825<
 //! #     (), (), (), (), (), (), (), (), ()
 //! # >;
 //! #
@@ -101,7 +101,7 @@
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
-//! let mut stepper = Stepper::from_inner(MyDriver::new())
+//! let mut stepper = Stepper::from_inner(MyStepper::new())
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
 //!     .enable_step_control(step);
 //!
