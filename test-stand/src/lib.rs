@@ -20,7 +20,7 @@ use step_dir::{
     embedded_hal::digital::{InputPin, OutputPin},
     embedded_time::{duration::Microseconds, Clock},
     traits::{SetDirection, Step},
-    Direction, Driver,
+    Direction, Stepper,
 };
 
 /// Causes probe-run to exit with exit code 0
@@ -31,7 +31,7 @@ pub fn exit() -> ! {
 }
 
 pub fn test_step<D, A, B, DebugSignal, Error>(
-    driver: &mut Driver<D>,
+    driver: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
@@ -50,7 +50,7 @@ pub fn test_step<D, A, B, DebugSignal, Error>(
 }
 
 pub fn verify_steps<D, A, B, DebugSignal, Error>(
-    driver: &mut Driver<D>,
+    driver: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     direction: Direction,
@@ -118,7 +118,7 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
 }
 
 pub fn step<D, A, B, Error>(
-    driver: &mut Driver<D>,
+    driver: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,

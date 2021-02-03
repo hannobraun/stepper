@@ -1,7 +1,7 @@
 //! Traits that can be implemented by Step/Dir drivers
 //!
 //! Users are generally not expected to use these traits directly, except to
-//! specify trait bounds, where necessary. Please check out [`Driver`], which
+//! specify trait bounds, where necessary. Please check out [`Stepper`], which
 //! uses these traits to provide the public API.
 //!
 //! There are two kinds of traits in this module:
@@ -18,7 +18,7 @@
 //! This approach also provides a lot of flexibility for non-standard use cases,
 //! for example if not all driver capabilities are controlled by software.
 //!
-//! [`Driver`]: crate::Driver
+//! [`Stepper`]: crate::Stepper
 
 use embedded_hal::digital::OutputPin;
 use embedded_time::duration::Nanoseconds;

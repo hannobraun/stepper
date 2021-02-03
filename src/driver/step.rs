@@ -8,15 +8,15 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::traits::Step;
 
-use super::{Driver, Error};
+use super::{Error, Stepper};
 
-/// A "future" that can be polled to complete a [`Driver::step`] call
+/// A "future" that can be polled to complete a [`Stepper::step`] call
 ///
 /// Please note that this type provides a custom API and does not implement
 /// [`core::future::Future`]. This might change, as using futures for embedded
 /// development becomes more practical.
 pub struct StepFuture<'r, T, Timer> {
-    driver: &'r mut Driver<T>,
+    driver: &'r mut Stepper<T>,
     timer: &'r mut Timer,
     state: State,
 }
@@ -27,7 +27,10 @@ where
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
-    pub(super) fn new(driver: &'r mut Driver<T>, timer: &'r mut Timer) -> Self {
+    pub(super) fn new(
+        driver: &'r mut Stepper<T>,
+        timer: &'r mut Timer,
+    ) -> Self {
         Self {
             driver,
             timer,

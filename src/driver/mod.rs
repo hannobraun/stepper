@@ -24,7 +24,7 @@ use crate::{
 ///
 /// Wraps a concrete driver and uses the traits that the concrete driver
 /// implements to provide an abstract API. You can construct an instance of this
-/// type using [`Driver::from_inner`].
+/// type using [`Stepper::from_inner`].
 ///
 /// # Notes on timer use
 ///
@@ -55,11 +55,11 @@ use crate::{
 ///
 /// [RFC 2632]: https://github.com/rust-lang/rfcs/pull/2632
 /// [RFC 2920]: https://github.com/rust-lang/rfcs/pull/2920
-pub struct Driver<T> {
+pub struct Stepper<T> {
     inner: T,
 }
 
-impl<T> Driver<T> {
+impl<T> Stepper<T> {
     /// Create a new `Driver` instance from a concrete driver
     pub fn from_inner(inner: T) -> Self {
         Self { inner }
@@ -92,7 +92,7 @@ impl<T> Driver<T> {
     ///
     /// Consumes this instance of `Driver` and returns a new instance that
     /// provides control over the microstepping mode. Once this method has been
-    /// called, the [`Driver::set_step_mode`] method becomes available.
+    /// called, the [`Stepper::set_step_mode`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
     /// microstepping mode as an argument. What exactly those are depends on the
@@ -108,7 +108,7 @@ impl<T> Driver<T> {
         initial: <T::WithStepModeControl as SetStepMode>::StepMode,
         timer: &mut Timer,
     ) -> Result<
-        Driver<T::WithStepModeControl>,
+        Stepper<T::WithStepModeControl>,
         Error<
             <T::WithStepModeControl as SetStepMode>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
@@ -120,7 +120,7 @@ impl<T> Driver<T> {
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        let mut self_ = Driver {
+        let mut self_ = Stepper {
             inner: self.inner.enable_step_mode_control(res),
         };
         self_.set_step_mode(initial, timer).wait()?;
@@ -135,8 +135,8 @@ impl<T> Driver<T> {
     /// drivers might not support microstepping at all, or only allow setting
     /// the step mode by changing physical switches.
     ///
-    /// You might need to call [`Driver::enable_step_mode_control`] to make this
-    /// method available.
+    /// You might need to call [`Stepper::enable_step_mode_control`] to make
+    /// this method available.
     pub fn set_step_mode<'r, Timer>(
         &'r mut self,
         step_mode: T::StepMode,
@@ -154,7 +154,7 @@ impl<T> Driver<T> {
     ///
     /// Consumes this instance of `Driver` and returns a new instance that
     /// provides control over the motor direction. Once this method has been
-    /// called, the [`Driver::set_direction`] method becomes available.
+    /// called, the [`Stepper::set_direction`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
@@ -170,7 +170,7 @@ impl<T> Driver<T> {
         initial: Direction,
         timer: &mut Timer,
     ) -> Result<
-        Driver<T::WithDirectionControl>,
+        Stepper<T::WithDirectionControl>,
         Error<
             <T::WithDirectionControl as SetDirection>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
@@ -182,7 +182,7 @@ impl<T> Driver<T> {
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        let mut self_ = Driver {
+        let mut self_ = Stepper {
             inner: self.inner.enable_direction_control(res),
         };
         self_.set_direction(initial, timer).wait()?;
@@ -192,8 +192,8 @@ impl<T> Driver<T> {
 
     /// Set direction for future movements
     ///
-    /// You might need to call [`Driver::enable_direction_control`] to make this
-    /// method available.
+    /// You might need to call [`Stepper::enable_direction_control`] to make
+    /// this method available.
     pub fn set_direction<'r, Timer>(
         &'r mut self,
         direction: Direction,
@@ -211,7 +211,7 @@ impl<T> Driver<T> {
     ///
     /// Consumes this instance of `Driver` and returns a new instance that
     /// provides control over stepping the motor. Once this method has been
-    /// called, the [`Driver::step`] method becomes available.
+    /// called, the [`Stepper::step`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
@@ -224,11 +224,11 @@ impl<T> Driver<T> {
     pub fn enable_step_control<Resources>(
         self,
         res: Resources,
-    ) -> Driver<T::WithStepControl>
+    ) -> Stepper<T::WithStepControl>
     where
         T: EnableStepControl<Resources>,
     {
-        Driver {
+        Stepper {
             inner: self.inner.enable_step_control(res),
         }
     }
@@ -239,7 +239,7 @@ impl<T> Driver<T> {
     /// according to current microstepping configuration. To achieve a specific
     /// speed, the user must call this method at an appropriate frequency.
     ///
-    /// You might need to call [`Driver::enable_step_control`] to make this
+    /// You might need to call [`Stepper::enable_step_control`] to make this
     /// method available.
     pub fn step<'r, Timer>(
         &'r mut self,

@@ -15,7 +15,7 @@
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
 //! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
 //!
-//! Please check out the documentation of [`Driver`], which is the main entry
+//! Please check out the documentation of [`Stepper`], which is the main entry
 //! point to this API.
 //!
 //! # Example
@@ -33,7 +33,7 @@
 //! #
 //! use step_dir::{
 //!     embedded_time::duration::Nanoseconds,
-//!     Direction, Driver,
+//!     Direction, Stepper,
 //! };
 //!
 //! // This constant defines how much time there is between two steps. Changing
@@ -101,7 +101,7 @@
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
-//! let mut driver = Driver::from_inner(MyDriver::new())
+//! let mut driver = Stepper::from_inner(MyDriver::new())
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
 //!     .enable_step_control(step);
 //!
