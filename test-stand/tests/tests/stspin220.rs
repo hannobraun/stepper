@@ -25,7 +25,7 @@ use test_stand::{
 };
 
 struct Context {
-    driver: Stepper<
+    stepper: Stepper<
         STSPIN220<
             (),
             GpioPin<PIO0_16, Output>,
@@ -86,7 +86,7 @@ mod tests {
 
         let mut timer = mrt.mrt0;
 
-        let driver = Stepper::from_inner(STSPIN220::new())
+        let stepper = Stepper::from_inner(STSPIN220::new())
             .enable_step_control(step_mode3)
             .enable_direction_control(dir_mode4, Direction::Forward, &mut timer)
             .unwrap()
@@ -100,7 +100,7 @@ mod tests {
         let rotary = Rotary::new(rotary_a, rotary_b);
 
         super::Context {
-            driver,
+            stepper,
             timer,
             rotary,
             debug_signal,
@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn test_step(cx: &mut super::Context) {
         super::test_step(
-            &mut cx.driver,
+            &mut cx.stepper,
             &mut cx.timer,
             &mut cx.rotary,
             &mut cx.debug_signal,
