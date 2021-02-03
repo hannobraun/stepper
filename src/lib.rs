@@ -89,11 +89,12 @@
 //! // again, we'll use a mock here for the sake of demonstration.
 //! let mut timer = Timer;
 //!
-//! // Now we need to initialize the driver API. We do this by creating a
-//! // driver-specific API (`MyDriver`), then wrapping that into the generic API
-//! // (`Driver`). `MyDriver` is a placeholder. In a real use-case, you'd
-//! // typically use one of the drivers from the `step_dir::drivers` module, but
-//! // any driver that implements the traits from `step_dir::traits` will work.
+//! // Now we need to initialize the stepper API. We do this by creating a
+//! // driver/controller-specific API (`MyStepper`), then wrapping that into the
+//! // generic API (`Stepper`). `MyStepper` is a placeholder. In a real
+//! // use-case, you'd typically use one of the drivers from the
+//! // `step_dir::drivers` module, but any driver that implements the traits
+//! // from `step_dir::traits` will work.
 //! //
 //! // By default, drivers can't do anything directly after being initialized.
 //! // This means they also don't require any hardware resources, which makes
