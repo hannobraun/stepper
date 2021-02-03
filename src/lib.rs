@@ -101,7 +101,7 @@
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
-//! let mut driver = Stepper::from_inner(MyDriver::new())
+//! let mut stepper = Stepper::from_inner(MyDriver::new())
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
 //!     .enable_step_control(step);
 //!
@@ -110,13 +110,13 @@
 //!     // The `step` method returns a future. We just use it to block until the
 //!     // operation completes, but you can also use the API in a non-blocking
 //!     // way.
-//!     driver.step(&mut timer).wait()?;
+//!     stepper.step(&mut timer).wait()?;
 //!
 //!     // After telling the driver to make a step, we need to make sure to call
 //!     // the step method again after an appropriate amount of time. Let's just
 //!     // wait for the right time, using this example `delay_ns` function. How
 //!     // you do this in your own code is up to you.
-//!     delay_ns(STEP_DELAY - driver.pulse_length());
+//!     delay_ns(STEP_DELAY - stepper.pulse_length());
 //! }
 //! #
 //! # Ok(())
