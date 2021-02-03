@@ -31,7 +31,7 @@ pub fn exit() -> ! {
 }
 
 pub fn test_step<D, A, B, DebugSignal, Error>(
-    driver: &mut Stepper<D>,
+    stepper: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
@@ -45,8 +45,8 @@ pub fn test_step<D, A, B, DebugSignal, Error>(
     DebugSignal: OutputPin,
     DebugSignal::Error: Debug,
 {
-    verify_steps(driver, timer, rotary, Direction::Forward, debug_signal);
-    verify_steps(driver, timer, rotary, Direction::Backward, debug_signal);
+    verify_steps(stepper, timer, rotary, Direction::Forward, debug_signal);
+    verify_steps(stepper, timer, rotary, Direction::Backward, debug_signal);
 }
 
 pub fn verify_steps<D, A, B, DebugSignal, Error>(
