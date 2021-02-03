@@ -17,7 +17,7 @@ use super::{Error, Stepper};
 /// development becomes more practical.
 pub struct SetStepModeFuture<'r, T: SetStepMode, Timer> {
     step_mode: T::StepMode,
-    driver: &'r mut Stepper<T>,
+    stepper: &'r mut Stepper<T>,
     timer: &'r mut Timer,
     state: State,
 }
@@ -30,12 +30,12 @@ where
 {
     pub(super) fn new(
         step_mode: T::StepMode,
-        driver: &'r mut Stepper<T>,
+        stepper: &'r mut Stepper<T>,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
             step_mode,
-            driver,
+            stepper,
             timer,
             state: State::Initial,
         }
@@ -66,7 +66,7 @@ where
     > {
         match self.state {
             State::Initial => {
-                self.driver
+                self.stepper
                     .inner
                     .apply_mode_config(self.step_mode)
                     .map_err(|err| Error::Pin(err))?;
@@ -83,7 +83,7 @@ where
             }
             State::ApplyingConfig => match self.timer.try_wait() {
                 Ok(()) => {
-                    self.driver
+                    self.stepper
                         .inner
                         .enable_driver()
                         .map_err(|err| Error::Pin(err))?;
