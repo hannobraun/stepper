@@ -118,7 +118,7 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
 }
 
 pub fn step<D, A, B, Error>(
-    driver: &mut Stepper<D>,
+    stepper: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,
@@ -138,12 +138,12 @@ where
         Direction::Backward => EncoderDirection::CounterClockwise,
     };
 
-    driver.set_direction(direction, timer).wait().unwrap();
-    driver.step(timer).wait().unwrap();
+    stepper.set_direction(direction, timer).wait().unwrap();
+    stepper.step(timer).wait().unwrap();
 
     timer.start(mrt::MAX_VALUE);
     let step_timer = timer
-        .new_timer(delay - driver.pulse_length())
+        .new_timer(delay - stepper.pulse_length())
         .start()
         .unwrap();
 
