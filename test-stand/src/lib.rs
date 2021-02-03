@@ -50,7 +50,7 @@ pub fn test_step<D, A, B, DebugSignal, Error>(
 }
 
 pub fn verify_steps<D, A, B, DebugSignal, Error>(
-    driver: &mut Stepper<D>,
+    stepper: &mut Stepper<D>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     direction: Direction,
@@ -93,9 +93,9 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
     //
     // Here we step the motor until we read a count, then move half the number
     // of steps that make up a count, to get us to a desired middle position.
-    while step(driver, timer, rotary, STEP_DELAY, direction, false) == 0 {}
+    while step(stepper, timer, rotary, STEP_DELAY, direction, false) == 0 {}
     for _ in 0..STEPS_PER_COUNT / 2 {
-        step(driver, timer, rotary, STEP_DELAY, direction, false);
+        step(stepper, timer, rotary, STEP_DELAY, direction, false);
     }
 
     // Setup movement is over. Lower test signal.
@@ -106,7 +106,7 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
 
     let mut counts = 0;
     for _ in 0..steps {
-        counts += step(driver, timer, rotary, STEP_DELAY, direction, true);
+        counts += step(stepper, timer, rotary, STEP_DELAY, direction, true);
     }
 
     defmt::info!(
