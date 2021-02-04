@@ -137,9 +137,9 @@ pub mod drivers;
 pub mod step_mode;
 pub mod traits;
 
-mod driver;
+mod stepper;
 
-pub use self::driver::*;
+pub use self::stepper::*;
 
 /// Defines the direction in which to rotate the motor
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
