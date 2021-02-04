@@ -1,4 +1,4 @@
-# Contributing
+# Contributing to Step/Dir
 
 ## Introduction
 
