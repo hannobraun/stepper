@@ -104,7 +104,7 @@ pub trait SetDirection {
 /// The `Resources` type parameter defines the hardware resources required for
 /// step control.
 pub trait EnableStepControl<Resources> {
-    /// The type of the driver after direction control has been enabled
+    /// The type of the driver after step control has been enabled
     type WithStepControl: Step;
 
     /// Enable step control
