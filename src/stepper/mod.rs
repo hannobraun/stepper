@@ -275,6 +275,9 @@ impl<T> Stepper<T> {
     ///
     /// The pulse length is also available through the [`Step`] trait. This
     /// method provides a more convenient way to access it.
+    ///
+    /// You might need to call [`Stepper::enable_step_control`] to make this
+    /// method available.
     pub fn pulse_length(&self) -> Nanoseconds
     where
         T: Step,
