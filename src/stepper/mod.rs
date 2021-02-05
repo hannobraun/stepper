@@ -87,7 +87,7 @@ impl<Driver> Stepper<Driver> {
     ///
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
-    pub fn inner(&self) -> &Driver {
+    pub fn driver(&self) -> &Driver {
         &self.driver
     }
 
@@ -95,7 +95,7 @@ impl<Driver> Stepper<Driver> {
     ///
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
-    pub fn inner_mut(&mut self) -> &mut Driver {
+    pub fn driver_mut(&mut self) -> &mut Driver {
         &mut self.driver
     }
 
