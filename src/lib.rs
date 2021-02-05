@@ -41,7 +41,7 @@
 //! const STEP_DELAY: Nanoseconds = Nanoseconds(500_000);
 //!
 //! # // Use a real driver to make things easy, without making the example seem
-//! # // to specific to one driver.
+//! # // too specific to one driver.
 //! # type MyStepper = step_dir::drivers::drv8825::DRV8825<
 //! #     (), (), (), (), (), (), (), (), ()
 //! # >;
