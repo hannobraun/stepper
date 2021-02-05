@@ -42,7 +42,7 @@
 //!
 //! # // Use a real driver to make things easy, without making the example seem
 //! # // too specific to one driver.
-//! # type MyStepper = step_dir::drivers::drv8825::DRV8825<
+//! # type MyDriver = step_dir::drivers::drv8825::DRV8825<
 //! #     (), (), (), (), (), (), (), (), ()
 //! # >;
 //! #
@@ -90,8 +90,8 @@
 //! let mut timer = Timer;
 //!
 //! // Now we need to initialize the stepper API. We do this by creating a
-//! // driver/controller-specific API (`MyStepper`), then wrapping that into the
-//! // generic API (`Stepper`). `MyStepper` is a placeholder. In a real
+//! // driver/controller-specific API (`MyDriver`), then wrapping that into the
+//! // generic API (`Stepper`). `MyDriver` is a placeholder. In a real
 //! // use-case, you'd typically use one of the drivers from the
 //! // `step_dir::drivers` module, but any driver that implements the traits
 //! // from `step_dir::traits` will work.
@@ -102,7 +102,7 @@
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
-//! let mut stepper = Stepper::from_driver(MyStepper::new())
+//! let mut stepper = Stepper::from_driver(MyDriver::new())
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
 //!     .enable_step_control(step);
 //!
