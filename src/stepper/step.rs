@@ -65,7 +65,7 @@ where
             State::Initial => {
                 // Start step pulse
                 self.stepper
-                    .inner
+                    .driver
                     .step()
                     .try_set_high()
                     .map_err(|err| Error::Pin(err))?;
@@ -85,7 +85,7 @@ where
                     Ok(()) => {
                         // End step pulse
                         self.stepper
-                            .inner
+                            .driver
                             .step()
                             .try_set_low()
                             .map_err(|err| Error::Pin(err))?;

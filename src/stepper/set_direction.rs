@@ -69,13 +69,13 @@ where
                 match self.direction {
                     Direction::Forward => self
                         .stepper
-                        .inner
+                        .driver
                         .dir()
                         .try_set_high()
                         .map_err(|err| Error::Pin(err))?,
                     Direction::Backward => self
                         .stepper
-                        .inner
+                        .driver
                         .dir()
                         .try_set_low()
                         .map_err(|err| Error::Pin(err))?,

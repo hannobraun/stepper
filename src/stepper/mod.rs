@@ -74,13 +74,13 @@ use crate::{
 /// [RFC 2632]: https://github.com/rust-lang/rfcs/pull/2632
 /// [RFC 2920]: https://github.com/rust-lang/rfcs/pull/2920
 pub struct Stepper<Driver> {
-    inner: Driver,
+    driver: Driver,
 }
 
 impl<Driver> Stepper<Driver> {
     /// Create a new `Stepper` instance from a driver
-    pub fn from_inner(inner: Driver) -> Self {
-        Self { inner }
+    pub fn from_inner(driver: Driver) -> Self {
+        Self { driver }
     }
 
     /// Access a reference to the wrapped driver
@@ -88,7 +88,7 @@ impl<Driver> Stepper<Driver> {
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
     pub fn inner(&self) -> &Driver {
-        &self.inner
+        &self.driver
     }
 
     /// Access a mutable reference to the wrapped driver or controller
@@ -96,14 +96,14 @@ impl<Driver> Stepper<Driver> {
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
     pub fn inner_mut(&mut self) -> &mut Driver {
-        &mut self.inner
+        &mut self.driver
     }
 
     /// Release the wrapped driver
     ///
     /// Drops this instance of `Stepper` and returns the wrapped driver.
     pub fn release(self) -> Driver {
-        self.inner
+        self.driver
     }
 
     /// Enable microstepping mode control
@@ -139,7 +139,7 @@ impl<Driver> Stepper<Driver> {
         Timer::Time: TryFrom<Nanoseconds>,
     {
         let mut self_ = Stepper {
-            inner: self.inner.enable_step_mode_control(res),
+            driver: self.driver.enable_step_mode_control(res),
         };
         self_.set_step_mode(initial, timer).wait()?;
 
@@ -201,7 +201,7 @@ impl<Driver> Stepper<Driver> {
         Timer::Time: TryFrom<Nanoseconds>,
     {
         let mut self_ = Stepper {
-            inner: self.inner.enable_direction_control(res),
+            driver: self.driver.enable_direction_control(res),
         };
         self_.set_direction(initial, timer).wait()?;
 
@@ -247,7 +247,7 @@ impl<Driver> Stepper<Driver> {
         Driver: EnableStepControl<Resources>,
     {
         Stepper {
-            inner: self.inner.enable_step_control(res),
+            driver: self.driver.enable_step_control(res),
         }
     }
 

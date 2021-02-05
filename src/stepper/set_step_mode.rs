@@ -67,7 +67,7 @@ where
         match self.state {
             State::Initial => {
                 self.stepper
-                    .inner
+                    .driver
                     .apply_mode_config(self.step_mode)
                     .map_err(|err| Error::Pin(err))?;
 
@@ -84,7 +84,7 @@ where
             State::ApplyingConfig => match self.timer.try_wait() {
                 Ok(()) => {
                     self.stepper
-                        .inner
+                        .driver
                         .enable_driver()
                         .map_err(|err| Error::Pin(err))?;
 
