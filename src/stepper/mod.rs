@@ -20,11 +20,29 @@ use crate::{
     Direction,
 };
 
-/// Abstract interface to stepper motors
+/// Unified stepper motor interface
 ///
-/// Wraps a concrete stepper driver or controller, and uses the traits that this
-/// concrete driver or controller implements to provide an abstract API. You can
-/// construct an instance of this type using [`Stepper::from_inner`].
+/// Wraps a driver that interfaces with the motor-controlling hardware and
+/// abstracts over it, providing an interface that works the same, no matter
+/// what kind of hardware controls the stepper motor.
+///
+/// You can construct an instance of this type using [`Stepper::from_inner`].
+///
+/// # Nomenclature
+///
+/// This structs wraps a software component that interfaces with hardware that
+/// controls a stepper motor. That software component is called a "driver",
+/// because it "drives" the hardware it interfaces with.
+///
+/// The driven hardware typically comes in two forms:
+///
+/// - A low-level chip controlled by STEP and DIR signals, often called a
+//    stepper driver (yes, somewhat confusing) or stepper controller.
+/// - A higher-level chip, typically controlled through some serial interface,
+///   often called a motion controller.
+///
+/// In practice, a given product can cleanly fall into one of the two camps,
+/// both, or anything in between.
 ///
 /// # Notes on timer use
 ///
@@ -60,31 +78,30 @@ pub struct Stepper<T> {
 }
 
 impl<T> Stepper<T> {
-    /// Create a new `Stepper` instance from a concrete driver or controller
+    /// Create a new `Stepper` instance from a driver
     pub fn from_inner(inner: T) -> Self {
         Self { inner }
     }
 
-    /// Access a reference to the wrapped driver or controller
+    /// Access a reference to the wrapped driver
     ///
-    /// Can be used to access driver/controller-specific functionality that
-    /// can't be provided by `Stepper`'s abstract interface.
+    /// Can be used to access driver-specific functionality that can't be
+    /// provided by `Stepper`'s abstract interface.
     pub fn inner(&self) -> &T {
         &self.inner
     }
 
     /// Access a mutable reference to the wrapped driver or controller
     ///
-    /// Can be used to access driver/controller-specific functionality that
-    /// can't be provided by `Stepper`'s abstract interface.
+    /// Can be used to access driver-specific functionality that can't be
+    /// provided by `Stepper`'s abstract interface.
     pub fn inner_mut(&mut self) -> &mut T {
         &mut self.inner
     }
 
-    /// Release the wrapped driver or controller
+    /// Release the wrapped driver
     ///
-    /// Drops this instance of `Stepper` and returns the wrapped driver/
-    /// controller.
+    /// Drops this instance of `Stepper` and returns the wrapped driver.
     pub fn release(self) -> T {
         self.inner
     }
@@ -97,12 +114,12 @@ impl<T> Stepper<T> {
     ///
     /// Takes the hardware resources that are required for controlling the
     /// microstepping mode as an argument. What exactly those are depends on the
-    /// specific driver/controller. Typically they are the output pins that are
-    /// connected to the mode pins of the driver/controller.
+    /// specific driver. Typically they are the output pins that are connected
+    /// to the mode pins of the driver.
     ///
-    /// This method is only available, if the driver/controller supports
-    /// enabling step mode control. It might no longer be available, once step
-    /// mode control has been enabled.
+    /// This method is only available, if the driver supports enabling step mode
+    /// control. It might no longer be available, once step mode control has
+    /// been enabled.
     pub fn enable_step_mode_control<Resources, Timer>(
         self,
         res: Resources,
@@ -131,10 +148,10 @@ impl<T> Stepper<T> {
 
     /// Sets the microstepping mode
     ///
-    /// This method is only available, if the wrapped driver/controller supports
+    /// This method is only available, if the wrapped driver supports
     /// microstepping, and supports setting the step mode through software. Some
-    /// drivers/controllers might not support microstepping at all, or only
-    /// allow setting the step mode by changing physical switches.
+    /// hardware might not support microstepping at all, or only allow setting
+    /// the step mode by changing physical switches.
     ///
     /// You might need to call [`Stepper::enable_step_mode_control`] to make
     /// this method available.
@@ -159,12 +176,12 @@ impl<T> Stepper<T> {
     ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
-    /// driver/controller. Typically it's going to be the output pin that is
-    /// connected to the driver/controller's DIR pin.
+    /// driver. Typically it's going to be the output pin that is connected to
+    /// the hardware's DIR pin.
     ///
-    /// This method is only available, if the driver/controller supports
-    /// enabling direction control. It might no longer be available, once
-    /// direction control has been enabled.
+    /// This method is only available, if the driver supports enabling direction
+    /// control. It might no longer be available, once direction control has
+    /// been enabled.
     pub fn enable_direction_control<Resources, Timer>(
         self,
         res: Resources,
@@ -216,8 +233,8 @@ impl<T> Stepper<T> {
     ///
     /// Takes the hardware resources that are required for controlling the
     /// direction as an argument. What exactly those are depends on the specific
-    /// driver/controller. Typically it's going to be the output pin that is
-    /// connected to the driver/controller's STEP pin.
+    /// driver. Typically it's going to be the output pin that is connected to
+    /// the hardware's STEP pin.
     ///
     /// This method is only available, if the driver/controller supports
     /// enabling step control. It might no longer be available, once step
