@@ -89,16 +89,15 @@
 //! // again, we'll use a mock here for the sake of demonstration.
 //! let mut timer = Timer;
 //!
-//! // Now we need to initialize the stepper API. We do this by creating a
-//! // driver/controller-specific API (`MyDriver`), then wrapping that into the
-//! // generic API (`Stepper`). `MyDriver` is a placeholder. In a real
-//! // use-case, you'd typically use one of the drivers from the
-//! // `step_dir::drivers` module, but any driver that implements the traits
-//! // from `step_dir::traits` will work.
+//! // Now we need to initialize the stepper API. We do this by initializing a
+//! // driver (`MyDriver`), then wrapping that into the generic API (`Stepper`).
+//! // `MyDriver` is a placeholder. In a real use-case, you'd typically use one
+//! // of the drivers from the `step_dir::drivers` module, but any driver that
+//! // implements the traits from `step_dir::traits` will do.
 //! //
-//! // By default, drivers can't do anything directly after being initialized.
-//! // This means they also don't require any hardware resources, which makes
-//! // them easier to use when you don't need all features.
+//! // By default, drivers can't do anything after being initialized. This means
+//! // they also don't require any hardware resources, which makes them easier
+//! // to use when you don't need all features.
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
