@@ -44,6 +44,38 @@ use crate::{
 /// In practice, a given product can cleanly fall into one of the two camps,
 /// both, or anything in between.
 ///
+/// # Hardware capabilities
+///
+/// Depending on the actual hardware we're interfacing with, we might only have
+/// access to the bare minimum functionality (STEP and DIR pins) or high-level
+/// motion control features. Since `Stepper` is agnostic on the driver and the
+/// hardware it interfaces with, there must be a way to deal with those
+/// differing capabilities.
+///
+/// `Stepper` provides a number of `enable_*` methods that enable access to a
+/// specific hardware capability, if the hardware and driver support this. Once
+/// that method has been called, the methods that control the hardware
+/// capability are available.
+///
+/// ## Step mode control
+///
+/// Enable this capability with [`Stepper::enable_step_mode_control`] and use it
+/// with [`Stepper::set_step_mode`]. Since not all stepper drivers support
+/// microstepping and of those that do, not all support setting it from software
+/// this capability might not be available for all drivers.
+///
+/// ## Direction control & step control
+///
+/// Enable direction control with [`Stepper::enable_direction_control`] and use
+/// it with [`Stepper::set_direction`]. Enable step control with
+/// [`Stepper::enable_step_control`] and use ith with [`Stepper::step`].
+///
+/// These capabilities are supported by virtually all stepper drivers, but might
+/// not be available for motion controllers. Where they are available, they are
+/// typically available together. They are modeled as separate capabilities, as
+/// to not make any assumptions. If you want to generate steps from software,
+/// for example, but control direction via some other means, then you can.
+///
 /// # Notes on timer use
 ///
 /// Some of this struct's methods take a timer argument. This is expected to be
