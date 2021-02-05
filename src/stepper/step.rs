@@ -15,20 +15,20 @@ use super::{Error, Stepper};
 /// Please note that this type provides a custom API and does not implement
 /// [`core::future::Future`]. This might change, as using futures for embedded
 /// development becomes more practical.
-pub struct StepFuture<'r, T, Timer> {
-    stepper: &'r mut Stepper<T>,
+pub struct StepFuture<'r, Driver, Timer> {
+    stepper: &'r mut Stepper<Driver>,
     timer: &'r mut Timer,
     state: State,
 }
 
-impl<'r, T, Timer> StepFuture<'r, T, Timer>
+impl<'r, Driver, Timer> StepFuture<'r, Driver, Timer>
 where
-    T: Step,
+    Driver: Step,
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
     pub(super) fn new(
-        stepper: &'r mut Stepper<T>,
+        stepper: &'r mut Stepper<Driver>,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
@@ -55,7 +55,7 @@ where
         Result<
             (),
             Error<
-                T::Error,
+                Driver::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
@@ -65,12 +65,12 @@ where
             State::Initial => {
                 // Start step pulse
                 self.stepper
-                    .inner
+                    .driver
                     .step()
                     .try_set_high()
                     .map_err(|err| Error::Pin(err))?;
 
-                let ticks: Timer::Time = T::PULSE_LENGTH
+                let ticks: Timer::Time = Driver::PULSE_LENGTH
                     .try_into()
                     .map_err(|err| Error::TimeConversion(err))?;
                 self.timer
@@ -85,7 +85,7 @@ where
                     Ok(()) => {
                         // End step pulse
                         self.stepper
-                            .inner
+                            .driver
                             .step()
                             .try_set_low()
                             .map_err(|err| Error::Pin(err))?;
@@ -113,7 +113,7 @@ where
     ) -> Result<
         (),
         Error<
-            T::Error,
+            Driver::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,

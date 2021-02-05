@@ -41,8 +41,8 @@
 //! const STEP_DELAY: Nanoseconds = Nanoseconds(500_000);
 //!
 //! # // Use a real driver to make things easy, without making the example seem
-//! # // to specific to one driver.
-//! # type MyStepper = step_dir::drivers::drv8825::DRV8825<
+//! # // too specific to one driver.
+//! # type MyDriver = step_dir::drivers::drv8825::DRV8825<
 //! #     (), (), (), (), (), (), (), (), ()
 //! # >;
 //! #
@@ -89,20 +89,19 @@
 //! // again, we'll use a mock here for the sake of demonstration.
 //! let mut timer = Timer;
 //!
-//! // Now we need to initialize the stepper API. We do this by creating a
-//! // driver/controller-specific API (`MyStepper`), then wrapping that into the
-//! // generic API (`Stepper`). `MyStepper` is a placeholder. In a real
-//! // use-case, you'd typically use one of the drivers from the
-//! // `step_dir::drivers` module, but any driver that implements the traits
-//! // from `step_dir::traits` will work.
+//! // Now we need to initialize the stepper API. We do this by initializing a
+//! // driver (`MyDriver`), then wrapping that into the generic API (`Stepper`).
+//! // `MyDriver` is a placeholder. In a real use-case, you'd typically use one
+//! // of the drivers from the `step_dir::drivers` module, but any driver that
+//! // implements the traits from `step_dir::traits` will do.
 //! //
-//! // By default, drivers can't do anything directly after being initialized.
-//! // This means they also don't require any hardware resources, which makes
-//! // them easier to use when you don't need all features.
+//! // By default, drivers can't do anything after being initialized. This means
+//! // they also don't require any hardware resources, which makes them easier
+//! // to use when you don't need all features.
 //! //
 //! // Here, we enable control over the STEP and DIR pins, as we want to step
 //! // the motor in a defined direction.
-//! let mut stepper = Stepper::from_inner(MyStepper::new())
+//! let mut stepper = Stepper::from_driver(MyDriver::new())
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
 //!     .enable_step_control(step);
 //!

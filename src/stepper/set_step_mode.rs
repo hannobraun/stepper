@@ -15,22 +15,22 @@ use super::{Error, Stepper};
 /// Please note that this type provides a custom API and does not implement
 /// [`core::future::Future`]. This might change, as using futures for embedded
 /// development becomes more practical.
-pub struct SetStepModeFuture<'r, T: SetStepMode, Timer> {
-    step_mode: T::StepMode,
-    stepper: &'r mut Stepper<T>,
+pub struct SetStepModeFuture<'r, Driver: SetStepMode, Timer> {
+    step_mode: Driver::StepMode,
+    stepper: &'r mut Stepper<Driver>,
     timer: &'r mut Timer,
     state: State,
 }
 
-impl<'r, T, Timer> SetStepModeFuture<'r, T, Timer>
+impl<'r, Driver, Timer> SetStepModeFuture<'r, Driver, Timer>
 where
-    T: SetStepMode,
+    Driver: SetStepMode,
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
     pub(super) fn new(
-        step_mode: T::StepMode,
-        stepper: &'r mut Stepper<T>,
+        step_mode: Driver::StepMode,
+        stepper: &'r mut Stepper<Driver>,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
@@ -58,7 +58,7 @@ where
         Result<
             (),
             Error<
-                T::Error,
+                Driver::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
@@ -67,11 +67,11 @@ where
         match self.state {
             State::Initial => {
                 self.stepper
-                    .inner
+                    .driver
                     .apply_mode_config(self.step_mode)
                     .map_err(|err| Error::Pin(err))?;
 
-                let ticks: Timer::Time = T::SETUP_TIME
+                let ticks: Timer::Time = Driver::SETUP_TIME
                     .try_into()
                     .map_err(|err| Error::TimeConversion(err))?;
                 self.timer
@@ -84,11 +84,11 @@ where
             State::ApplyingConfig => match self.timer.try_wait() {
                 Ok(()) => {
                     self.stepper
-                        .inner
+                        .driver
                         .enable_driver()
                         .map_err(|err| Error::Pin(err))?;
 
-                    let ticks: Timer::Time = T::HOLD_TIME
+                    let ticks: Timer::Time = Driver::HOLD_TIME
                         .try_into()
                         .map_err(|err| Error::TimeConversion(err))?;
                     self.timer
@@ -129,7 +129,7 @@ where
     ) -> Result<
         (),
         Error<
-            T::Error,
+            Driver::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
