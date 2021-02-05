@@ -15,22 +15,22 @@ use super::{Error, Stepper};
 /// Please note that this type provides a custom API and does not implement
 /// [`core::future::Future`]. This might change, as using futures for embedded
 /// development becomes more practical.
-pub struct SetDirectionFuture<'r, T, Timer> {
+pub struct SetDirectionFuture<'r, Driver, Timer> {
     direction: Direction,
-    stepper: &'r mut Stepper<T>,
+    stepper: &'r mut Stepper<Driver>,
     timer: &'r mut Timer,
     state: State,
 }
 
-impl<'r, T, Timer> SetDirectionFuture<'r, T, Timer>
+impl<'r, Driver, Timer> SetDirectionFuture<'r, Driver, Timer>
 where
-    T: SetDirection,
+    Driver: SetDirection,
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
     pub(super) fn new(
         direction: Direction,
-        stepper: &'r mut Stepper<T>,
+        stepper: &'r mut Stepper<Driver>,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
@@ -58,7 +58,7 @@ where
         Result<
             (),
             Error<
-                T::Error,
+                Driver::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
@@ -81,7 +81,7 @@ where
                         .map_err(|err| Error::Pin(err))?,
                 }
 
-                let ticks: Timer::Time = T::SETUP_TIME
+                let ticks: Timer::Time = Driver::SETUP_TIME
                     .try_into()
                     .map_err(|err| Error::TimeConversion(err))?;
                 self.timer
@@ -115,7 +115,7 @@ where
     ) -> Result<
         (),
         Error<
-            T::Error,
+            Driver::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,

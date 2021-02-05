@@ -73,13 +73,13 @@ use crate::{
 ///
 /// [RFC 2632]: https://github.com/rust-lang/rfcs/pull/2632
 /// [RFC 2920]: https://github.com/rust-lang/rfcs/pull/2920
-pub struct Stepper<T> {
-    inner: T,
+pub struct Stepper<Driver> {
+    inner: Driver,
 }
 
-impl<T> Stepper<T> {
+impl<Driver> Stepper<Driver> {
     /// Create a new `Stepper` instance from a driver
-    pub fn from_inner(inner: T) -> Self {
+    pub fn from_inner(inner: Driver) -> Self {
         Self { inner }
     }
 
@@ -87,7 +87,7 @@ impl<T> Stepper<T> {
     ///
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
-    pub fn inner(&self) -> &T {
+    pub fn inner(&self) -> &Driver {
         &self.inner
     }
 
@@ -95,14 +95,14 @@ impl<T> Stepper<T> {
     ///
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
-    pub fn inner_mut(&mut self) -> &mut T {
+    pub fn inner_mut(&mut self) -> &mut Driver {
         &mut self.inner
     }
 
     /// Release the wrapped driver
     ///
     /// Drops this instance of `Stepper` and returns the wrapped driver.
-    pub fn release(self) -> T {
+    pub fn release(self) -> Driver {
         self.inner
     }
 
@@ -123,18 +123,18 @@ impl<T> Stepper<T> {
     pub fn enable_step_mode_control<Resources, Timer>(
         self,
         res: Resources,
-        initial: <T::WithStepModeControl as SetStepMode>::StepMode,
+        initial: <Driver::WithStepModeControl as SetStepMode>::StepMode,
         timer: &mut Timer,
     ) -> Result<
-        Stepper<T::WithStepModeControl>,
+        Stepper<Driver::WithStepModeControl>,
         Error<
-            <T::WithStepModeControl as SetStepMode>::Error,
+            <Driver::WithStepModeControl as SetStepMode>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     >
     where
-        T: EnableStepModeControl<Resources>,
+        Driver: EnableStepModeControl<Resources>,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
@@ -157,11 +157,11 @@ impl<T> Stepper<T> {
     /// this method available.
     pub fn set_step_mode<'r, Timer>(
         &'r mut self,
-        step_mode: T::StepMode,
+        step_mode: Driver::StepMode,
         timer: &'r mut Timer,
-    ) -> SetStepModeFuture<'r, T, Timer>
+    ) -> SetStepModeFuture<'r, Driver, Timer>
     where
-        T: SetStepMode,
+        Driver: SetStepMode,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
@@ -188,15 +188,15 @@ impl<T> Stepper<T> {
         initial: Direction,
         timer: &mut Timer,
     ) -> Result<
-        Stepper<T::WithDirectionControl>,
+        Stepper<Driver::WithDirectionControl>,
         Error<
-            <T::WithDirectionControl as SetDirection>::Error,
+            <Driver::WithDirectionControl as SetDirection>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     >
     where
-        T: EnableDirectionControl<Resources>,
+        Driver: EnableDirectionControl<Resources>,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
@@ -216,9 +216,9 @@ impl<T> Stepper<T> {
         &'r mut self,
         direction: Direction,
         timer: &'r mut Timer,
-    ) -> SetDirectionFuture<'r, T, Timer>
+    ) -> SetDirectionFuture<'r, Driver, Timer>
     where
-        T: SetDirection,
+        Driver: SetDirection,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
@@ -242,9 +242,9 @@ impl<T> Stepper<T> {
     pub fn enable_step_control<Resources>(
         self,
         res: Resources,
-    ) -> Stepper<T::WithStepControl>
+    ) -> Stepper<Driver::WithStepControl>
     where
-        T: EnableStepControl<Resources>,
+        Driver: EnableStepControl<Resources>,
     {
         Stepper {
             inner: self.inner.enable_step_control(res),
@@ -262,9 +262,9 @@ impl<T> Stepper<T> {
     pub fn step<'r, Timer>(
         &'r mut self,
         timer: &'r mut Timer,
-    ) -> StepFuture<'r, T, Timer>
+    ) -> StepFuture<'r, Driver, Timer>
     where
-        T: Step,
+        Driver: Step,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
@@ -280,9 +280,9 @@ impl<T> Stepper<T> {
     /// method available.
     pub fn pulse_length(&self) -> Nanoseconds
     where
-        T: Step,
+        Driver: Step,
     {
-        T::PULSE_LENGTH
+        Driver::PULSE_LENGTH
     }
 }
 
