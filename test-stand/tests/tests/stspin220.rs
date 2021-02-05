@@ -86,7 +86,7 @@ mod tests {
 
         let mut timer = mrt.mrt0;
 
-        let stepper = Stepper::from_inner(STSPIN220::new())
+        let stepper = Stepper::from_driver(STSPIN220::new())
             .enable_step_control(step_mode3)
             .enable_direction_control(dir_mode4, Direction::Forward, &mut timer)
             .unwrap()

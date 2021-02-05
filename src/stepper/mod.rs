@@ -26,7 +26,7 @@ use crate::{
 /// abstracts over it, providing an interface that works the same, no matter
 /// what kind of hardware controls the stepper motor.
 ///
-/// You can construct an instance of this type using [`Stepper::from_inner`].
+/// You can construct an instance of this type using [`Stepper::from_driver`].
 ///
 /// # Nomenclature
 ///
@@ -79,7 +79,7 @@ pub struct Stepper<Driver> {
 
 impl<Driver> Stepper<Driver> {
     /// Create a new `Stepper` instance from a driver
-    pub fn from_inner(driver: Driver) -> Self {
+    pub fn from_driver(driver: Driver) -> Self {
         Self { driver }
     }
 
