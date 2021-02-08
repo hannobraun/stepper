@@ -43,7 +43,7 @@ where
     /// The future must be polled for the operation to make progress. The
     /// operation won't start, until this method has been called once. Returns
     /// [`Poll::Pending`], if the operation is not finished yet, or
-    /// [`Poll::Ready`], once it is
+    /// [`Poll::Ready`], once it is.
     ///
     /// If this method returns [`Poll::Pending`], the user can opt to keep
     /// calling it at a high frequency (see [`Self::wait`]) until the operation
