@@ -10,10 +10,10 @@ use crate::traits::SetStepMode;
 
 use super::{Error, Stepper};
 
-/// A "future" that can be polled to complete a [`Stepper::set_step_mode`] call
+/// The "future" returned by [`Stepper::set_step_mode`]
 ///
 /// Please note that this type provides a custom API and does not implement
-/// [`core::future::Future`]. This might change, as using futures for embedded
+/// [`core::future::Future`]. This might change, when using futures for embedded
 /// development becomes more practical.
 pub struct SetStepModeFuture<'r, Driver: SetStepMode, Timer> {
     step_mode: Driver::StepMode,

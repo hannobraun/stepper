@@ -10,10 +10,10 @@ use crate::traits::Step;
 
 use super::{Error, Stepper};
 
-/// A "future" that can be polled to complete a [`Stepper::step`] call
+/// The "future" returned by [`Stepper::step`]
 ///
 /// Please note that this type provides a custom API and does not implement
-/// [`core::future::Future`]. This might change, as using futures for embedded
+/// [`core::future::Future`]. This might change, when using futures for embedded
 /// development becomes more practical.
 pub struct StepFuture<'r, Driver, Timer> {
     stepper: &'r mut Stepper<Driver>,

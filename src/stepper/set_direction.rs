@@ -10,10 +10,10 @@ use crate::{traits::SetDirection, Direction};
 
 use super::{Error, Stepper};
 
-/// A "future" that can be polled to complete a [`Stepper::set_direction`] call
+/// The "future" returned by [`Stepper::set_direction`]
 ///
 /// Please note that this type provides a custom API and does not implement
-/// [`core::future::Future`]. This might change, as using futures for embedded
+/// [`core::future::Future`]. This might change, when using futures for embedded
 /// development becomes more practical.
 pub struct SetDirectionFuture<'r, Driver, Timer> {
     direction: Direction,
