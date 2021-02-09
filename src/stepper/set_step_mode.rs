@@ -30,7 +30,14 @@ where
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
-    pub(super) fn new(
+    /// Create new instance of `SetStepModeFuture`
+    ///
+    /// This constructor is public to provide maximum flexibility for
+    /// non-standard use cases. Most users can ignore this and just use
+    /// [`Stepper::set_step_mode`] instead.
+    ///
+    /// [`Stepper::set_step_mode`]: crate::Stepper::set_step_mode
+    pub fn new(
         step_mode: Driver::StepMode,
         driver: &'r mut Driver,
         timer: &'r mut Timer,

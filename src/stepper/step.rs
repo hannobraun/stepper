@@ -29,7 +29,14 @@ where
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
-    pub(super) fn new(driver: &'r mut Driver, timer: &'r mut Timer) -> Self {
+    /// Create new instance of `StepFuture`
+    ///
+    /// This constructor is public to provide maximum flexibility for
+    /// non-standard use cases. Most users can ignore this and just use
+    /// [`Stepper::step`] instead.
+    ///
+    /// [`Stepper::step`]: crate::Stepper::step
+    pub fn new(driver: &'r mut Driver, timer: &'r mut Timer) -> Self {
         Self {
             driver,
             timer,
