@@ -264,7 +264,7 @@ impl<Driver> Stepper<Driver> {
     /// called, the [`Stepper::step`] method becomes available.
     ///
     /// Takes the hardware resources that are required for controlling the
-    /// direction as an argument. What exactly those are depends on the specific
+    /// stepping as an argument. What exactly those are depends on the specific
     /// driver. Typically it's going to be the output pin that is connected to
     /// the hardware's STEP pin.
     ///
