@@ -8,15 +8,17 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::traits::Step;
 
-use super::{Error, Stepper};
+use super::Error;
 
 /// The "future" returned by [`Stepper::step`]
 ///
 /// Please note that this type provides a custom API and does not implement
 /// [`core::future::Future`]. This might change, when using futures for embedded
 /// development becomes more practical.
+///
+/// [`Stepper::step`]: crate::Stepper::step
 pub struct StepFuture<'r, Driver, Timer> {
-    stepper: &'r mut Stepper<Driver>,
+    driver: &'r mut Driver,
     timer: &'r mut Timer,
     state: State,
 }
@@ -27,12 +29,16 @@ where
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
 {
-    pub(super) fn new(
-        stepper: &'r mut Stepper<Driver>,
-        timer: &'r mut Timer,
-    ) -> Self {
+    /// Create new instance of `StepFuture`
+    ///
+    /// This constructor is public to provide maximum flexibility for
+    /// non-standard use cases. Most users can ignore this and just use
+    /// [`Stepper::step`] instead.
+    ///
+    /// [`Stepper::step`]: crate::Stepper::step
+    pub fn new(driver: &'r mut Driver, timer: &'r mut Timer) -> Self {
         Self {
-            stepper,
+            driver,
             timer,
             state: State::Initial,
         }
@@ -64,8 +70,7 @@ where
         match self.state {
             State::Initial => {
                 // Start step pulse
-                self.stepper
-                    .driver
+                self.driver
                     .step()
                     .try_set_high()
                     .map_err(|err| Error::Pin(err))?;
@@ -84,8 +89,7 @@ where
                 match self.timer.try_wait() {
                     Ok(()) => {
                         // End step pulse
-                        self.stepper
-                            .driver
+                        self.driver
                             .step()
                             .try_set_low()
                             .map_err(|err| Error::Pin(err))?;
