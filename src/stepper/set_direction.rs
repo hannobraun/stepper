@@ -8,16 +8,18 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::{traits::SetDirection, Direction};
 
-use super::{Error, Stepper};
+use super::Error;
 
 /// The "future" returned by [`Stepper::set_direction`]
 ///
 /// Please note that this type provides a custom API and does not implement
 /// [`core::future::Future`]. This might change, when using futures for embedded
 /// development becomes more practical.
+///
+/// [`Stepper::set_direction`]: crate::Stepper::set_direction
 pub struct SetDirectionFuture<'r, Driver, Timer> {
     direction: Direction,
-    stepper: &'r mut Stepper<Driver>,
+    driver: &'r mut Driver,
     timer: &'r mut Timer,
     state: State,
 }
@@ -30,12 +32,12 @@ where
 {
     pub(super) fn new(
         direction: Direction,
-        stepper: &'r mut Stepper<Driver>,
+        driver: &'r mut Driver,
         timer: &'r mut Timer,
     ) -> Self {
         Self {
             direction,
-            stepper,
+            driver,
             timer,
             state: State::Initial,
         }
@@ -68,13 +70,11 @@ where
             State::Initial => {
                 match self.direction {
                     Direction::Forward => self
-                        .stepper
                         .driver
                         .dir()
                         .try_set_high()
                         .map_err(|err| Error::Pin(err))?,
                     Direction::Backward => self
-                        .stepper
                         .driver
                         .dir()
                         .try_set_low()

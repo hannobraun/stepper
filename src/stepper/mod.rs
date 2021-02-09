@@ -197,7 +197,7 @@ impl<Driver> Stepper<Driver> {
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        SetStepModeFuture::new(step_mode, self, timer)
+        SetStepModeFuture::new(step_mode, &mut self.driver, timer)
     }
 
     /// Enable direction control
@@ -254,7 +254,7 @@ impl<Driver> Stepper<Driver> {
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        SetDirectionFuture::new(direction, self, timer)
+        SetDirectionFuture::new(direction, &mut self.driver, timer)
     }
 
     /// Enable step control
@@ -300,7 +300,7 @@ impl<Driver> Stepper<Driver> {
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        StepFuture::new(self, timer)
+        StepFuture::new(&mut self.driver, timer)
     }
 
     /// Returns the step pulse length of the wrapped driver/controller
