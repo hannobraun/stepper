@@ -5,7 +5,7 @@
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
 
-use crate::traits::{SetDirection, SetStepMode, Step};
+use crate::traits::{MotionControl, SetDirection, SetStepMode, Step};
 
 /// Generic wrapper around a mutable reference
 ///
@@ -34,6 +34,26 @@ where
 
     fn try_wait(&mut self) -> nb::Result<(), Self::Error> {
         self.0.try_wait()
+    }
+}
+
+impl<'r, T> MotionControl for RefMut<'r, T>
+where
+    T: MotionControl,
+{
+    type Velocity = T::Velocity;
+    type Error = T::Error;
+
+    fn move_to_position(
+        &mut self,
+        max_velocity: Self::Velocity,
+        target_step: u32,
+    ) -> Result<(), Self::Error> {
+        self.0.move_to_position(max_velocity, target_step)
+    }
+
+    fn update(&mut self) -> Result<bool, Self::Error> {
+        self.0.update()
     }
 }
 
