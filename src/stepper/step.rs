@@ -17,13 +17,13 @@ use super::Error;
 /// development becomes more practical.
 ///
 /// [`Stepper::step`]: crate::Stepper::step
-pub struct StepFuture<'r, Driver, Timer> {
-    driver: &'r mut Driver,
-    timer: &'r mut Timer,
+pub struct StepFuture<Driver, Timer> {
+    driver: Driver,
+    timer: Timer,
     state: State,
 }
 
-impl<'r, Driver, Timer> StepFuture<'r, Driver, Timer>
+impl<Driver, Timer> StepFuture<Driver, Timer>
 where
     Driver: Step,
     Timer: timer::CountDown,
@@ -36,7 +36,7 @@ where
     /// [`Stepper::step`] instead.
     ///
     /// [`Stepper::step`]: crate::Stepper::step
-    pub fn new(driver: &'r mut Driver, timer: &'r mut Timer) -> Self {
+    pub fn new(driver: Driver, timer: Timer) -> Self {
         Self {
             driver,
             timer,

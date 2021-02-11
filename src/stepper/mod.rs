@@ -17,6 +17,7 @@ use crate::{
         EnableDirectionControl, EnableStepControl, EnableStepModeControl,
         SetDirection, SetStepMode, Step,
     },
+    util::ref_mut::RefMut,
     Direction,
 };
 
@@ -191,13 +192,17 @@ impl<Driver> Stepper<Driver> {
         &'r mut self,
         step_mode: Driver::StepMode,
         timer: &'r mut Timer,
-    ) -> SetStepModeFuture<'r, Driver, Timer>
+    ) -> SetStepModeFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
     where
         Driver: SetStepMode,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        SetStepModeFuture::new(step_mode, &mut self.driver, timer)
+        SetStepModeFuture::new(
+            step_mode,
+            RefMut(&mut self.driver),
+            RefMut(timer),
+        )
     }
 
     /// Enable direction control
@@ -248,13 +253,17 @@ impl<Driver> Stepper<Driver> {
         &'r mut self,
         direction: Direction,
         timer: &'r mut Timer,
-    ) -> SetDirectionFuture<'r, Driver, Timer>
+    ) -> SetDirectionFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
     where
         Driver: SetDirection,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        SetDirectionFuture::new(direction, &mut self.driver, timer)
+        SetDirectionFuture::new(
+            direction,
+            RefMut(&mut self.driver),
+            RefMut(timer),
+        )
     }
 
     /// Enable step control
@@ -294,13 +303,13 @@ impl<Driver> Stepper<Driver> {
     pub fn step<'r, Timer>(
         &'r mut self,
         timer: &'r mut Timer,
-    ) -> StepFuture<'r, Driver, Timer>
+    ) -> StepFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
     where
         Driver: Step,
         Timer: timer::CountDown,
         Timer::Time: TryFrom<Nanoseconds>,
     {
-        StepFuture::new(&mut self.driver, timer)
+        StepFuture::new(RefMut(&mut self.driver), RefMut(timer))
     }
 
     /// Returns the step pulse length of the wrapped driver/controller
