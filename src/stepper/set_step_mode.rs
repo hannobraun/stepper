@@ -17,14 +17,14 @@ use super::Error;
 /// development becomes more practical.
 ///
 /// [`Stepper::set_step_mode`]: crate::Stepper::set_step_mode
-pub struct SetStepModeFuture<'r, Driver: SetStepMode, Timer> {
+pub struct SetStepModeFuture<Driver: SetStepMode, Timer> {
     step_mode: Driver::StepMode,
-    driver: &'r mut Driver,
-    timer: &'r mut Timer,
+    driver: Driver,
+    timer: Timer,
     state: State,
 }
 
-impl<'r, Driver, Timer> SetStepModeFuture<'r, Driver, Timer>
+impl<Driver, Timer> SetStepModeFuture<Driver, Timer>
 where
     Driver: SetStepMode,
     Timer: timer::CountDown,
@@ -39,8 +39,8 @@ where
     /// [`Stepper::set_step_mode`]: crate::Stepper::set_step_mode
     pub fn new(
         step_mode: Driver::StepMode,
-        driver: &'r mut Driver,
-        timer: &'r mut Timer,
+        driver: Driver,
+        timer: Timer,
     ) -> Self {
         Self {
             step_mode,
@@ -146,6 +146,11 @@ where
                 return result;
             }
         }
+    }
+
+    /// Drop the future and release the resources that were moved into it
+    pub fn release(self) -> (Driver, Timer) {
+        (self.driver, self.timer)
     }
 }
 

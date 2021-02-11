@@ -17,14 +17,14 @@ use super::Error;
 /// development becomes more practical.
 ///
 /// [`Stepper::set_direction`]: crate::Stepper::set_direction
-pub struct SetDirectionFuture<'r, Driver, Timer> {
+pub struct SetDirectionFuture<Driver, Timer> {
     direction: Direction,
-    driver: &'r mut Driver,
-    timer: &'r mut Timer,
+    driver: Driver,
+    timer: Timer,
     state: State,
 }
 
-impl<'r, Driver, Timer> SetDirectionFuture<'r, Driver, Timer>
+impl<Driver, Timer> SetDirectionFuture<Driver, Timer>
 where
     Driver: SetDirection,
     Timer: timer::CountDown,
@@ -37,11 +37,7 @@ where
     /// [`Stepper::set_direction`] instead.
     ///
     /// [`Stepper::set_direction`]: crate::Stepper::set_direction
-    pub fn new(
-        direction: Direction,
-        driver: &'r mut Driver,
-        timer: &'r mut Timer,
-    ) -> Self {
+    pub fn new(direction: Direction, driver: Driver, timer: Timer) -> Self {
         Self {
             direction,
             driver,
@@ -132,6 +128,11 @@ where
                 return result;
             }
         }
+    }
+
+    /// Drop the future and release the resources that were moved into it
+    pub fn release(self) -> (Driver, Timer) {
+        (self.driver, self.timer)
     }
 }
 
