@@ -135,6 +135,7 @@ pub extern crate embedded_time;
 pub mod drivers;
 pub mod step_mode;
 pub mod traits;
+pub mod util;
 
 mod stepper;
 
