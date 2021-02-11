@@ -1,10 +1,11 @@
+mod move_to;
 mod set_direction;
 mod set_step_mode;
 mod step;
 
 pub use self::{
-    set_direction::SetDirectionFuture, set_step_mode::SetStepModeFuture,
-    step::StepFuture,
+    move_to::MoveToFuture, set_direction::SetDirectionFuture,
+    set_step_mode::SetStepModeFuture, step::StepFuture,
 };
 
 use core::convert::TryFrom;
@@ -14,8 +15,8 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::{
     traits::{
-        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
-        SetDirection, SetStepMode, Step,
+        EnableDirectionControl, EnableMotionControl, EnableStepControl,
+        EnableStepModeControl, MotionControl, SetDirection, SetStepMode, Step,
     },
     util::ref_mut::RefMut,
     Direction,
@@ -324,6 +325,64 @@ impl<Driver> Stepper<Driver> {
         Driver: Step,
     {
         Driver::PULSE_LENGTH
+    }
+
+    /// Enable motion control
+    ///
+    /// Consumes this instance of `Stepper` and returns a new instance that
+    /// provides motion control capabilities. Once this method has been called,
+    /// [`Stepper::move_to_position`] becomes available.
+    ///
+    /// Takes the hardware resources that are required for motion control as an
+    /// argument. What exactly those are depends on the specific driver.
+    /// Typically it's either going to be some kind of communication interface,
+    /// for drivers that have access to hardware support for motion control, or
+    /// a motion profile from the RampMaker library, for drivers that have
+    /// support for setting direction and stepping and require a software
+    /// fallback for motion control.
+    ///
+    /// This method should be available for virtually all drivers, either via
+    /// hardware support, or through the aforementioned software fallback. It
+    /// might no longer be available, once motion control support has been
+    /// enabled.
+    pub fn enable_motion_control<Resources>(
+        self,
+        res: Resources,
+    ) -> Stepper<Driver::WithMotionControl>
+    where
+        Driver: EnableMotionControl<Resources>,
+    {
+        Stepper {
+            driver: self.driver.enable_motion_control(res),
+        }
+    }
+
+    /// Move the motor to the given position
+    ///
+    /// Moves the motor to the given position (`target_step`), while taking the
+    /// desired maximum velocity (`max_velocity`) into account. The specifics of
+    /// the motion profile (like acceleration and jerk) are defined by the
+    /// implementation.
+    ///
+    /// It might be possible to influence the parameters of the motion profile
+    /// through the resources passed to [`Stepper::enable_motion_control`],
+    /// which might include configuration.
+    ///
+    /// To modify on ongoing movement, you can drop the future returned by this
+    /// method and call it again with different parameters (or call another
+    /// method).
+    ///
+    /// You might need to call [`Stepper::enable_motion_control`] to make this
+    /// method available.
+    pub fn move_to_position<'r>(
+        &'r mut self,
+        max_velocity: Driver::Velocity,
+        target_step: u32,
+    ) -> MoveToFuture<RefMut<'r, Driver>>
+    where
+        Driver: MotionControl,
+    {
+        MoveToFuture::new(RefMut(&mut self.driver), max_velocity, target_step)
     }
 }
 
