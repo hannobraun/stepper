@@ -129,6 +129,11 @@ where
             }
         }
     }
+
+    /// Drop the future and release the resources that were moved into it
+    pub fn release(self) -> (Driver, Timer) {
+        (self.driver, self.timer)
+    }
 }
 
 enum State {
