@@ -32,6 +32,10 @@ embedded-time = "0.10.1"
 nb            = "1.0.0"
 paste         = "1.0.3"
 
+[dependencies.num-traits]
+version          = "0.2.14"
+default-features = false
+
 [features]
 default = ["drv8825", "stspin220"]
 drv8825 = []
