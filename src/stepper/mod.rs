@@ -125,7 +125,7 @@ impl<Driver> Stepper<Driver> {
         &self.driver
     }
 
-    /// Access a mutable reference to the wrapped driver or controller
+    /// Access a mutable reference to the wrapped driver
     ///
     /// Can be used to access driver-specific functionality that can't be
     /// provided by `Stepper`'s abstract interface.
