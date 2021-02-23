@@ -139,6 +139,11 @@ pub trait EnableMotionControl<Resources> {
 }
 
 /// Implemented by drivers that have motion control capabilities
+///
+/// A software-based fallback implementation exists in the [`motion_control`]
+/// module, for drivers that implement [SetDirection] and [Step].
+///
+/// [`motion_control`]: crate::motion_control
 pub trait MotionControl {
     /// The type used by the driver to represent velocity
     type Velocity: Copy;
