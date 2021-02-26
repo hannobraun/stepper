@@ -17,6 +17,7 @@ use super::Error;
 /// development becomes more practical.
 ///
 /// [`Stepper::set_step_mode`]: crate::Stepper::set_step_mode
+#[must_use]
 pub struct SetStepModeFuture<Driver: SetStepMode, Timer> {
     step_mode: Driver::StepMode,
     driver: Driver,
