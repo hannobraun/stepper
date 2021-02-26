@@ -17,6 +17,7 @@ use super::Error;
 /// development becomes more practical.
 ///
 /// [`Stepper::set_direction`]: crate::Stepper::set_direction
+#[must_use]
 pub struct SetDirectionFuture<Driver, Timer> {
     direction: Direction,
     driver: Driver,

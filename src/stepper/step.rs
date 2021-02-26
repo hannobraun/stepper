@@ -17,6 +17,7 @@ use super::Error;
 /// development becomes more practical.
 ///
 /// [`Stepper::step`]: crate::Stepper::step
+#[must_use]
 pub struct StepFuture<Driver, Timer> {
     driver: Driver,
     timer: Timer,
