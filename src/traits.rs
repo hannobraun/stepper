@@ -125,3 +125,50 @@ pub trait Step {
     /// Provides access to the STEP pin
     fn step(&mut self) -> &mut Self::Step;
 }
+
+/// Enable motion control for a driver
+///
+/// The `Resources` type parameter defines the hardware resources required for
+/// motion control.
+pub trait EnableMotionControl<Resources> {
+    /// The type of the driver after motion control has been enabled
+    type WithMotionControl: MotionControl;
+
+    /// Enable step control
+    fn enable_motion_control(self, res: Resources) -> Self::WithMotionControl;
+}
+
+/// Implemented by drivers that have motion control capabilities
+///
+/// A software-based fallback implementation exists in the [`motion_control`]
+/// module, for drivers that implement [SetDirection] and [Step].
+///
+/// [`motion_control`]: crate::motion_control
+pub trait MotionControl {
+    /// The type used by the driver to represent velocity
+    type Velocity: Copy;
+
+    /// The type error that can happen when using this trait
+    type Error;
+
+    /// Move to the given position
+    ///
+    /// This method must arrange for the motion to start, but must not block
+    /// until it is completed. If more attention is required during the motion,
+    /// this should be handled in [`MotionControl::update`].
+    fn move_to_position(
+        &mut self,
+        max_velocity: Self::Velocity,
+        target_step: u32,
+    ) -> Result<(), Self::Error>;
+
+    /// Update an ongoing motion
+    ///
+    /// This method may contain any code required to maintain an ongoing motion,
+    /// if required, or it might just check whether a motion is still ongoing.
+    ///
+    /// Return `true`, if motion is ongoing, `false` otherwise. If `false` is
+    /// returned, the caller may assume that this method doesn't need to be
+    /// called again, until starting another motion.
+    fn update(&mut self) -> Result<bool, Self::Error>;
+}
