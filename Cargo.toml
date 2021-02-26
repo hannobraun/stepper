@@ -21,6 +21,7 @@ authors = [
 edition = "2018"
 
 description = "Universal Stepper Motor Interface"
+homepage    = "https://flott-motion.org/"
 repository  = "https://github.com/flott-motion/step-dir"
 license     = "0BSD"
 keywords    = ["stepper", "motor", "driver", "abstract", "interface"]
