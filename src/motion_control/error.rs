@@ -89,8 +89,8 @@ where
     }
 }
 
-#[derive(Debug)]
 /// An error occurred while converting between time formats
+#[derive(Debug)]
 pub enum TimeConversionError<
     Time: TryFrom<Nanoseconds>,
     Delay: TryInto<Nanoseconds>,
