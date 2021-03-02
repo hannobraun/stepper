@@ -175,7 +175,7 @@ where
             &mut self.state,
             || State::Invalid,
             |state| {
-                state::update_state(
+                state::update(
                     state,
                     new_motion,
                     profile,

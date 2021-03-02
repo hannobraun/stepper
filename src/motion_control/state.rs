@@ -31,7 +31,7 @@ pub enum State<Driver, Timer, Profile: MotionProfile> {
     Invalid,
 }
 
-pub fn update_state<Driver, Timer, Profile>(
+pub fn update<Driver, Timer, Profile>(
     mut state: State<Driver, Timer, Profile>,
     new_motion: &mut Option<Direction>,
     profile: &mut Profile,
