@@ -10,7 +10,6 @@ use core::{
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
-use num_traits::Signed as _;
 use ramp_maker::MotionProfile;
 use replace_with::replace_with_and_return;
 
@@ -127,7 +126,7 @@ where
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
     Profile::Delay: TryInto<Nanoseconds>,
-    Profile::Velocity: Copy + num_traits::Signed,
+    Profile::Velocity: Copy,
 {
     type Velocity = Profile::Velocity;
     type Error = Error<Driver, Timer, Profile>;
@@ -139,10 +138,8 @@ where
     ) -> Result<(), Self::Error> {
         let steps_from_here = target_step - self.current_step;
 
-        self.profile.enter_position_mode(
-            max_velocity.abs(),
-            steps_from_here.abs() as u32,
-        );
+        self.profile
+            .enter_position_mode(max_velocity, steps_from_here.abs() as u32);
 
         let direction = if steps_from_here > 0 {
             Direction::Forward
@@ -472,7 +469,7 @@ where
     Timer: timer::CountDown,
     Timer::Time: TryFrom<Nanoseconds>,
     Profile::Delay: TryInto<Nanoseconds>,
-    Profile::Velocity: Copy + num_traits::Signed,
+    Profile::Velocity: Copy,
 {
     type WithMotionControl = SoftwareMotionControl<Driver, Timer, Profile>;
 
