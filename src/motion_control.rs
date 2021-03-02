@@ -116,6 +116,16 @@ where
     pub fn profile_mut(&mut self) -> &mut Profile {
         &mut self.profile
     }
+
+    /// Access the current step
+    pub fn current_step(&self) -> i32 {
+        self.current_step
+    }
+
+    /// Access the current direction
+    pub fn current_direction(&self) -> Direction {
+        self.current_direction
+    }
 }
 
 impl<Driver, Timer, Profile> MotionControl
