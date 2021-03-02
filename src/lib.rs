@@ -131,6 +131,7 @@
 
 pub extern crate embedded_hal;
 pub extern crate embedded_time;
+pub extern crate ramp_maker;
 
 pub mod drivers;
 pub mod motion_control;
