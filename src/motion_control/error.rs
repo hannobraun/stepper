@@ -89,8 +89,8 @@ where
     }
 }
 
-#[derive(Debug)]
 /// An error occurred while converting between time formats
+#[derive(Debug)]
 pub enum TimeConversionError<
     Time: TryFrom<Nanoseconds>,
     Delay: TryInto<Nanoseconds>,
@@ -100,4 +100,17 @@ pub enum TimeConversionError<
 
     /// Error converting from timer ticks to nanoseconds
     FromDelay(Delay::Error),
+}
+
+/// The software motion control was busy, or another generic error occurred
+#[derive(Debug)]
+pub enum BusyError<T> {
+    /// The software motion control was busy
+    ///
+    /// This happens while a movement is going on, and the driver is not
+    /// available.
+    Busy,
+
+    /// Another error has occurred
+    Other(T),
 }

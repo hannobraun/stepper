@@ -5,9 +5,9 @@
 mod error;
 mod state;
 
-pub use self::error::{Error, TimeConversionError};
+pub use self::error::{BusyError, Error, TimeConversionError};
 
-use core::convert::{TryFrom, TryInto};
+use core::convert::{Infallible, TryFrom, TryInto};
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
@@ -15,8 +15,11 @@ use ramp_maker::MotionProfile;
 use replace_with::replace_with_and_return;
 
 use crate::{
-    traits::{EnableMotionControl, MotionControl, SetDirection, Step},
-    Direction,
+    traits::{
+        EnableMotionControl, MotionControl, SetDirection, SetStepMode, Step,
+    },
+    util::ref_mut::RefMut,
+    Direction, SetStepModeFuture,
 };
 
 use self::state::State;
@@ -129,6 +132,43 @@ where
     pub fn current_direction(&self) -> Direction {
         self.current_direction
     }
+
+    /// Set step mode of the wrapped driver
+    ///
+    /// This method is a more convenient alternative to
+    /// [`Stepper::set_step_mode], which requires a timer, while this methods
+    /// reuses the timer that `SoftwareMotionControl` already owns.
+    ///
+    /// However, while [`Stepper::set_step_mode`] is part of the generic API,
+    /// this method is only available, if you statically know that you're
+    /// working with a driver wrapped by `SoftwareMotionControl`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BusyError::Busy`], if a motion is ongoing.
+    ///
+    /// [`Stepper::set_step_mode`]: crate::Stepper::set_step_mode
+    pub fn set_step_mode(
+        &mut self,
+        step_mode: Driver::StepMode,
+    ) -> Result<
+        SetStepModeFuture<RefMut<Driver>, RefMut<Timer>>,
+        BusyError<Infallible>,
+    >
+    where
+        Driver: SetStepMode,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
+    {
+        let future = match &mut self.state {
+            State::Idle { driver, timer } => {
+                SetStepModeFuture::new(step_mode, RefMut(driver), RefMut(timer))
+            }
+            _ => return Err(BusyError::Busy),
+        };
+
+        Ok(future)
+    }
 }
 
 impl<Driver, Timer, Profile> MotionControl
@@ -184,6 +224,45 @@ where
                 )
             },
         )
+    }
+}
+
+// We could also implement `EnableStepModeControl` here, but enabling step mode
+// control can only work while we have access to the driver, which mostly means
+// we'd have to be idle. Since `EnableStepModeControl` is infallible, we'd have
+// to panic, and I don't know if that would be worth it.
+
+impl<Driver, Timer, Profile> SetStepMode
+    for SoftwareMotionControl<Driver, Timer, Profile>
+where
+    Driver: SetStepMode,
+    Profile: MotionProfile,
+{
+    const SETUP_TIME: Nanoseconds = Driver::SETUP_TIME;
+    const HOLD_TIME: Nanoseconds = Driver::HOLD_TIME;
+
+    type Error = BusyError<Driver::Error>;
+    type StepMode = Driver::StepMode;
+
+    fn apply_mode_config(
+        &mut self,
+        step_mode: Self::StepMode,
+    ) -> Result<(), Self::Error> {
+        match self.driver_mut() {
+            Some(driver) => driver
+                .apply_mode_config(step_mode)
+                .map_err(|err| BusyError::Other(err)),
+            None => Err(BusyError::Busy),
+        }
+    }
+
+    fn enable_driver(&mut self) -> Result<(), Self::Error> {
+        match self.driver_mut() {
+            Some(driver) => {
+                driver.enable_driver().map_err(|err| BusyError::Other(err))
+            }
+            None => Err(BusyError::Busy),
+        }
     }
 }
 
