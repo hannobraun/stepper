@@ -29,7 +29,7 @@ where
     pub fn new(
         driver: Driver,
         max_velocity: Driver::Velocity,
-        target_step: u32,
+        target_step: i32,
     ) -> Self {
         Self {
             driver,
@@ -95,7 +95,7 @@ where
 enum State<Velocity> {
     Initial {
         max_velocity: Velocity,
-        target_step: u32,
+        target_step: i32,
     },
     Moving,
     Finished,

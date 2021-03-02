@@ -34,6 +34,8 @@ pub struct SoftwareMotionControl<Driver, Timer, Profile: MotionProfile> {
     state: State<Driver, Timer, Profile>,
     new_motion: Option<Direction>,
     profile: Profile,
+    current_step: i32,
+    current_direction: Direction,
 }
 
 impl<Driver, Timer, Profile> SoftwareMotionControl<Driver, Timer, Profile>
@@ -54,6 +56,11 @@ where
             state: State::Idle { driver, timer },
             new_motion: None,
             profile,
+            current_step: 0,
+            // Doesn't matter what we initialize it with. We're only using it
+            // during an ongoing movement, and it will have been overridden at
+            // that point.
+            current_direction: Direction::Forward,
         }
     }
 
@@ -128,12 +135,20 @@ where
     fn move_to_position(
         &mut self,
         max_velocity: Self::Velocity,
-        target_step: u32,
+        target_step: i32,
     ) -> Result<(), Self::Error> {
-        self.profile
-            .enter_position_mode(max_velocity.abs(), target_step);
+        let steps_from_here = target_step - self.current_step;
 
-        let direction = Direction::from_velocity(max_velocity);
+        self.profile.enter_position_mode(
+            max_velocity.abs(),
+            steps_from_here.abs() as u32,
+        );
+
+        let direction = if steps_from_here > 0 {
+            Direction::Forward
+        } else {
+            Direction::Backward
+        };
         self.new_motion = Some(direction);
 
         Ok(())
@@ -143,11 +158,21 @@ where
         // Otherwise the closure will borrow all of `self`.
         let new_motion = &mut self.new_motion;
         let profile = &mut self.profile;
+        let current_step = &mut self.current_step;
+        let current_direction = &mut self.current_direction;
 
         replace_with_and_return(
             &mut self.state,
             || State::Invalid,
-            |state| update_state(state, new_motion, profile),
+            |state| {
+                update_state(
+                    state,
+                    new_motion,
+                    profile,
+                    current_step,
+                    current_direction,
+                )
+            },
         )
     }
 }
@@ -264,6 +289,8 @@ fn update_state<Driver, Timer, Profile>(
     mut state: State<Driver, Timer, Profile>,
     new_motion: &mut Option<Direction>,
     profile: &mut Profile,
+    current_step: &mut i32,
+    current_direction: &mut Direction,
 ) -> (
     Result<bool, Error<Driver, Timer, Profile>>,
     State<Driver, Timer, Profile>,
@@ -290,6 +317,7 @@ where
                     state = State::SetDirection(SetDirectionFuture::new(
                         direction, driver, timer,
                     ));
+                    *current_direction = direction;
                     continue;
                 }
 
@@ -341,6 +369,8 @@ where
                     Poll::Ready(Ok(())) => {
                         // A step was made. Now we need to wait out the rest of
                         // the step delay before we can do something else.
+
+                        *current_step += *current_direction as i32;
 
                         let (driver, mut timer) = future.release();
                         let delay_left: Timer::Time =
