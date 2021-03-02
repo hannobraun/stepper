@@ -158,21 +158,3 @@ pub enum Direction {
     /// driver's DIR signal set is LOW.
     Backward = -1,
 }
-
-impl Direction {
-    /// Create a `Direction` from a velocity value
-    ///
-    /// Expects the velocity value to be signed. Zero or a positive value will
-    /// result in forward direction, a negative value will result in backward
-    /// direction.
-    pub fn from_velocity<Velocity>(velocity: Velocity) -> Self
-    where
-        Velocity: num_traits::Signed,
-    {
-        if velocity.is_negative() {
-            Self::Backward
-        } else {
-            Self::Forward
-        }
-    }
-}

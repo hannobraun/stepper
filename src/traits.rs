@@ -159,7 +159,7 @@ pub trait MotionControl {
     fn move_to_position(
         &mut self,
         max_velocity: Self::Velocity,
-        target_step: u32,
+        target_step: i32,
     ) -> Result<(), Self::Error>;
 
     /// Update an ongoing motion

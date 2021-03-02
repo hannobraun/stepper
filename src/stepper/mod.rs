@@ -377,7 +377,7 @@ impl<Driver> Stepper<Driver> {
     pub fn move_to_position<'r>(
         &'r mut self,
         max_velocity: Driver::Velocity,
-        target_step: u32,
+        target_step: i32,
     ) -> MoveToFuture<RefMut<'r, Driver>>
     where
         Driver: MotionControl,
