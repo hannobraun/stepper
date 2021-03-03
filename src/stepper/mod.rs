@@ -384,6 +384,21 @@ impl<Driver> Stepper<Driver> {
     {
         MoveToFuture::new(RefMut(&mut self.driver), max_velocity, target_step)
     }
+
+    /// Reset the position to the given value
+    ///
+    /// This should never result in a movement, as this method only overwrites
+    /// the internal position counter of the driver. However, it might influence
+    /// an already ongoing movement.
+    ///
+    /// You might need to call [`Stepper::enable_motion_control`] to make this
+    /// method available.
+    pub fn reset_position(&mut self, step: i32) -> Result<(), Driver::Error>
+    where
+        Driver: MotionControl,
+    {
+        self.driver.reset_position(step)
+    }
 }
 
 /// An error that can occur while using this API
