@@ -204,6 +204,11 @@ where
         Ok(())
     }
 
+    fn reset_position(&mut self, step: i32) -> Result<(), Self::Error> {
+        self.current_step = step;
+        Ok(())
+    }
+
     fn update(&mut self) -> Result<bool, Self::Error> {
         // Otherwise the closure will borrow all of `self`.
         let new_motion = &mut self.new_motion;

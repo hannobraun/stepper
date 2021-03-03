@@ -162,6 +162,12 @@ pub trait MotionControl {
         target_step: i32,
     ) -> Result<(), Self::Error>;
 
+    /// Reset internal position to the given value
+    ///
+    /// This method must not start a motion. Its only purpose is to change the
+    /// driver's internal position value, for example for homing.
+    fn reset_position(&mut self, step: i32) -> Result<(), Self::Error>;
+
     /// Update an ongoing motion
     ///
     /// This method may contain any code required to maintain an ongoing motion,

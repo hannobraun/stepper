@@ -52,6 +52,10 @@ where
         self.0.move_to_position(max_velocity, target_step)
     }
 
+    fn reset_position(&mut self, step: i32) -> Result<(), Self::Error> {
+        self.0.reset_position(step)
+    }
+
     fn update(&mut self) -> Result<bool, Self::Error> {
         self.0.update()
     }

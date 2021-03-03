@@ -331,7 +331,8 @@ impl<Driver> Stepper<Driver> {
     ///
     /// Consumes this instance of `Stepper` and returns a new instance that
     /// provides motion control capabilities. Once this method has been called,
-    /// [`Stepper::move_to_position`] becomes available.
+    /// the motion control API ([`Stepper::move_to_position`],
+    /// [`Stepper::reset_position`]) becomes available.
     ///
     /// Takes the hardware resources that are required for motion control as an
     /// argument. What exactly those are depends on the specific driver.
@@ -383,6 +384,21 @@ impl<Driver> Stepper<Driver> {
         Driver: MotionControl,
     {
         MoveToFuture::new(RefMut(&mut self.driver), max_velocity, target_step)
+    }
+
+    /// Reset the position to the given value
+    ///
+    /// This should never result in a movement, as this method only overwrites
+    /// the internal position counter of the driver. However, it might influence
+    /// an already ongoing movement.
+    ///
+    /// You might need to call [`Stepper::enable_motion_control`] to make this
+    /// method available.
+    pub fn reset_position(&mut self, step: i32) -> Result<(), Driver::Error>
+    where
+        Driver: MotionControl,
+    {
+        self.driver.reset_position(step)
     }
 }
 
