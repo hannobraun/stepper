@@ -331,7 +331,8 @@ impl<Driver> Stepper<Driver> {
     ///
     /// Consumes this instance of `Stepper` and returns a new instance that
     /// provides motion control capabilities. Once this method has been called,
-    /// [`Stepper::move_to_position`] becomes available.
+    /// the motion control API ([`Stepper::move_to_position`],
+    /// [`Stepper::reset_position`]) becomes available.
     ///
     /// Takes the hardware resources that are required for motion control as an
     /// argument. What exactly those are depends on the specific driver.
