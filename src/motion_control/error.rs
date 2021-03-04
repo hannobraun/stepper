@@ -18,7 +18,7 @@ where
     Timer: timer::CountDown,
     Profile: MotionProfile,
     Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
+    Profile::Delay: TryInto<Timer::Time>,
 {
     /// Error while setting direction
     SetDirection(
@@ -52,14 +52,14 @@ where
     Timer: timer::CountDown,
     Profile: MotionProfile,
     Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
+    Profile::Delay: TryInto<Timer::Time>,
     <Driver as SetDirection>::Error: fmt::Debug,
     <Driver as Step>::Error: fmt::Debug,
     Timer::Error: fmt::Debug,
     Timer::Time: fmt::Debug,
     <Timer::Time as TryFrom<Nanoseconds>>::Error: fmt::Debug,
     Profile::Delay: fmt::Debug,
-    <Profile::Delay as TryInto<Nanoseconds>>::Error: fmt::Debug,
+    <Profile::Delay as TryInto<Timer::Time>>::Error: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -91,10 +91,7 @@ where
 
 /// An error occurred while converting between time formats
 #[derive(Debug)]
-pub enum TimeConversionError<
-    Time: TryFrom<Nanoseconds>,
-    Delay: TryInto<Nanoseconds>,
-> {
+pub enum TimeConversionError<Time: TryFrom<Nanoseconds>, Delay: TryInto<Time>> {
     /// Error converting from nanoseconds to timer ticks
     ToTimerTime(Time::Error),
 

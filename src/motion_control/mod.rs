@@ -7,7 +7,10 @@ mod state;
 
 pub use self::error::{BusyError, Error, TimeConversionError};
 
-use core::convert::{Infallible, TryFrom, TryInto};
+use core::{
+    convert::{Infallible, TryFrom, TryInto},
+    ops,
+};
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
@@ -177,8 +180,8 @@ where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
+    Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
+    Profile::Delay: TryInto<Timer::Time>,
     Profile::Velocity: Copy,
 {
     type Velocity = Profile::Velocity;
@@ -278,8 +281,8 @@ where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
+    Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
+    Profile::Delay: TryInto<Timer::Time>,
     Profile::Velocity: Copy,
 {
     type WithMotionControl = SoftwareMotionControl<Driver, Timer, Profile>;

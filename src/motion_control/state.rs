@@ -1,5 +1,6 @@
 use core::{
     convert::{TryFrom, TryInto},
+    ops,
     task::Poll,
 };
 
@@ -44,9 +45,9 @@ pub fn update<Driver, Timer, Profile>(
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
+    Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
     Profile: MotionProfile,
-    Profile::Delay: TryInto<Nanoseconds>,
+    Profile::Delay: TryInto<Timer::Time>,
 {
     loop {
         match state {
@@ -197,14 +198,16 @@ fn delay_left<Delay, Time>(
     pulse_length: Nanoseconds,
 ) -> Result<Time, TimeConversionError<Time, Delay>>
 where
-    Time: TryFrom<Nanoseconds>,
-    Delay: TryInto<Nanoseconds>,
+    Time: TryFrom<Nanoseconds> + ops::Sub<Output = Time>,
+    Delay: TryInto<Time>,
 {
-    let delay: Nanoseconds = delay
+    let delay: Time = delay
         .try_into()
         .map_err(|err| TimeConversionError::FromDelay(err))?;
-    let delay_left: Time = (delay - pulse_length)
+    let pulse_length: Time = pulse_length
         .try_into()
         .map_err(|err| TimeConversionError::ToTimerTime(err))?;
+
+    let delay_left: Time = delay - pulse_length;
     Ok(delay_left)
 }
