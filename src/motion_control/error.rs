@@ -93,7 +93,7 @@ where
 #[derive(Debug)]
 pub enum TimeConversionError<Time: TryFrom<Nanoseconds>, Delay: TryInto<Time>> {
     /// Error converting from nanoseconds to timer ticks
-    ToTimerTime(Time::Error),
+    NanosecondsToTicks(Time::Error),
 
     /// Error converting from RampMaker delay value to timer ticks
     FromDelay(Delay::Error),

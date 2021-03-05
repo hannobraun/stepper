@@ -206,7 +206,7 @@ where
         .map_err(|err| TimeConversionError::FromDelay(err))?;
     let pulse_length: Time = pulse_length
         .try_into()
-        .map_err(|err| TimeConversionError::ToTimerTime(err))?;
+        .map_err(|err| TimeConversionError::NanosecondsToTicks(err))?;
 
     let delay_left: Time = delay - pulse_length;
     Ok(delay_left)
