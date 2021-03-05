@@ -96,7 +96,7 @@ pub enum TimeConversionError<Time: TryFrom<Nanoseconds>, Delay: TryInto<Time>> {
     NanosecondsToTicks(Time::Error),
 
     /// Error converting from RampMaker delay value to timer ticks
-    FromDelay(Delay::Error),
+    DelayToTicks(Delay::Error),
 }
 
 /// The software motion control was busy, or another generic error occurred

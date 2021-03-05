@@ -203,7 +203,7 @@ where
 {
     let delay: Time = delay
         .try_into()
-        .map_err(|err| TimeConversionError::FromDelay(err))?;
+        .map_err(|err| TimeConversionError::DelayToTicks(err))?;
     let pulse_length: Time = pulse_length
         .try_into()
         .map_err(|err| TimeConversionError::NanosecondsToTicks(err))?;
