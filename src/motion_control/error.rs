@@ -39,7 +39,12 @@ where
     ),
 
     /// Error while converting between time formats
-    TimeConversion(TimeConversionError<Timer::Time, Profile::Delay>),
+    TimeConversion(
+        TimeConversionError<
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            <Profile::Delay as TryInto<Timer::Time>>::Error,
+        >,
+    ),
 
     /// Error while waiting for a step to finish
     StepDelay(Timer::Error),
@@ -91,12 +96,12 @@ where
 
 /// An error occurred while converting between time formats
 #[derive(Debug)]
-pub enum TimeConversionError<Time: TryFrom<Nanoseconds>, Delay: TryInto<Time>> {
+pub enum TimeConversionError<TimeError, DelayError> {
     /// Error converting from nanoseconds to timer ticks
-    NanosecondsToTicks(Time::Error),
+    NanosecondsToTicks(TimeError),
 
     /// Error converting from RampMaker delay value to timer ticks
-    DelayToTicks(Delay::Error),
+    DelayToTicks(DelayError),
 }
 
 /// The software motion control was busy, or another generic error occurred

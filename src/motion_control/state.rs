@@ -196,7 +196,7 @@ where
 fn delay_left<Delay, Time>(
     delay: Delay,
     pulse_length: Nanoseconds,
-) -> Result<Time, TimeConversionError<Time, Delay>>
+) -> Result<Time, TimeConversionError<Time::Error, Delay::Error>>
 where
     Time: TryFrom<Nanoseconds> + ops::Sub<Output = Time>,
     Delay: TryInto<Time>,
