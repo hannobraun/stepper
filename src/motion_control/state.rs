@@ -208,6 +208,6 @@ where
         .try_into()
         .map_err(|err| TimeConversionError::NanosecondsToTicks(err))?;
 
-    let delay_left: Time = delay - pulse_length;
+    let delay_left = delay - pulse_length;
     Ok(delay_left)
 }
