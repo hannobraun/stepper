@@ -2,12 +2,19 @@
 //!
 //! See [`SoftwareMotionControl`] for more information.
 
+mod conversion;
 mod error;
 mod state;
 
-pub use self::error::{BusyError, Error, TimeConversionError};
+pub use self::{
+    conversion::DelayToTicks,
+    error::{BusyError, Error, TimeConversionError},
+};
 
-use core::convert::{Infallible, TryFrom, TryInto};
+use core::{
+    convert::{Infallible, TryFrom},
+    ops,
+};
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
@@ -35,15 +42,18 @@ use self::state::State;
 /// designed to be used through the [`Stepper`] API.
 ///
 /// [`Stepper`]: crate::Stepper
-pub struct SoftwareMotionControl<Driver, Timer, Profile: MotionProfile> {
+pub struct SoftwareMotionControl<Driver, Timer, Profile: MotionProfile, Convert>
+{
     state: State<Driver, Timer, Profile>,
     new_motion: Option<Direction>,
     profile: Profile,
     current_step: i32,
     current_direction: Direction,
+    convert: Convert,
 }
 
-impl<Driver, Timer, Profile> SoftwareMotionControl<Driver, Timer, Profile>
+impl<Driver, Timer, Profile, Convert>
+    SoftwareMotionControl<Driver, Timer, Profile, Convert>
 where
     Profile: MotionProfile,
 {
@@ -56,7 +66,12 @@ where
     /// to make this work.
     ///
     /// [`Stepper::enable_motion_control`]: crate::Stepper::enable_motion_control
-    pub fn new(driver: Driver, timer: Timer, profile: Profile) -> Self {
+    pub fn new(
+        driver: Driver,
+        timer: Timer,
+        profile: Profile,
+        convert: Convert,
+    ) -> Self {
         Self {
             state: State::Idle { driver, timer },
             new_motion: None,
@@ -66,6 +81,7 @@ where
             // during an ongoing movement, and it will have been overridden at
             // that point.
             current_direction: Direction::Forward,
+            convert,
         }
     }
 
@@ -171,18 +187,18 @@ where
     }
 }
 
-impl<Driver, Timer, Profile> MotionControl
-    for SoftwareMotionControl<Driver, Timer, Profile>
+impl<Driver, Timer, Profile, Convert> MotionControl
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
 where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
     Profile::Velocity: Copy,
+    Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
+    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
     type Velocity = Profile::Velocity;
-    type Error = Error<Driver, Timer, Profile>;
+    type Error = Error<Driver, Timer, Convert::Error>;
 
     fn move_to_position(
         &mut self,
@@ -215,6 +231,7 @@ where
         let profile = &mut self.profile;
         let current_step = &mut self.current_step;
         let current_direction = &mut self.current_direction;
+        let convert = &self.convert;
 
         replace_with_and_return(
             &mut self.state,
@@ -226,6 +243,7 @@ where
                     profile,
                     current_step,
                     current_direction,
+                    convert,
                 )
             },
         )
@@ -237,8 +255,8 @@ where
 // we'd have to be idle. Since `EnableStepModeControl` is infallible, we'd have
 // to panic, and I don't know if that would be worth it.
 
-impl<Driver, Timer, Profile> SetStepMode
-    for SoftwareMotionControl<Driver, Timer, Profile>
+impl<Driver, Timer, Profile, Convert> SetStepMode
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
 where
     Driver: SetStepMode,
     Profile: MotionProfile,
@@ -273,21 +291,23 @@ where
 
 // Blanket implementation of `EnableMotionControl` for all STEP/DIR stepper
 // drivers.
-impl<Driver, Timer, Profile> EnableMotionControl<(Timer, Profile)> for Driver
+impl<Driver, Timer, Profile, Convert>
+    EnableMotionControl<(Timer, Profile, Convert)> for Driver
 where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
     Profile::Velocity: Copy,
+    Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
+    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
-    type WithMotionControl = SoftwareMotionControl<Driver, Timer, Profile>;
+    type WithMotionControl =
+        SoftwareMotionControl<Driver, Timer, Profile, Convert>;
 
     fn enable_motion_control(
         self,
-        (timer, profile): (Timer, Profile),
+        (timer, profile, convert): (Timer, Profile, Convert),
     ) -> Self::WithMotionControl {
-        SoftwareMotionControl::new(self, timer, profile)
+        SoftwareMotionControl::new(self, timer, profile, convert)
     }
 }

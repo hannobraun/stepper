@@ -1,24 +1,18 @@
-use core::{
-    convert::{TryFrom, TryInto},
-    fmt,
-};
+use core::{convert::TryFrom, fmt};
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
-use ramp_maker::MotionProfile;
 
 use crate::traits::{SetDirection, Step};
 
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
-pub enum Error<Driver, Timer, Profile>
+pub enum Error<Driver, Timer, ConvertError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Profile: MotionProfile,
     Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
 {
     /// Error while setting direction
     SetDirection(
@@ -39,27 +33,30 @@ where
     ),
 
     /// Error while converting between time formats
-    TimeConversion(TimeConversionError<Timer::Time, Profile::Delay>),
+    TimeConversion(
+        TimeConversionError<
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            ConvertError,
+        >,
+    ),
 
     /// Error while waiting for a step to finish
     StepDelay(Timer::Error),
 }
 
 // Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
-impl<Driver, Timer, Profile> fmt::Debug for Error<Driver, Timer, Profile>
+impl<Driver, Timer, ConvertError> fmt::Debug
+    for Error<Driver, Timer, ConvertError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Profile: MotionProfile,
     Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Nanoseconds>,
     <Driver as SetDirection>::Error: fmt::Debug,
     <Driver as Step>::Error: fmt::Debug,
     Timer::Error: fmt::Debug,
     Timer::Time: fmt::Debug,
     <Timer::Time as TryFrom<Nanoseconds>>::Error: fmt::Debug,
-    Profile::Delay: fmt::Debug,
-    <Profile::Delay as TryInto<Nanoseconds>>::Error: fmt::Debug,
+    ConvertError: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -91,15 +88,12 @@ where
 
 /// An error occurred while converting between time formats
 #[derive(Debug)]
-pub enum TimeConversionError<
-    Time: TryFrom<Nanoseconds>,
-    Delay: TryInto<Nanoseconds>,
-> {
+pub enum TimeConversionError<TimeError, DelayError> {
     /// Error converting from nanoseconds to timer ticks
-    ToTimerTime(Time::Error),
+    NanosecondsToTicks(TimeError),
 
-    /// Error converting from timer ticks to nanoseconds
-    FromDelay(Delay::Error),
+    /// Error converting from RampMaker delay value to timer ticks
+    DelayToTicks(DelayError),
 }
 
 /// The software motion control was busy, or another generic error occurred
