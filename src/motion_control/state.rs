@@ -13,7 +13,10 @@ use crate::{
     Direction, SetDirectionFuture, StepFuture,
 };
 
-use super::error::{Error, TimeConversionError};
+use super::{
+    error::{Error, TimeConversionError},
+    DelayToTicks,
+};
 
 pub enum State<Driver, Timer, Profile: MotionProfile> {
     Idle {
@@ -32,17 +35,15 @@ pub enum State<Driver, Timer, Profile: MotionProfile> {
     Invalid,
 }
 
-pub fn update<Driver, Timer, Profile>(
+pub fn update<Driver, Timer, Profile, Convert>(
     mut state: State<Driver, Timer, Profile>,
     new_motion: &mut Option<Direction>,
     profile: &mut Profile,
     current_step: &mut i32,
     current_direction: &mut Direction,
+    convert: &Convert,
 ) -> (
-    Result<
-        bool,
-        Error<Driver, Timer, <Profile::Delay as TryInto<Timer::Time>>::Error>,
-    >,
+    Result<bool, Error<Driver, Timer, Convert::Error>>,
     State<Driver, Timer, Profile>,
 )
 where
@@ -51,6 +52,8 @@ where
     Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
     Profile: MotionProfile,
     Profile::Delay: TryInto<Timer::Time>,
+    Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
+    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
     loop {
         match state {
@@ -123,16 +126,19 @@ where
                         *current_step += *current_direction as i32;
 
                         let (driver, mut timer) = future.release();
-                        let delay_left: Timer::Time =
-                            match delay_left(delay, Driver::PULSE_LENGTH) {
-                                Ok(delay_left) => delay_left,
-                                Err(err) => {
-                                    return (
-                                        Err(Error::TimeConversion(err)),
-                                        State::Idle { driver, timer },
-                                    )
-                                }
-                            };
+                        let delay_left: Timer::Time = match delay_left(
+                            delay,
+                            Driver::PULSE_LENGTH,
+                            convert,
+                        ) {
+                            Ok(delay_left) => delay_left,
+                            Err(err) => {
+                                return (
+                                    Err(Error::TimeConversion(err)),
+                                    State::Idle { driver, timer },
+                                )
+                            }
+                        };
 
                         if let Err(err) = timer.try_start(delay_left) {
                             return (
@@ -196,18 +202,26 @@ where
     }
 }
 
-fn delay_left<Delay, Time>(
+fn delay_left<Delay, Convert>(
     delay: Delay,
     pulse_length: Nanoseconds,
-) -> Result<Time, TimeConversionError<Time::Error, Delay::Error>>
+    convert: &Convert,
+) -> Result<
+    Convert::Ticks,
+    TimeConversionError<
+        <Convert::Ticks as TryFrom<Nanoseconds>>::Error,
+        Convert::Error,
+    >,
+>
 where
-    Time: TryFrom<Nanoseconds> + ops::Sub<Output = Time>,
-    Delay: TryInto<Time>,
+    Delay: TryInto<Convert::Ticks>,
+    Convert: DelayToTicks<Delay>,
+    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
-    let delay: Time = delay
-        .try_into()
+    let delay: Convert::Ticks = convert
+        .delay_to_ticks(delay)
         .map_err(|err| TimeConversionError::DelayToTicks(err))?;
-    let pulse_length: Time = pulse_length
+    let pulse_length: Convert::Ticks = pulse_length
         .try_into()
         .map_err(|err| TimeConversionError::NanosecondsToTicks(err))?;
 
