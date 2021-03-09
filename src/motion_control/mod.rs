@@ -12,7 +12,7 @@ pub use self::{
 };
 
 use core::{
-    convert::{Infallible, TryFrom, TryInto},
+    convert::{Infallible, TryFrom},
     ops,
 };
 
@@ -193,8 +193,6 @@ where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
-    Profile::Delay: TryInto<Timer::Time>,
     Profile::Velocity: Copy,
     Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
     Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
@@ -299,8 +297,6 @@ where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
-    Profile::Delay: TryInto<Timer::Time>,
     Profile::Velocity: Copy,
     Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
     Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,

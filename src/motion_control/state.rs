@@ -1,5 +1,5 @@
 use core::{
-    convert::{TryFrom, TryInto},
+    convert::{TryFrom, TryInto as _},
     ops,
     task::Poll,
 };
@@ -49,9 +49,7 @@ pub fn update<Driver, Timer, Profile, Convert>(
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds> + ops::Sub<Output = Timer::Time>,
     Profile: MotionProfile,
-    Profile::Delay: TryInto<Timer::Time>,
     Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
     Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
@@ -214,7 +212,6 @@ fn delay_left<Delay, Convert>(
     >,
 >
 where
-    Delay: TryInto<Convert::Ticks>,
     Convert: DelayToTicks<Delay>,
     Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
