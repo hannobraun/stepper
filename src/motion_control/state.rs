@@ -39,7 +39,10 @@ pub fn update<Driver, Timer, Profile>(
     current_step: &mut i32,
     current_direction: &mut Direction,
 ) -> (
-    Result<bool, Error<Driver, Timer, Profile>>,
+    Result<
+        bool,
+        Error<Driver, Timer, <Profile::Delay as TryInto<Timer::Time>>::Error>,
+    >,
     State<Driver, Timer, Profile>,
 )
 where

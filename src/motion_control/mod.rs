@@ -185,7 +185,8 @@ where
     Profile::Velocity: Copy,
 {
     type Velocity = Profile::Velocity;
-    type Error = Error<Driver, Timer, Profile>;
+    type Error =
+        Error<Driver, Timer, <Profile::Delay as TryInto<Timer::Time>>::Error>;
 
     fn move_to_position(
         &mut self,

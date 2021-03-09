@@ -1,24 +1,18 @@
-use core::{
-    convert::{TryFrom, TryInto},
-    fmt,
-};
+use core::{convert::TryFrom, fmt};
 
 use embedded_hal::timer;
 use embedded_time::duration::Nanoseconds;
-use ramp_maker::MotionProfile;
 
 use crate::traits::{SetDirection, Step};
 
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
-pub enum Error<Driver, Timer, Profile>
+pub enum Error<Driver, Timer, ConvertError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Profile: MotionProfile,
     Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Timer::Time>,
 {
     /// Error while setting direction
     SetDirection(
@@ -42,7 +36,7 @@ where
     TimeConversion(
         TimeConversionError<
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
-            <Profile::Delay as TryInto<Timer::Time>>::Error,
+            ConvertError,
         >,
     ),
 
@@ -51,20 +45,18 @@ where
 }
 
 // Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
-impl<Driver, Timer, Profile> fmt::Debug for Error<Driver, Timer, Profile>
+impl<Driver, Timer, ConvertError> fmt::Debug
+    for Error<Driver, Timer, ConvertError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Profile: MotionProfile,
     Timer::Time: TryFrom<Nanoseconds>,
-    Profile::Delay: TryInto<Timer::Time>,
     <Driver as SetDirection>::Error: fmt::Debug,
     <Driver as Step>::Error: fmt::Debug,
     Timer::Error: fmt::Debug,
     Timer::Time: fmt::Debug,
     <Timer::Time as TryFrom<Nanoseconds>>::Error: fmt::Debug,
-    Profile::Delay: fmt::Debug,
-    <Profile::Delay as TryInto<Timer::Time>>::Error: fmt::Debug,
+    ConvertError: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
