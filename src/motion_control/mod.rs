@@ -198,7 +198,13 @@ where
     Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
 {
     type Velocity = Profile::Velocity;
-    type Error = Error<Driver, Timer, Convert::Error>;
+    type Error = Error<
+        <Driver as SetDirection>::Error,
+        <Driver as Step>::Error,
+        Timer::Error,
+        <Timer::Time as TryFrom<Nanoseconds>>::Error,
+        Convert::Error,
+    >;
 
     fn move_to_position(
         &mut self,
