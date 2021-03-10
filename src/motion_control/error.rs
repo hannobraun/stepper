@@ -1,7 +1,7 @@
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Error<
     SetDirectionError,
     StepError,
@@ -31,7 +31,7 @@ pub enum Error<
 }
 
 /// An error occurred while converting between time formats
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum TimeConversionError<NanosecondsToTicksError, DelayToTicksError> {
     /// Error converting from nanoseconds to timer ticks
     NanosecondsToTicks(NanosecondsToTicksError),
@@ -41,7 +41,7 @@ pub enum TimeConversionError<NanosecondsToTicksError, DelayToTicksError> {
 }
 
 /// The software motion control was busy, or another generic error occurred
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum BusyError<T> {
     /// The software motion control was busy
     ///
