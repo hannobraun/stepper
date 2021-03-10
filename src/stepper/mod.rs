@@ -1,10 +1,11 @@
+mod error;
 mod move_to;
 mod set_direction;
 mod set_step_mode;
 mod step;
 
 pub use self::{
-    move_to::MoveToFuture, set_direction::SetDirectionFuture,
+    error::Error, move_to::MoveToFuture, set_direction::SetDirectionFuture,
     set_step_mode::SetStepModeFuture, step::StepFuture,
 };
 
@@ -400,19 +401,4 @@ impl<Driver> Stepper<Driver> {
     {
         self.driver.reset_position(step)
     }
-}
-
-/// An error that can occur while using this API
-#[derive(Debug, Eq, PartialEq)]
-pub enum Error<PinError, TimeConversionError, TimerError> {
-    /// An error originated from using the [`OutputPin`] trait
-    ///
-    /// [`OutputPin`]: embedded_hal::digital::OutputPin
-    Pin(PinError),
-
-    /// An error occurred while converting time to timer ticks
-    TimeConversion(TimeConversionError),
-
-    /// An error originated from working with a timer
-    Timer(TimerError),
 }
