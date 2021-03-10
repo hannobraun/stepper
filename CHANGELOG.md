@@ -1,5 +1,37 @@
 # Stepper - Changelog
 
+## v0.5.0 (2021-03-10)
+
+- Rename struct `Driver` to `Stepper` ([#83], [#85])
+- Improve documentation ([#87], [#88], [#89], [#90], [#111], [#113])
+- Make futures more flexible and robust ([#91], [#93], [#95])
+- Add high-level motion control API ([#96], [#97], [#98], [#99], [#100], [#107], [#108])
+- Update error type ([#109], [#110])
+- Rename library from Step/Dir to Stepper ([#112])
+
+[#83]: https://github.com/flott-motion/stepper/pull/83
+[#85]: https://github.com/flott-motion/stepper/pull/85
+[#87]: https://github.com/flott-motion/stepper/pull/87
+[#88]: https://github.com/flott-motion/stepper/pull/88
+[#89]: https://github.com/flott-motion/stepper/pull/89
+[#90]: https://github.com/flott-motion/stepper/pull/90
+[#91]: https://github.com/flott-motion/stepper/pull/91
+[#93]: https://github.com/flott-motion/stepper/pull/93
+[#95]: https://github.com/flott-motion/stepper/pull/95
+[#96]: https://github.com/flott-motion/stepper/pull/96
+[#97]: https://github.com/flott-motion/stepper/pull/97
+[#98]: https://github.com/flott-motion/stepper/pull/98
+[#99]: https://github.com/flott-motion/stepper/pull/99
+[#100]: https://github.com/flott-motion/stepper/pull/100
+[#107]: https://github.com/flott-motion/stepper/pull/107
+[#108]: https://github.com/flott-motion/stepper/pull/108
+[#109]: https://github.com/flott-motion/stepper/pull/109
+[#110]: https://github.com/flott-motion/stepper/pull/110
+[#111]: https://github.com/flott-motion/stepper/pull/111
+[#112]: https://github.com/flott-motion/stepper/pull/112
+[#113]: https://github.com/flott-motion/stepper/pull/113
+
+
 ## v0.4.1 (2021-01-29)
 
 - Update documentation ([#69], [#71], [#76], [#77])

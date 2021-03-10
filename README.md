@@ -40,14 +40,14 @@ Add Stepper to your `Cargo.toml` like this:
 
 ``` toml
 [dependencies.stepper]
-version = "0.4" # make sure this is the latest version
+version = "0.5" # make sure this is the latest version
 ```
 
 If you just need to use a specific stepper driver, you can also depend on the crate for that specific driver. For example:
 
 ``` toml
 [dependencies.drv8825]
-version = "0.4" # make sure this is the latest version
+version = "0.5" # make sure this is the latest version
 ```
 
 Please refer to the [API Reference] for more information.
