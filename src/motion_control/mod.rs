@@ -152,7 +152,7 @@ where
     /// Set step mode of the wrapped driver
     ///
     /// This method is a more convenient alternative to
-    /// [`Stepper::set_step_mode], which requires a timer, while this methods
+    /// [`Stepper::set_step_mode`], which requires a timer, while this methods
     /// reuses the timer that `SoftwareMotionControl` already owns.
     ///
     /// However, while [`Stepper::set_step_mode`] is part of the generic API,

@@ -43,7 +43,7 @@ use crate::{
 /// The driven hardware typically comes in two forms:
 ///
 /// - A low-level chip controlled by STEP and DIR signals, often called a
-//    stepper driver (yes, somewhat confusing) or stepper controller.
+///   stepper driver (yes, somewhat confusing) or stepper controller.
 /// - A higher-level chip, typically controlled through some serial interface,
 ///   often called a motion controller.
 ///
@@ -67,8 +67,8 @@ use crate::{
 ///
 /// Enable this capability with [`Stepper::enable_step_mode_control`] and use it
 /// with [`Stepper::set_step_mode`]. Since not all stepper drivers support
-/// microstepping and of those that do, not all support setting it from software
-/// this capability might not be available for all drivers.
+/// microstepping and of those that do, not all support setting it from
+/// software, this capability might not be available for all drivers.
 ///
 /// ## Direction control & step control
 ///
@@ -81,6 +81,17 @@ use crate::{
 /// typically available together. They are modeled as separate capabilities, as
 /// to not make any assumptions. If you want to generate steps from software,
 /// for example, but control direction via some other means, then you can.
+///
+/// ## Motion control
+///
+/// Enable motion control with [`Stepper::enable_motion_control`] and use it
+/// with [`Stepper::move_to_position`] and [`Stepper::reset_position`].
+///
+/// Motion control capability is directly supported by motion control chips, but
+/// a software implementation based on direction and step control exists in the
+/// [`motion_control`] module, to make the capability available for all drivers.
+///
+/// [`motion_control`]: crate::motion_control
 ///
 /// # Notes on timer use
 ///
@@ -364,10 +375,9 @@ impl<Driver> Stepper<Driver> {
 
     /// Move the motor to the given position
     ///
-    /// Moves the motor to the given position (`target_step`), while taking the
-    /// desired maximum velocity (`max_velocity`) into account. The specifics of
-    /// the motion profile (like acceleration and jerk) are defined by the
-    /// implementation.
+    /// Moves the motor to the given position (`target_step`), while respecting
+    /// the maximum velocity (`max_velocity`). The specifics of the motion
+    /// profile (like acceleration and jerk) are driver-defined.
     ///
     /// It might be possible to influence the parameters of the motion profile
     /// through the resources passed to [`Stepper::enable_motion_control`],
