@@ -5,8 +5,10 @@ mod set_step_mode;
 mod step;
 
 pub use self::{
-    error::SignalError, move_to::MoveToFuture,
-    set_direction::SetDirectionFuture, set_step_mode::SetStepModeFuture,
+    error::{Error, SignalError},
+    move_to::MoveToFuture,
+    set_direction::SetDirectionFuture,
+    set_step_mode::SetStepModeFuture,
     step::StepFuture,
 };
 
