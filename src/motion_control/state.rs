@@ -46,7 +46,7 @@ pub fn update<Driver, Timer, Profile, Convert>(
     Result<
         bool,
         Error<
-            Driver,
+            <Driver as SetDirection>::Error,
             <Driver as Step>::Error,
             Timer::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,

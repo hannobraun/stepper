@@ -1,26 +1,18 @@
 use core::fmt;
 
-use crate::traits::SetDirection;
-
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
 pub enum Error<
-    Driver,
+    SetDirectionError,
     StepError,
     TimerError,
     NanosecondsToTicksError,
     DelayToTicksError,
-> where
-    Driver: SetDirection,
-{
+> {
     /// Error while setting direction
     SetDirection(
-        crate::Error<
-            <Driver as SetDirection>::Error,
-            NanosecondsToTicksError,
-            TimerError,
-        >,
+        crate::Error<SetDirectionError, NanosecondsToTicksError, TimerError>,
     ),
 
     /// Error while stepping the motor
@@ -37,22 +29,21 @@ pub enum Error<
 
 // Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
 impl<
-        Driver,
+        SetDirectionError,
         StepError,
         TimerError,
         NanosecondsToTicksError,
         DelayToTicksError,
     > fmt::Debug
     for Error<
-        Driver,
+        SetDirectionError,
         StepError,
         TimerError,
         NanosecondsToTicksError,
         DelayToTicksError,
     >
 where
-    Driver: SetDirection,
-    <Driver as SetDirection>::Error: fmt::Debug,
+    SetDirectionError: fmt::Debug,
     StepError: fmt::Debug,
     TimerError: fmt::Debug,
     NanosecondsToTicksError: fmt::Debug,
