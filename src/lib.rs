@@ -24,7 +24,8 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::SignalError<
+//! #         step_dir::Error<
+//! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
@@ -33,12 +34,9 @@
 //! #
 //! use step_dir::{
 //!     embedded_time::duration::Nanoseconds,
+//!     motion_control, ramp_maker,
 //!     Direction, Stepper,
 //! };
-//!
-//! // This constant defines how much time there is between two steps. Changing
-//! // this value directly affects the speed at which the motor runs.
-//! const STEP_DELAY: Nanoseconds = Nanoseconds(500_000);
 //!
 //! # // Use a real driver to make things easy, without making the example seem
 //! # // too specific to one driver.
@@ -67,10 +65,16 @@
 //! #     }
 //! # }
 //! #
-//! # struct Ticks;
+//! # pub struct Ticks(Num);
 //! # impl From<Nanoseconds> for Ticks {
 //! #     fn from(_: Nanoseconds) -> Self {
-//! #         Self
+//! #         Self(Num::from_num(0))
+//! #     }
+//! # }
+//! # impl core::ops::Sub for Ticks {
+//! #     type Output = Self;
+//! #     fn sub(self, rhs: Self) -> Self::Output {
+//! #         Self(Num::from_num(0))
 //! #     }
 //! # }
 //! #
@@ -89,6 +93,28 @@
 //! // again, we'll use a mock here for the sake of demonstration.
 //! let mut timer = Timer;
 //!
+//! // Define the numeric type we're going to use. We'll use a fixed-point type
+//! // here, as that's the most widely supported. If your target hardware has
+//! // support for floating point, it might be more convenient (and possibly
+//! // efficient) to use that instead.
+//! type Num = fixed::FixedI64<typenum::U32>;
+//!
+//! // Define the target acceleration and maximum speed using timer ticks as the
+//! // unit of time. We could also use seconds or any other unit of time
+//! // (Step/Dir doesn't care), but then we'd need to provide a conversion from
+//! // seconds to timer ticks. This way, we save that conversion.
+//! //
+//! // These values assume a 1 MHz timer, but that depends on the timer you're
+//! // using, of course.
+//! let target_accel = Num::from_num(0.001); // steps / tick^2; 1000 steps / s^2
+//! let max_speed = Num::from_num(0.001); // steps / tick; 1000 steps / s
+//!
+//! // We want to use the high-level motion control API (see below), but let's
+//! // assume the driver we use for this example doesn't provide hardware
+//! // support for that. Let's instantiate a motion profile from the RampMaker
+//! // library to provide a software fallback.
+//! let profile = ramp_maker::Trapezoidal::new(target_accel);
+//!
 //! // Now we need to initialize the stepper API. We do this by initializing a
 //! // driver (`MyDriver`), then wrapping that into the generic API (`Stepper`).
 //! // `MyDriver` is a placeholder. In a real use-case, you'd typically use one
@@ -98,25 +124,37 @@
 //! // By default, drivers can't do anything after being initialized. This means
 //! // they also don't require any hardware resources, which makes them easier
 //! // to use when you don't need all features.
-//! //
-//! // Here, we enable control over the STEP and DIR pins, as we want to step
-//! // the motor in a defined direction.
 //! let mut stepper = Stepper::from_driver(MyDriver::new())
+//!     // Enable direction control
 //!     .enable_direction_control(dir, Direction::Forward, &mut timer)?
-//!     .enable_step_control(step);
+//!     // Enable step control
+//!     .enable_step_control(step)
+//!     // Enable motion control using the software fallback
+//!     .enable_motion_control((timer, profile, DelayToTicks));
 //!
-//! // Rotate stepper motor by a few steps.
-//! for _ in 0 .. 5 {
-//!     // The `step` method returns a future. We just use it to block until the
-//!     // operation completes, but you can also use the API in a non-blocking
-//!     // way.
-//!     stepper.step(&mut timer).wait()?;
+//! // Tell the motor to move 2000 steps (10 revolutions on a typical stepper
+//! // motor), while respecting the maximum speed. Since we selected a
+//! // trapezoidal motion profile above, this will result in a controlled
+//! // acceleration to the maximum speed, and a controlled deceleration after.
+//! let target_step = 2000;
+//! stepper
+//!     .move_to_position(max_speed, target_step)
+//!     .wait()?;
 //!
-//!     // After telling the driver to make a step, we need to make sure to call
-//!     // the step method again after an appropriate amount of time. Let's just
-//!     // wait for the right time, using this example `delay_ns` function. How
-//!     // you do this in your own code is up to you.
-//!     delay_ns(STEP_DELAY - stepper.pulse_length());
+//! // Here's the converter that Step/Dir is going to use internally, to convert
+//! // from the computed delay value to timer ticks. Since we chose to use timer
+//! // ticks as the unit of time for velocity and acceleration, this conversion
+//! // is pretty simple (and cheap).
+//! pub struct DelayToTicks;
+//! impl motion_control::DelayToTicks<Num> for DelayToTicks {
+//!     type Ticks = Ticks; // depends on your timer
+//!     type Error = core::convert::Infallible;
+//!
+//!     fn delay_to_ticks(&self, delay: Num)
+//!         -> Result<Self::Ticks, Self::Error>
+//!     {
+//!         Ok(Ticks(delay.int()))
+//!     }
 //! }
 //! #
 //! # Ok(())
