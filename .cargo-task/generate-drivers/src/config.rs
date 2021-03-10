@@ -34,7 +34,7 @@ pub fn load_drivers_toml(root: &PathBuf) -> Result<Config> {
 }
 
 /// Cargo manifest package values. The driver facade crates will have their
-/// `version` and `authors` fields kept in sync with the `step_dir` crate.
+/// `version` and `authors` fields kept in sync with the `stepper` crate.
 #[derive(Debug, Deserialize)]
 pub struct Package {
     pub version: String,

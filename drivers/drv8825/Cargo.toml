@@ -8,13 +8,13 @@ authors = [
 edition = "2018"
 
 description = "Driver crate for the DRV8825 stepper motor driver"
-repository  = "https://github.com/flott-motion/step-dir"
+repository  = "https://github.com/flott-motion/stepper"
 license     = "0BSD"
-keywords    = ["step-dir", "stepper", "motor", "driver", "pololu"]
+keywords    = ["stepper", "motor", "driver", "pololu"]
 categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
-[dependencies.step-dir]
+[dependencies.stepper]
 version          = "0.4.1"
 path             = "../.."
 default-features = false

@@ -24,7 +24,7 @@ features = ["845m301jhi48", "845-rt"]
 version  = "0.3.0"
 features = ["defmt", "embedded-hal-alpha"]
 
-[dependencies.step-dir]
+[dependencies.stepper]
 path = ".."
 
 

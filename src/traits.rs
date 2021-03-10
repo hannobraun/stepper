@@ -1,4 +1,4 @@
-//! Traits that can be implemented by Step/Dir drivers
+//! Traits that can be implemented by Stepper drivers
 //!
 //! Users are generally not expected to use these traits directly, except to
 //! specify trait bounds, where necessary. Please check out [`Stepper`], which

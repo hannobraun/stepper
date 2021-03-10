@@ -12,7 +12,7 @@ default-members = [
 ]
 
 [package]
-name    = "step-dir"
+name    = "stepper"
 version = "0.4.1"
 authors = [
     "Hanno Braun <hanno@braun-embedded.com>",
@@ -22,7 +22,7 @@ edition = "2018"
 
 description = "Universal Stepper Motor Interface"
 homepage    = "https://flott-motion.org/"
-repository  = "https://github.com/flott-motion/step-dir"
+repository  = "https://github.com/flott-motion/stepper"
 license     = "0BSD"
 keywords    = ["stepper", "motor", "driver", "abstract", "interface"]
 categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]

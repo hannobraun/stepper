@@ -15,7 +15,7 @@ mod config;
 use config::{load_cargo_toml, load_drivers_toml, Driver};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // `root`      - executing directory; assumed to be Step/Dir root
+    // `root`      - executing directory; assumed to be Stepper root
     // `drivers`   - driver facade crate directory (output)
     // `templates` - template directory (input)
     let root = env::current_dir()?;
@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let readme_md = load_template(&templates.join("README.md.tmpl"))?;
     tt.add_template("readme_md", readme_md.as_str())?;
 
-    // Load the project's version and authors from the root Step/Dir
+    // Load the project's version and authors from the root Stepper
     // `Cargo.toml` file.
     let manifest = load_cargo_toml(&root)?;
     let version = manifest.package.version;

@@ -1,15 +1,15 @@
 //! STSPIN220 Driver
 //!
 //! Platform-agnostic driver library for the STSPIN220 stepper motor driver.
-//! This crate is a specialized facade for the [Step/Dir] library. Please
-//! consider using Step/Dir directly, as it provides drivers for more stepper
+//! This crate is a specialized facade for the [Stepper] library. Please
+//! consider using Stepper directly, as it provides drivers for more stepper
 //! motor drivers, as well as an interface to abstract over them.
 //!
-//! See [Step/Dir] for more documentation and usage examples.
+//! See [Stepper] for more documentation and usage examples.
 //!
-//! [Step/Dir]: https://crates.io/crates/step-dir
+//! [Stepper]: https://crates.io/crates/stepper
 
 #![no_std]
 #![deny(missing_docs)]
 
-pub use step_dir::{drivers::stspin220::*, *};
+pub use stepper::{drivers::stspin220::*, *};
