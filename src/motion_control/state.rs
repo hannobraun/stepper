@@ -43,7 +43,15 @@ pub fn update<Driver, Timer, Profile, Convert>(
     current_direction: &mut Direction,
     convert: &Convert,
 ) -> (
-    Result<bool, Error<Driver, Timer, Convert::Error>>,
+    Result<
+        bool,
+        Error<
+            Driver,
+            Timer,
+            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            Convert::Error,
+        >,
+    >,
     State<Driver, Timer, Profile>,
 )
 where

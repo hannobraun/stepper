@@ -8,17 +8,16 @@ use crate::traits::{SetDirection, Step};
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
-pub enum Error<Driver, Timer, DelayToTicksError>
+pub enum Error<Driver, Timer, NanosecondsToTicksError, DelayToTicksError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
 {
     /// Error while setting direction
     SetDirection(
         crate::Error<
             <Driver as SetDirection>::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            NanosecondsToTicksError,
             Timer::Error,
         >,
     ),
@@ -27,17 +26,14 @@ where
     Step(
         crate::Error<
             <Driver as Step>::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
+            NanosecondsToTicksError,
             Timer::Error,
         >,
     ),
 
     /// Error while converting between time formats
     TimeConversion(
-        TimeConversionError<
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
-            DelayToTicksError,
-        >,
+        TimeConversionError<NanosecondsToTicksError, DelayToTicksError>,
     ),
 
     /// Error while waiting for a step to finish
@@ -45,8 +41,8 @@ where
 }
 
 // Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
-impl<Driver, Timer, DelayToTicksError> fmt::Debug
-    for Error<Driver, Timer, DelayToTicksError>
+impl<Driver, Timer, NanosecondsToTicksError, DelayToTicksError> fmt::Debug
+    for Error<Driver, Timer, NanosecondsToTicksError, DelayToTicksError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
@@ -55,7 +51,7 @@ where
     <Driver as Step>::Error: fmt::Debug,
     Timer::Error: fmt::Debug,
     Timer::Time: fmt::Debug,
-    <Timer::Time as TryFrom<Nanoseconds>>::Error: fmt::Debug,
+    NanosecondsToTicksError: fmt::Debug,
     DelayToTicksError: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
