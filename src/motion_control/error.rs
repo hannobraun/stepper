@@ -1,7 +1,6 @@
-use core::{convert::TryFrom, fmt};
+use core::fmt;
 
 use embedded_hal::timer;
-use embedded_time::duration::Nanoseconds;
 
 use crate::traits::{SetDirection, Step};
 
@@ -46,11 +45,9 @@ impl<Driver, Timer, NanosecondsToTicksError, DelayToTicksError> fmt::Debug
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
     <Driver as SetDirection>::Error: fmt::Debug,
     <Driver as Step>::Error: fmt::Debug,
     Timer::Error: fmt::Debug,
-    Timer::Time: fmt::Debug,
     NanosecondsToTicksError: fmt::Debug,
     DelayToTicksError: fmt::Debug,
 {
