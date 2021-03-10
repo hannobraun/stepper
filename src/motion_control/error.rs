@@ -88,12 +88,12 @@ where
 
 /// An error occurred while converting between time formats
 #[derive(Debug)]
-pub enum TimeConversionError<TimeError, DelayError> {
+pub enum TimeConversionError<NanosecondsToTicksError, DelayToTicksError> {
     /// Error converting from nanoseconds to timer ticks
-    NanosecondsToTicks(TimeError),
+    NanosecondsToTicks(NanosecondsToTicksError),
 
     /// Error converting from RampMaker delay value to timer ticks
-    DelayToTicks(DelayError),
+    DelayToTicks(DelayToTicksError),
 }
 
 /// The software motion control was busy, or another generic error occurred
