@@ -1,14 +1,9 @@
 //! Stepper - Universal Stepper Motor Interface
 //!
-//! Stepper aims to provide an interface that abstracts over stepper motor
-//! drivers and controllers, exposing high-level hardware features directly
-//! where available, or providing software fallbacks where hardware support is
-//! lacking.
-//!
-//! Stepper is part of the [Flott] motion control toolkit. Please also check out
-//! [RampMaker], a library for generating stepper acceleration ramps. In a
-//! future version, both libraries will be integrated, but for now they can be
-//! used separately to complement each other.
+//! Stepper aims to provide an interface that abstracts over stepper drivers and
+//! motion control chips, exposing high-level hardware features directly where
+//! available, or providing software fallbacks where hardware support is
+//! lacking. Stepper is part of the [Flott] motion control toolkit.
 //!
 //! Right now, Stepper supports the following drivers:
 //!
