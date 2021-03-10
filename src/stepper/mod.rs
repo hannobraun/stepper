@@ -67,8 +67,8 @@ use crate::{
 ///
 /// Enable this capability with [`Stepper::enable_step_mode_control`] and use it
 /// with [`Stepper::set_step_mode`]. Since not all stepper drivers support
-/// microstepping and of those that do, not all support setting it from software
-/// this capability might not be available for all drivers.
+/// microstepping and of those that do, not all support setting it from
+/// software, this capability might not be available for all drivers.
 ///
 /// ## Direction control & step control
 ///

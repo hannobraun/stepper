@@ -1,8 +1,8 @@
 //! STSPIN220 Driver
 //!
 //! Platform-agnostic driver API for the STSPIN220 stepper motor driver. Can be
-//! used on any platform for which implementations of the require [embedded-hal]
-//! traits are available.
+//! used on any platform for which implementations of the required
+//! [embedded-hal] traits are available.
 //!
 //! For the most part, users are not expected to use this API directly. Please
 //! check out [`Stepper`](crate::Stepper) instead.
