@@ -8,7 +8,7 @@ use crate::traits::{SetDirection, Step};
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
-pub enum Error<Driver, Timer, ConvertError>
+pub enum Error<Driver, Timer, DelayToTicksError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
@@ -36,7 +36,7 @@ where
     TimeConversion(
         TimeConversionError<
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
-            ConvertError,
+            DelayToTicksError,
         >,
     ),
 
@@ -45,8 +45,8 @@ where
 }
 
 // Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
-impl<Driver, Timer, ConvertError> fmt::Debug
-    for Error<Driver, Timer, ConvertError>
+impl<Driver, Timer, DelayToTicksError> fmt::Debug
+    for Error<Driver, Timer, DelayToTicksError>
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
@@ -56,7 +56,7 @@ where
     Timer::Error: fmt::Debug,
     Timer::Time: fmt::Debug,
     <Timer::Time as TryFrom<Nanoseconds>>::Error: fmt::Debug,
-    ConvertError: fmt::Debug,
+    DelayToTicksError: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
