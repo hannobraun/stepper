@@ -40,10 +40,10 @@ git switch -c publish-a.b.c
 
 4. Update changelog: Go through all pull requests since the last release and mention the relevant ones. Use existing changelog entries as the template. Commit this to the repository.
 
-5. Update version in top-level `Cargo.toml` and re-generate driver crates. Commit changes.
+5. Update version in top-level `Cargo.toml`, README.md, and re-generate driver crates. Commit changes.
 
 ``` bash
-# missing: Update version in Cargo.toml
+# missing: Update version in top-level Cargo.toml and README.md
 cargo task generate-drivers
 ```
 
