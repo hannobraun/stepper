@@ -1,16 +1,16 @@
-//! Step/Dir - Universal Stepper Motor Interface
+//! Stepper - Universal Stepper Motor Interface
 //!
-//! Step/Dir aims to provide an interface that abstracts over stepper motor
+//! Stepper aims to provide an interface that abstracts over stepper motor
 //! drivers and controllers, exposing high-level hardware features directly
 //! where available, or providing software fallbacks where hardware support is
 //! lacking.
 //!
-//! Step/Dir is part of the [Flott] motion control toolkit. Please also check
-//! out [RampMaker], a library for generating stepper acceleration ramps. In a
+//! Stepper is part of the [Flott] motion control toolkit. Please also check out
+//! [RampMaker], a library for generating stepper acceleration ramps. In a
 //! future version, both libraries will be integrated, but for now they can be
 //! used separately to complement each other.
 //!
-//! Right now, Step/Dir supports the following drivers:
+//! Right now, Stepper supports the following drivers:
 //!
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
 //! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
@@ -24,7 +24,7 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::Error<
+//! #         stepper::Error<
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
@@ -32,7 +32,7 @@
 //! #         >
 //! #     > {
 //! #
-//! use step_dir::{
+//! use stepper::{
 //!     embedded_time::duration::Nanoseconds,
 //!     motion_control, ramp_maker,
 //!     Direction, Stepper,
@@ -40,19 +40,19 @@
 //!
 //! # // Use a real driver to make things easy, without making the example seem
 //! # // too specific to one driver.
-//! # type MyDriver = step_dir::drivers::drv8825::DRV8825<
+//! # type MyDriver = stepper::drivers::drv8825::DRV8825<
 //! #     (), (), (), (), (), (), (), (), ()
 //! # >;
 //! #
 //! # struct Pin;
-//! # impl step_dir::embedded_hal::digital::OutputPin for Pin {
+//! # impl stepper::embedded_hal::digital::OutputPin for Pin {
 //! #     type Error = core::convert::Infallible;
 //! #     fn try_set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! #     fn try_set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! # }
 //! #
 //! # struct Timer;
-//! # impl step_dir::embedded_hal::timer::CountDown for Timer {
+//! # impl stepper::embedded_hal::timer::CountDown for Timer {
 //! #     type Error = core::convert::Infallible;
 //! #     type Time = Ticks;
 //! #     fn try_start<T>(&mut self, count: T) -> Result<(), Self::Error>
@@ -101,7 +101,7 @@
 //!
 //! // Define the target acceleration and maximum speed using timer ticks as the
 //! // unit of time. We could also use seconds or any other unit of time
-//! // (Step/Dir doesn't care), but then we'd need to provide a conversion from
+//! // (Stepper doesn't care), but then we'd need to provide a conversion from
 //! // seconds to timer ticks. This way, we save that conversion.
 //! //
 //! // These values assume a 1 MHz timer, but that depends on the timer you're
@@ -118,8 +118,8 @@
 //! // Now we need to initialize the stepper API. We do this by initializing a
 //! // driver (`MyDriver`), then wrapping that into the generic API (`Stepper`).
 //! // `MyDriver` is a placeholder. In a real use-case, you'd typically use one
-//! // of the drivers from the `step_dir::drivers` module, but any driver that
-//! // implements the traits from `step_dir::traits` will do.
+//! // of the drivers from the `stepper::drivers` module, but any driver that
+//! // implements the traits from `stepper::traits` will do.
 //! //
 //! // By default, drivers can't do anything after being initialized. This means
 //! // they also don't require any hardware resources, which makes them easier
@@ -141,7 +141,7 @@
 //!     .move_to_position(max_speed, target_step)
 //!     .wait()?;
 //!
-//! // Here's the converter that Step/Dir is going to use internally, to convert
+//! // Here's the converter that Stepper is going to use internally, to convert
 //! // from the computed delay value to timer ticks. Since we chose to use timer
 //! // ticks as the unit of time for velocity and acceleration, this conversion
 //! // is pretty simple (and cheap).

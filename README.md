@@ -1,32 +1,32 @@
-# Step/Dir - Universal Stepper Motor Interface
+# Stepper - Universal Stepper Motor Interface
 
-[![crates.io](https://img.shields.io/crates/v/step-dir.svg)](https://crates.io/crates/step-dir) [![Documentation](https://docs.rs/step-dir/badge.svg)](https://docs.rs/step-dir) ![CI Build](https://github.com/flott-motion/step-dir/workflows/CI%20Build/badge.svg)
+[![crates.io](https://img.shields.io/crates/v/stepper.svg)](https://crates.io/crates/stepper) [![Documentation](https://docs.rs/stepper/badge.svg)](https://docs.rs/stepper) ![CI Build](https://github.com/flott-motion/stepper/workflows/CI%20Build/badge.svg)
 
 **Please consider supporting this project financially. More information below.**
 
 ## About
 
-Step/Dir aims to provide an interface that abstracts over stepper motor drivers and controllers, exposing high-level hardware features directly where available, or providing software fallbacks where hardware support is lacking.
+Stepper aims to provide an interface that abstracts over stepper motor drivers and controllers, exposing high-level hardware features directly where available, or providing software fallbacks where hardware support is lacking.
 
-Step/Dir is part of the [Flott] motion control toolkit. Please also check out [RampMaker], a library for generating stepper acceleration ramps. In a future version, both libraries will be integrated, but for now they can be used separately to complement each other.
+Stepper is part of the [Flott] motion control toolkit. Please also check out [RampMaker], a library for generating stepper acceleration ramps. In a future version, both libraries will be integrated, but for now they can be used separately to complement each other.
 
-Right now, Step/Dir supports the following drivers:
+Right now, Stepper supports the following drivers:
 
 - [DRV8825] ([crate](https://crates.io/crates/drv8825))
 - [STSPIN220] ([crate](https://crates.io/crates/stspin220))
 
 Support for more stepper drivers and controllers will be added in the future. Please consider helping out with this effort, if you need support for a driver or controller that is currently missing.
 
-Please check out [the documentation](https://docs.rs/step-dir) to learn more.
+Please check out [the documentation](https://docs.rs/stepper) to learn more.
 
 
 ## Status
 
-Step/Dir is under active development. Its API is going to change, as more features are added and existing ones are improved. Support for drivers is very limited right now, and support for controllers is non-existent.
+Stepper is under active development. Its API is going to change, as more features are added and existing ones are improved. Support for drivers is very limited right now, and support for controllers is non-existent.
 
-The library is usable, but far from mature. There are some known limitations that are documented on the [issue tracker](https://github.com/flott-motion/step-dir/issues). If you find any additional problems, please open an issue on the GitHub repository.
+The library is usable, but far from mature. There are some known limitations that are documented on the [issue tracker](https://github.com/flott-motion/stepper/issues). If you find any additional problems, please open an issue on the GitHub repository.
 
-Step/Dir is maintained by:
+Stepper is maintained by:
 
 - Hanno Braun ([@hannobraun])
 - Jesse Braham ([@jessebraham])
@@ -34,12 +34,12 @@ Step/Dir is maintained by:
 
 ## Usage
 
-Step/Dir is a library written in Rust and designed for use in Rust projects. It will run on any platform supported by Rust, including microcontrollers.
+Stepper is a library written in Rust and designed for use in Rust projects. It will run on any platform supported by Rust, including microcontrollers.
 
-Add Step/Dir to your `Cargo.toml` like this:
+Add Stepper to your `Cargo.toml` like this:
 
 ``` toml
-[dependencies.step-dir]
+[dependencies.stepper]
 version = "0.4" # make sure this is the latest version
 ```
 
@@ -55,7 +55,7 @@ Please refer to the [API Reference] for more information.
 
 ## Funding
 
-If you're getting value out of Step/Dir or other libraries from the [Flott] toolkit, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
+If you're getting value out of Stepper or other libraries from the [Flott] toolkit, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
 
 [Hanno Braun][@hannobraun], maintainer and original creator of this library, is [accepting sponsorship](https://github.com/sponsors/hannobraun).
 
@@ -71,9 +71,9 @@ See [LICENSE.md] for full details.
 [RampMaker]: https://crates.io/crates/ramp-maker
 [DRV8825]: https://www.ti.com/product/DRV8825
 [STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
-[API Reference]: https://docs.rs/step-dir
+[API Reference]: https://docs.rs/stepper
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
-[LICENSE.md]: https://github.com/flott-motion/step-dir/blob/main/LICENSE.md
+[LICENSE.md]: https://github.com/flott-motion/stepper/blob/main/LICENSE.md
 
 [@hannobraun]: https://github.com/hannobraun
 [@jessebraham]: https://github.com/jessebraham

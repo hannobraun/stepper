@@ -1,8 +1,8 @@
-# Step/Dir Test Stand
+# Stepper Test Stand
 
 ## About
 
-Test stand for Step/Dir. Currently in development.
+Test stand for Stepper. Currently in development.
 
 
 ## Hardware
@@ -20,7 +20,7 @@ The following hardware is used for the test stand:
 - Pololu Magnetic Encoder
   https://www.pololu.com/product/3499
 
-The electronics go on the breadboard, the motor and encoder go on a [3D-printed structure](https://github.com/flott-motion/step-dir/blob/main/test-stand/test-stand.scad).
+The electronics go on the breadboard, the motor and encoder go on a [3D-printed structure](https://github.com/flott-motion/stepper/blob/main/test-stand/test-stand.scad).
 
 ### Wiring
 

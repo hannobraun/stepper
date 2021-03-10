@@ -1,21 +1,21 @@
-# Contributing to Step/Dir
+# Contributing to Stepper
 
 ## Introduction
 
-This file documents the procedures for developing the Step/Dir project. It targets contributors and maintainers. Contributions, be it in the form of issues or pull requests, are always welcome, so don't be shy!
+This file documents the procedures for developing the Stepper project. It targets contributors and maintainers. Contributions, be it in the form of issues or pull requests, are always welcome, so don't be shy!
 
 At this point, this document is far from a comprehensive guide. It will be extended over time. Please open an issue, if anything is unclear, or if you need information not present here.
 
 
 ## Release management
 
-This repository contains multiple crates: The main `step-dir` crate, as well as one additional crate per supported driver. All version for the different crates are kept in sync, for the following reasons:
+This repository contains multiple crates: The main `stepper` crate, as well as one additional crate per supported driver. All version for the different crates are kept in sync, for the following reasons:
 
-- They all share the same lifecycle. Breaking changes to step-dir will require breaking changes to all driver crates, and breaking changes to drivers without breaking changes to step-dir are probably going to be rare.
+- They all share the same lifecycle. Breaking changes to `stepper` will require breaking changes to all driver crates, and breaking changes to drivers without breaking changes to `stepper` are probably going to be rare.
 - Syncing versions like that makes it much easier to manage release tags in the repository.
 - It also makes it much easier to handle changelogs, as all crates can share just one.
 
-This means if a new version of `step-dir` is released, all driver crates are released around the same time, sharing the same version number. Updating the versions will be done in the same commit, and that commit will be tagged with the version number for that release.
+This means if a new version of `stepper` is released, all driver crates are released around the same time, sharing the same version number. Updating the versions will be done in the same commit, and that commit will be tagged with the version number for that release.
 
 If a new release of some, but not all, crates is required, the version of all other crates is still updated, and a release is published. This is not ideal, but it prevents a situation where a crate must skip a version number, which could be confusing. Such a situation can occur because each release is tagged in the repository, and we can't create multiple tags for the same version number (and if we could, we really shouldn't).
 
@@ -49,7 +49,7 @@ cargo task generate-drivers
 
 6. Push branch, open a pull request. This makes sure the CI runs and gives other maintainers a chance to weigh in.
 
-7. Once ready, publish `step-dir`: Run `cargo publish` from the repository root.
+7. Once ready, publish `stepper`: Run `cargo publish` from the repository root.
 
 8. Publish all driver crates. Go into each directory in `drivers/`, run `cargo publish` there.
 

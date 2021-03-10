@@ -7,7 +7,7 @@ use panic_probe as _; // panic handler
 pub extern crate defmt;
 pub extern crate lpc8xx_hal;
 pub extern crate rotary_encoder_hal;
-pub extern crate step_dir;
+pub extern crate stepper;
 
 use core::fmt::Debug;
 
@@ -16,7 +16,7 @@ use lpc8xx_hal::{
     mrt::{self, MRT0},
 };
 use rotary_encoder_hal::{Direction as EncoderDirection, Rotary};
-use step_dir::{
+use stepper::{
     embedded_hal::digital::{InputPin, OutputPin},
     embedded_time::{duration::Microseconds, Clock},
     traits::{SetDirection, Step},

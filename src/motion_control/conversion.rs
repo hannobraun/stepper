@@ -1,7 +1,7 @@
 /// Converts delay values from RampMaker into timer ticks
 ///
 /// RampMaker is agnostic over the units used, and the unit of the timer ticks
-/// depend on the target platform. This trait allows Step/Dir to convert between
+/// depend on the target platform. This trait allows Stepper to convert between
 /// both types. The user must supply an implementation that matches their
 /// environment.
 ///
