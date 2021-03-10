@@ -375,10 +375,9 @@ impl<Driver> Stepper<Driver> {
 
     /// Move the motor to the given position
     ///
-    /// Moves the motor to the given position (`target_step`), while taking the
-    /// desired maximum velocity (`max_velocity`) into account. The specifics of
-    /// the motion profile (like acceleration and jerk) are defined by the
-    /// implementation.
+    /// Moves the motor to the given position (`target_step`), while respecting
+    /// the maximum velocity (`max_velocity`). The specifics of the motion
+    /// profile (like acceleration and jerk) are driver-defined.
     ///
     /// It might be possible to influence the parameters of the motion profile
     /// through the resources passed to [`Stepper::enable_motion_control`],

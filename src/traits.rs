@@ -2,13 +2,13 @@
 //!
 //! Users are generally not expected to use these traits directly, except to
 //! specify trait bounds, where necessary. Please check out [`Stepper`], which
-//! uses these traits to provide the public API.
+//! uses these traits to provide a unified API.
 //!
 //! There are two kinds of traits in this module:
 //! 1. Those that provide a minimal and low-level interface over a specific
 //!    capability (like controlling the microstepping mode).
-//! 2. Those that provide an API for enabling these capabilities, taking the
-//!    the resources that are required to do so.
+//! 2. Those that provide an API for enabling these capabilities, taking
+//!    ownership of the resources that are required to do so.
 //!
 //! When constructed, drivers usually do not provide access to any of their
 //! capabilities. This means users can specifically enable the capabilities they
