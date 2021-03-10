@@ -87,7 +87,7 @@ where
 
                 let ticks: Timer::Time = Driver::SETUP_TIME
                     .try_into()
-                    .map_err(|err| SignalError::TimeConversion(err))?;
+                    .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                 self.timer
                     .try_start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;

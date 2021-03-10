@@ -62,14 +62,14 @@ impl<PinError, NanosecondsToTicksError, DelayToTicksError, TimerError>
 
 /// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum SignalError<PinError, TimeConversionError, TimerError> {
+pub enum SignalError<PinError, NanosecondsToTicksError, TimerError> {
     /// An error originated from using the [`OutputPin`] trait
     ///
     /// [`OutputPin`]: embedded_hal::digital::OutputPin
     Pin(PinError),
 
-    /// An error occurred while converting time to timer ticks
-    TimeConversion(TimeConversionError),
+    /// An error occurred while converting nanoseconds to timer ticks
+    NanosecondsToTicks(NanosecondsToTicksError),
 
     /// An error originated from working with a timer
     Timer(TimerError),
