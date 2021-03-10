@@ -1,8 +1,7 @@
-use core::fmt;
-
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
+#[derive(Debug)]
 pub enum Error<
     SetDirectionError,
     StepError,
@@ -25,56 +24,6 @@ pub enum Error<
 
     /// Error while waiting for a step to finish
     StepDelay(TimerError),
-}
-
-// Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
-impl<
-        SetDirectionError,
-        StepError,
-        TimerError,
-        NanosecondsToTicksError,
-        DelayToTicksError,
-    > fmt::Debug
-    for Error<
-        SetDirectionError,
-        StepError,
-        TimerError,
-        NanosecondsToTicksError,
-        DelayToTicksError,
-    >
-where
-    SetDirectionError: fmt::Debug,
-    StepError: fmt::Debug,
-    TimerError: fmt::Debug,
-    NanosecondsToTicksError: fmt::Debug,
-    DelayToTicksError: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::SetDirection(err) => {
-                write!(f, "SetDirection(")?;
-                err.fmt(f)?;
-                write!(f, ")")?;
-            }
-            Self::Step(err) => {
-                write!(f, "Step(")?;
-                err.fmt(f)?;
-                write!(f, ")")?;
-            }
-            Self::TimeConversion(err) => {
-                write!(f, "TimeConversion(")?;
-                err.fmt(f)?;
-                write!(f, ")")?;
-            }
-            Self::StepDelay(err) => {
-                write!(f, "StepDelay(")?;
-                err.fmt(f)?;
-                write!(f, ")")?;
-            }
-        }
-
-        Ok(())
-    }
 }
 
 /// An error occurred while converting between time formats
