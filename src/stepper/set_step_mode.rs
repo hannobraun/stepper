@@ -8,7 +8,7 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::traits::SetStepMode;
 
-use super::Error;
+use super::SignalError;
 
 /// The "future" returned by [`Stepper::set_step_mode`]
 ///
@@ -67,7 +67,7 @@ where
     ) -> Poll<
         Result<
             (),
-            Error<
+            SignalError<
                 Driver::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
@@ -78,14 +78,14 @@ where
             State::Initial => {
                 self.driver
                     .apply_mode_config(self.step_mode)
-                    .map_err(|err| Error::Pin(err))?;
+                    .map_err(|err| SignalError::Pin(err))?;
 
                 let ticks: Timer::Time = Driver::SETUP_TIME
                     .try_into()
-                    .map_err(|err| Error::TimeConversion(err))?;
+                    .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                 self.timer
                     .try_start(ticks)
-                    .map_err(|err| Error::Timer(err))?;
+                    .map_err(|err| SignalError::Timer(err))?;
 
                 self.state = State::ApplyingConfig;
                 Poll::Pending
@@ -94,21 +94,21 @@ where
                 Ok(()) => {
                     self.driver
                         .enable_driver()
-                        .map_err(|err| Error::Pin(err))?;
+                        .map_err(|err| SignalError::Pin(err))?;
 
                     let ticks: Timer::Time = Driver::HOLD_TIME
                         .try_into()
-                        .map_err(|err| Error::TimeConversion(err))?;
+                        .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                     self.timer
                         .try_start(ticks)
-                        .map_err(|err| Error::Timer(err))?;
+                        .map_err(|err| SignalError::Timer(err))?;
 
                     self.state = State::EnablingDriver;
                     Poll::Ready(Ok(()))
                 }
                 Err(nb::Error::Other(err)) => {
                     self.state = State::Finished;
-                    Poll::Ready(Err(Error::Timer(err)))
+                    Poll::Ready(Err(SignalError::Timer(err)))
                 }
                 Err(nb::Error::WouldBlock) => Poll::Pending,
             },
@@ -119,7 +119,7 @@ where
                 }
                 Err(nb::Error::Other(err)) => {
                     self.state = State::Finished;
-                    Poll::Ready(Err(Error::Timer(err)))
+                    Poll::Ready(Err(SignalError::Timer(err)))
                 }
                 Err(nb::Error::WouldBlock) => Poll::Pending,
             },
@@ -136,7 +136,7 @@ where
         &mut self,
     ) -> Result<
         (),
-        Error<
+        SignalError<
             Driver::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,

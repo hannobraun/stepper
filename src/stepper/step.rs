@@ -8,7 +8,7 @@ use embedded_time::duration::Nanoseconds;
 
 use crate::traits::Step;
 
-use super::Error;
+use super::SignalError;
 
 /// The "future" returned by [`Stepper::step`]
 ///
@@ -61,7 +61,7 @@ where
     ) -> Poll<
         Result<
             (),
-            Error<
+            SignalError<
                 Driver::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
@@ -74,14 +74,14 @@ where
                 self.driver
                     .step()
                     .try_set_high()
-                    .map_err(|err| Error::Pin(err))?;
+                    .map_err(|err| SignalError::Pin(err))?;
 
                 let ticks: Timer::Time = Driver::PULSE_LENGTH
                     .try_into()
-                    .map_err(|err| Error::TimeConversion(err))?;
+                    .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                 self.timer
                     .try_start(ticks)
-                    .map_err(|err| Error::Timer(err))?;
+                    .map_err(|err| SignalError::Timer(err))?;
 
                 self.state = State::PulseStarted;
                 Poll::Pending
@@ -93,14 +93,14 @@ where
                         self.driver
                             .step()
                             .try_set_low()
-                            .map_err(|err| Error::Pin(err))?;
+                            .map_err(|err| SignalError::Pin(err))?;
 
                         self.state = State::Finished;
                         Poll::Ready(Ok(()))
                     }
                     Err(nb::Error::Other(err)) => {
                         self.state = State::Finished;
-                        Poll::Ready(Err(Error::Timer(err)))
+                        Poll::Ready(Err(SignalError::Timer(err)))
                     }
                     Err(nb::Error::WouldBlock) => Poll::Pending,
                 }
@@ -117,7 +117,7 @@ where
         &mut self,
     ) -> Result<
         (),
-        Error<
+        SignalError<
             Driver::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
