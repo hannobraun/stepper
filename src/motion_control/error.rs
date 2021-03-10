@@ -1,23 +1,20 @@
 use core::fmt;
 
-use embedded_hal::timer;
-
 use crate::traits::{SetDirection, Step};
 
 /// An error that can occur while using [`SoftwareMotionControl`]
 ///
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
-pub enum Error<Driver, Timer, NanosecondsToTicksError, DelayToTicksError>
+pub enum Error<Driver, TimerError, NanosecondsToTicksError, DelayToTicksError>
 where
     Driver: SetDirection + Step,
-    Timer: timer::CountDown,
 {
     /// Error while setting direction
     SetDirection(
         crate::Error<
             <Driver as SetDirection>::Error,
             NanosecondsToTicksError,
-            Timer::Error,
+            TimerError,
         >,
     ),
 
@@ -26,7 +23,7 @@ where
         crate::Error<
             <Driver as Step>::Error,
             NanosecondsToTicksError,
-            Timer::Error,
+            TimerError,
         >,
     ),
 
@@ -36,18 +33,17 @@ where
     ),
 
     /// Error while waiting for a step to finish
-    StepDelay(Timer::Error),
+    StepDelay(TimerError),
 }
 
 // Can't `#[derive(Debug)]`, as that can't generate the required trait bounds.
-impl<Driver, Timer, NanosecondsToTicksError, DelayToTicksError> fmt::Debug
-    for Error<Driver, Timer, NanosecondsToTicksError, DelayToTicksError>
+impl<Driver, TimerError, NanosecondsToTicksError, DelayToTicksError> fmt::Debug
+    for Error<Driver, TimerError, NanosecondsToTicksError, DelayToTicksError>
 where
     Driver: SetDirection + Step,
-    Timer: timer::CountDown,
     <Driver as SetDirection>::Error: fmt::Debug,
     <Driver as Step>::Error: fmt::Debug,
-    Timer::Error: fmt::Debug,
+    TimerError: fmt::Debug,
     NanosecondsToTicksError: fmt::Debug,
     DelayToTicksError: fmt::Debug,
 {

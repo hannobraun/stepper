@@ -200,7 +200,7 @@ where
     type Velocity = Profile::Velocity;
     type Error = Error<
         Driver,
-        Timer,
+        Timer::Error,
         <Timer::Time as TryFrom<Nanoseconds>>::Error,
         Convert::Error,
     >;
