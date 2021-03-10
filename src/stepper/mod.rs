@@ -43,7 +43,7 @@ use crate::{
 /// The driven hardware typically comes in two forms:
 ///
 /// - A low-level chip controlled by STEP and DIR signals, often called a
-//    stepper driver (yes, somewhat confusing) or stepper controller.
+///   stepper driver (yes, somewhat confusing) or stepper controller.
 /// - A higher-level chip, typically controlled through some serial interface,
 ///   often called a motion controller.
 ///
