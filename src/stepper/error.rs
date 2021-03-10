@@ -1,6 +1,6 @@
 /// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum Error<PinError, TimeConversionError, TimerError> {
+pub enum SignalError<PinError, TimeConversionError, TimerError> {
     /// An error originated from using the [`OutputPin`] trait
     ///
     /// [`OutputPin`]: embedded_hal::digital::OutputPin

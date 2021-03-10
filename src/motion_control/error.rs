@@ -11,11 +11,15 @@ pub enum Error<
 > {
     /// Error while setting direction
     SetDirection(
-        crate::Error<SetDirectionError, NanosecondsToTicksError, TimerError>,
+        crate::SignalError<
+            SetDirectionError,
+            NanosecondsToTicksError,
+            TimerError,
+        >,
     ),
 
     /// Error while stepping the motor
-    Step(crate::Error<StepError, NanosecondsToTicksError, TimerError>),
+    Step(crate::SignalError<StepError, NanosecondsToTicksError, TimerError>),
 
     /// Error while converting between time formats
     TimeConversion(

@@ -5,8 +5,9 @@ mod set_step_mode;
 mod step;
 
 pub use self::{
-    error::Error, move_to::MoveToFuture, set_direction::SetDirectionFuture,
-    set_step_mode::SetStepModeFuture, step::StepFuture,
+    error::SignalError, move_to::MoveToFuture,
+    set_direction::SetDirectionFuture, set_step_mode::SetStepModeFuture,
+    step::StepFuture,
 };
 
 use core::convert::TryFrom;
@@ -162,7 +163,7 @@ impl<Driver> Stepper<Driver> {
         timer: &mut Timer,
     ) -> Result<
         Stepper<Driver::WithStepModeControl>,
-        Error<
+        SignalError<
             <Driver::WithStepModeControl as SetStepMode>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
@@ -228,7 +229,7 @@ impl<Driver> Stepper<Driver> {
         timer: &mut Timer,
     ) -> Result<
         Stepper<Driver::WithDirectionControl>,
-        Error<
+        SignalError<
             <Driver::WithDirectionControl as SetDirection>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,

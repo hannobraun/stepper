@@ -24,7 +24,7 @@
 //! # fn main()
 //! #     -> Result<
 //! #         (),
-//! #         step_dir::Error<
+//! #         step_dir::SignalError<
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
