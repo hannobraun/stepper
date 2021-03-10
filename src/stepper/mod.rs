@@ -82,6 +82,17 @@ use crate::{
 /// to not make any assumptions. If you want to generate steps from software,
 /// for example, but control direction via some other means, then you can.
 ///
+/// ## Motion control
+///
+/// Enable motion control with [`Stepper::enable_motion_control`] and use it
+/// with [`Stepper::move_to_position`] and [`Stepper::reset_position`].
+///
+/// Motion control capability is directly supported by motion control chips, but
+/// a software implementation based on direction and step control exists in the
+/// [`motion_control`] module, to make the capability available for all drivers.
+///
+/// [`motion_control`]: crate::motion_control
+///
 /// # Notes on timer use
 ///
 /// Some of this struct's methods take a timer argument. This is expected to be
