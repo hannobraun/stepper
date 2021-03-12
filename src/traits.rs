@@ -90,7 +90,7 @@ pub trait SetDirection {
     const SETUP_TIME: Nanoseconds;
 
     /// The type of the DIR pin
-    type Dir: OutputPin<Error = Self::Error>;
+    type Dir: OutputPin;
 
     /// The error that can occur while using this trait
     type Error;
