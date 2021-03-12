@@ -3,7 +3,7 @@ use core::{
     task::Poll,
 };
 
-use embedded_hal::{prelude::*, timer};
+use embedded_hal::{digital::OutputPin, timer};
 use embedded_time::duration::Nanoseconds;
 
 use crate::traits::Step;
@@ -63,6 +63,7 @@ where
             (),
             SignalError<
                 Driver::Error,
+                <Driver::Step as OutputPin>::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
@@ -73,6 +74,7 @@ where
                 // Start step pulse
                 self.driver
                     .step()
+                    .map_err(|err| SignalError::PinUnavailable(err))?
                     .try_set_high()
                     .map_err(|err| SignalError::Pin(err))?;
 
@@ -92,6 +94,7 @@ where
                         // End step pulse
                         self.driver
                             .step()
+                            .map_err(|err| SignalError::PinUnavailable(err))?
                             .try_set_low()
                             .map_err(|err| SignalError::Pin(err))?;
 
@@ -119,6 +122,7 @@ where
         (),
         SignalError<
             Driver::Error,
+            <Driver::Step as OutputPin>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,

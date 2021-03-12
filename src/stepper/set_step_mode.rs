@@ -1,5 +1,5 @@
 use core::{
-    convert::{TryFrom, TryInto as _},
+    convert::{Infallible, TryFrom, TryInto as _},
     task::Poll,
 };
 
@@ -68,6 +68,7 @@ where
         Result<
             (),
             SignalError<
+                Infallible, // only applies to `SetDirection`, `Step`
                 Driver::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
@@ -137,6 +138,7 @@ where
     ) -> Result<
         (),
         SignalError<
+            Infallible, // only applies to `SetDirection`, `Step`
             Driver::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,

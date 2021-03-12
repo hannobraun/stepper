@@ -90,13 +90,13 @@ pub trait SetDirection {
     const SETUP_TIME: Nanoseconds;
 
     /// The type of the DIR pin
-    type Dir: OutputPin<Error = Self::Error>;
+    type Dir: OutputPin;
 
-    /// The error that can occur while using this trait
+    /// The error that can occur while accessing the DIR pin
     type Error;
 
     /// Provides access to the DIR pin
-    fn dir(&mut self) -> &mut Self::Dir;
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error>;
 }
 
 /// Enable step control for a driver
@@ -117,13 +117,13 @@ pub trait Step {
     const PULSE_LENGTH: Nanoseconds;
 
     /// The type of the STEP pin
-    type Step: OutputPin<Error = Self::Error>;
+    type Step: OutputPin;
 
-    /// The error that can occur while using this trait
+    /// The error that can occur while accessing the STEP pin
     type Error;
 
     /// Provides access to the STEP pin
-    fn step(&mut self) -> &mut Self::Step;
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error>;
 }
 
 /// Enable motion control for a driver

@@ -16,7 +16,7 @@ use core::{
     ops,
 };
 
-use embedded_hal::timer;
+use embedded_hal::{digital::OutputPin, timer};
 use embedded_time::duration::Nanoseconds;
 use ramp_maker::MotionProfile;
 use replace_with::replace_with_and_return;
@@ -200,7 +200,9 @@ where
     type Velocity = Profile::Velocity;
     type Error = Error<
         <Driver as SetDirection>::Error,
+        <<Driver as SetDirection>::Dir as OutputPin>::Error,
         <Driver as Step>::Error,
+        <<Driver as Step>::Step as OutputPin>::Error,
         Timer::Error,
         <Timer::Time as TryFrom<Nanoseconds>>::Error,
         Convert::Error,

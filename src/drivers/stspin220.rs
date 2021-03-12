@@ -9,6 +9,8 @@
 //!
 //! [embedded-hal]: https://crates.io/crates/embedded-hal
 
+use core::convert::Infallible;
+
 use embedded_hal::digital::{OutputPin, PinState};
 use embedded_time::duration::Nanoseconds;
 
@@ -196,10 +198,10 @@ where
     const SETUP_TIME: Nanoseconds = Nanoseconds(100);
 
     type Dir = DirMode4;
-    type Error = OutputPinError;
+    type Error = Infallible;
 
-    fn dir(&mut self) -> &mut Self::Dir {
-        &mut self.dir_mode4
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error> {
+        Ok(&mut self.dir_mode4)
     }
 }
 
@@ -250,9 +252,9 @@ where
     const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
 
     type Step = StepMode3;
-    type Error = OutputPinError;
+    type Error = Infallible;
 
-    fn step(&mut self) -> &mut Self::Step {
-        &mut self.step_mode3
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
+        Ok(&mut self.step_mode3)
     }
 }

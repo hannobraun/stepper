@@ -38,6 +38,8 @@ pub fn test_step<D, A, B, DebugSignal, Error>(
 ) where
     D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
+    <<D as SetDirection>::Dir as OutputPin>::Error: Debug,
+    <<D as Step>::Step as OutputPin>::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -58,6 +60,8 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
 ) where
     D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
+    <<D as SetDirection>::Dir as OutputPin>::Error: Debug,
+    <<D as Step>::Step as OutputPin>::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -128,6 +132,8 @@ pub fn step<D, A, B, Error>(
 where
     D: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
+    <<D as SetDirection>::Dir as OutputPin>::Error: Debug,
+    <<D as Step>::Step as OutputPin>::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
