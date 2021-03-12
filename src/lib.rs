@@ -24,6 +24,7 @@
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
+//! #             core::convert::Infallible,
 //! #         >
 //! #     > {
 //! #

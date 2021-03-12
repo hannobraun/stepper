@@ -12,7 +12,7 @@ pub use self::{
     step::StepFuture,
 };
 
-use core::convert::TryFrom;
+use core::convert::{Infallible, TryFrom};
 
 use embedded_hal::{digital::OutputPin, timer};
 use embedded_time::duration::Nanoseconds;
@@ -177,6 +177,7 @@ impl<Driver> Stepper<Driver> {
     ) -> Result<
         Stepper<Driver::WithStepModeControl>,
         SignalError<
+            Infallible, // only applies to `SetDirection`, `Step`
             <Driver::WithStepModeControl as SetStepMode>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
@@ -243,6 +244,7 @@ impl<Driver> Stepper<Driver> {
     ) -> Result<
         Stepper<Driver::WithDirectionControl>,
         SignalError<
+            <Driver::WithDirectionControl as SetDirection>::Error,
             <<Driver::WithDirectionControl as SetDirection>::Dir
                 as OutputPin>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,

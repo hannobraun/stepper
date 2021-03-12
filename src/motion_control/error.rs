@@ -3,7 +3,9 @@
 /// [`SoftwareMotionControl`]: super::SoftwareMotionControl
 #[derive(Debug, Eq, PartialEq)]
 pub enum Error<
+    SetDirectionPinUnavailable,
     SetDirectionError,
+    StepPinUnavailable,
     StepError,
     TimerError,
     NanosecondsToTicksError,
@@ -12,6 +14,7 @@ pub enum Error<
     /// Error while setting direction
     SetDirection(
         crate::SignalError<
+            SetDirectionPinUnavailable,
             SetDirectionError,
             NanosecondsToTicksError,
             TimerError,
@@ -19,7 +22,14 @@ pub enum Error<
     ),
 
     /// Error while stepping the motor
-    Step(crate::SignalError<StepError, NanosecondsToTicksError, TimerError>),
+    Step(
+        crate::SignalError<
+            StepPinUnavailable,
+            StepError,
+            NanosecondsToTicksError,
+            TimerError,
+        >,
+    ),
 
     /// Error while converting between time formats
     TimeConversion(

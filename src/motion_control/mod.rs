@@ -199,7 +199,9 @@ where
 {
     type Velocity = Profile::Velocity;
     type Error = Error<
+        <Driver as SetDirection>::Error,
         <<Driver as SetDirection>::Dir as OutputPin>::Error,
+        <Driver as Step>::Error,
         <<Driver as Step>::Step as OutputPin>::Error,
         Timer::Error,
         <Timer::Time as TryFrom<Nanoseconds>>::Error,
