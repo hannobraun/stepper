@@ -74,6 +74,7 @@ where
                 // Start step pulse
                 self.driver
                     .step()
+                    .map_err(|err| SignalError::PinUnavailable(err))?
                     .try_set_high()
                     .map_err(|err| SignalError::Pin(err))?;
 
@@ -93,6 +94,7 @@ where
                         // End step pulse
                         self.driver
                             .step()
+                            .map_err(|err| SignalError::PinUnavailable(err))?
                             .try_set_low()
                             .map_err(|err| SignalError::Pin(err))?;
 

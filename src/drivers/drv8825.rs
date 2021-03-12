@@ -211,7 +211,7 @@ where
     type Step = Step;
     type Error = Infallible;
 
-    fn step(&mut self) -> &mut Self::Step {
-        &mut self.step
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
+        Ok(&mut self.step)
     }
 }

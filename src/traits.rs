@@ -119,11 +119,11 @@ pub trait Step {
     /// The type of the STEP pin
     type Step: OutputPin;
 
-    /// The error that can occur while using this trait
+    /// The error that can occur while accessing the STEP pin
     type Error;
 
     /// Provides access to the STEP pin
-    fn step(&mut self) -> &mut Self::Step;
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error>;
 }
 
 /// Enable motion control for a driver

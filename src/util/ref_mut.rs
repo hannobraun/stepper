@@ -106,7 +106,7 @@ where
     type Step = T::Step;
     type Error = T::Error;
 
-    fn step(&mut self) -> &mut Self::Step {
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
         self.0.step()
     }
 }
