@@ -117,7 +117,7 @@ pub trait Step {
     const PULSE_LENGTH: Nanoseconds;
 
     /// The type of the STEP pin
-    type Step: OutputPin<Error = Self::Error>;
+    type Step: OutputPin;
 
     /// The error that can occur while using this trait
     type Error;

@@ -3,7 +3,7 @@ use core::{
     task::Poll,
 };
 
-use embedded_hal::{prelude::*, timer};
+use embedded_hal::{digital::OutputPin, timer};
 use embedded_time::duration::Nanoseconds;
 
 use crate::traits::Step;
@@ -62,7 +62,7 @@ where
         Result<
             (),
             SignalError<
-                Driver::Error,
+                <Driver::Step as OutputPin>::Error,
                 <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
@@ -118,7 +118,7 @@ where
     ) -> Result<
         (),
         SignalError<
-            Driver::Error,
+            <Driver::Step as OutputPin>::Error,
             <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
