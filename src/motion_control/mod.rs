@@ -258,10 +258,10 @@ where
     }
 }
 
-// We could also implement `EnableStepModeControl` here, but enabling step mode
-// control can only work while we have access to the driver, which mostly means
-// we'd have to be idle. Since `EnableStepModeControl` is infallible, we'd have
-// to panic, and I don't know if that would be worth it.
+// We could also implement the various "enable" traits here, but those
+// implementations can only work while we have access to the driver, which
+// mostly means we'd have to be idle. Since the "enable" traits are infallible,
+// we'd have to panic, and I don't know if that would be worth it.
 
 impl<Driver, Timer, Profile, Convert> SetStepMode
     for SoftwareMotionControl<Driver, Timer, Profile, Convert>
@@ -292,6 +292,44 @@ where
             Some(driver) => {
                 driver.enable_driver().map_err(|err| BusyError::Other(err))
             }
+            None => Err(BusyError::Busy),
+        }
+    }
+}
+
+impl<Driver, Timer, Profile, Convert> SetDirection
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+where
+    Driver: SetDirection,
+    Profile: MotionProfile,
+{
+    const SETUP_TIME: Nanoseconds = Driver::SETUP_TIME;
+
+    type Dir = Driver::Dir;
+    type Error = BusyError<Driver::Error>;
+
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error> {
+        match self.driver_mut() {
+            Some(driver) => driver.dir().map_err(|err| BusyError::Other(err)),
+            None => Err(BusyError::Busy),
+        }
+    }
+}
+
+impl<Driver, Timer, Profile, Convert> Step
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+where
+    Driver: Step,
+    Profile: MotionProfile,
+{
+    const PULSE_LENGTH: Nanoseconds = Driver::PULSE_LENGTH;
+
+    type Step = Driver::Step;
+    type Error = BusyError<Driver::Error>;
+
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
+        match self.driver_mut() {
+            Some(driver) => driver.step().map_err(|err| BusyError::Other(err)),
             None => Err(BusyError::Busy),
         }
     }
