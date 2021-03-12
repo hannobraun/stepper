@@ -170,8 +170,8 @@ where
     type Dir = Dir;
     type Error = Infallible;
 
-    fn dir(&mut self) -> &mut Self::Dir {
-        &mut self.dir
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error> {
+        Ok(&mut self.dir)
     }
 }
 

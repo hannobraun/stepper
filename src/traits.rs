@@ -92,11 +92,11 @@ pub trait SetDirection {
     /// The type of the DIR pin
     type Dir: OutputPin;
 
-    /// The error that can occur while using this trait
+    /// The error that can occur while accessing the DIR pin
     type Error;
 
     /// Provides access to the DIR pin
-    fn dir(&mut self) -> &mut Self::Dir;
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error>;
 }
 
 /// Enable step control for a driver

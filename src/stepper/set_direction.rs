@@ -77,11 +77,13 @@ where
                     Direction::Forward => self
                         .driver
                         .dir()
+                        .map_err(|err| SignalError::PinUnavailable(err))?
                         .try_set_high()
                         .map_err(|err| SignalError::Pin(err))?,
                     Direction::Backward => self
                         .driver
                         .dir()
+                        .map_err(|err| SignalError::PinUnavailable(err))?
                         .try_set_low()
                         .map_err(|err| SignalError::Pin(err))?,
                 }

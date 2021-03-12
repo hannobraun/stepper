@@ -200,8 +200,8 @@ where
     type Dir = DirMode4;
     type Error = Infallible;
 
-    fn dir(&mut self) -> &mut Self::Dir {
-        &mut self.dir_mode4
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error> {
+        Ok(&mut self.dir_mode4)
     }
 }
 

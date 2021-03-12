@@ -70,7 +70,7 @@ where
     type Dir = T::Dir;
     type Error = T::Error;
 
-    fn dir(&mut self) -> &mut Self::Dir {
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error> {
         self.0.dir()
     }
 }
