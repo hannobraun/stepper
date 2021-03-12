@@ -26,7 +26,7 @@ use crate::{
         EnableMotionControl, MotionControl, SetDirection, SetStepMode, Step,
     },
     util::ref_mut::RefMut,
-    Direction, SetStepModeFuture,
+    Direction, SetDirectionFuture, SetStepModeFuture,
 };
 
 use self::state::State;
@@ -180,6 +180,45 @@ where
             State::Idle { driver, timer } => {
                 SetStepModeFuture::new(step_mode, RefMut(driver), RefMut(timer))
             }
+            _ => return Err(BusyError::Busy),
+        };
+
+        Ok(future)
+    }
+
+    /// Set direction of the wrapped driver
+    ///
+    /// This method is a more convenient alternative to
+    /// [`Stepper::set_direction`], which requires a timer, while this methods
+    /// reuses the timer that `SoftwareMotionControl` already owns.
+    ///
+    /// However, while [`Stepper::set_direction`] is part of the generic API,
+    /// this method is only available, if you statically know that you're
+    /// working with a driver wrapped by `SoftwareMotionControl`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BusyError::Busy`], if a motion is ongoing.
+    ///
+    /// [`Stepper::set_direction`]: crate::Stepper::set_direction
+    pub fn set_direction(
+        &mut self,
+        direction: Direction,
+    ) -> Result<
+        SetDirectionFuture<RefMut<Driver>, RefMut<Timer>>,
+        BusyError<Infallible>,
+    >
+    where
+        Driver: SetDirection,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
+    {
+        let future = match &mut self.state {
+            State::Idle { driver, timer } => SetDirectionFuture::new(
+                direction,
+                RefMut(driver),
+                RefMut(timer),
+            ),
             _ => return Err(BusyError::Busy),
         };
 
