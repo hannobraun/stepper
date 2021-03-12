@@ -26,7 +26,7 @@ use crate::{
         EnableMotionControl, MotionControl, SetDirection, SetStepMode, Step,
     },
     util::ref_mut::RefMut,
-    Direction, SetDirectionFuture, SetStepModeFuture,
+    Direction, SetDirectionFuture, SetStepModeFuture, StepFuture,
 };
 
 use self::state::State;
@@ -219,6 +219,39 @@ where
                 RefMut(driver),
                 RefMut(timer),
             ),
+            _ => return Err(BusyError::Busy),
+        };
+
+        Ok(future)
+    }
+
+    /// Tell the wrapped driver to move the motor one step
+    ///
+    /// This method is a more convenient alternative to [`Stepper::step`], which
+    /// requires a timer, while this methods reuses the timer that
+    /// `SoftwareMotionControl` already owns.
+    ///
+    /// However, while [`Stepper::step`] is part of the generic API, this method
+    /// is only available, if you statically know that you're working with a
+    /// driver wrapped by `SoftwareMotionControl`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BusyError::Busy`], if a motion is ongoing.
+    ///
+    /// [`Stepper::step`]: crate::Stepper::step
+    pub fn step(
+        &mut self,
+    ) -> Result<StepFuture<RefMut<Driver>, RefMut<Timer>>, BusyError<Infallible>>
+    where
+        Driver: Step,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
+    {
+        let future = match &mut self.state {
+            State::Idle { driver, timer } => {
+                StepFuture::new(RefMut(driver), RefMut(timer))
+            }
             _ => return Err(BusyError::Busy),
         };
 
