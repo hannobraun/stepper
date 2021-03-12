@@ -30,16 +30,16 @@ pub fn exit() -> ! {
     }
 }
 
-pub fn test_step<D, A, B, DebugSignal, Error>(
-    stepper: &mut Stepper<D>,
+pub fn test_step<Driver, A, B, DebugSignal, Error>(
+    stepper: &mut Stepper<Driver>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     debug_signal: &mut DebugSignal,
 ) where
-    D: SetDirection<Error = Error> + Step<Error = Error>,
+    Driver: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
-    <<D as SetDirection>::Dir as OutputPin>::Error: Debug,
-    <<D as Step>::Step as OutputPin>::Error: Debug,
+    <<Driver as SetDirection>::Dir as OutputPin>::Error: Debug,
+    <<Driver as Step>::Step as OutputPin>::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -51,17 +51,17 @@ pub fn test_step<D, A, B, DebugSignal, Error>(
     verify_steps(stepper, timer, rotary, Direction::Backward, debug_signal);
 }
 
-pub fn verify_steps<D, A, B, DebugSignal, Error>(
-    stepper: &mut Stepper<D>,
+pub fn verify_steps<Driver, A, B, DebugSignal, Error>(
+    stepper: &mut Stepper<Driver>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     direction: Direction,
     debug_signal: &mut DebugSignal,
 ) where
-    D: SetDirection<Error = Error> + Step<Error = Error>,
+    Driver: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
-    <<D as SetDirection>::Dir as OutputPin>::Error: Debug,
-    <<D as Step>::Step as OutputPin>::Error: Debug,
+    <<Driver as SetDirection>::Dir as OutputPin>::Error: Debug,
+    <<Driver as Step>::Step as OutputPin>::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
@@ -121,8 +121,8 @@ pub fn verify_steps<D, A, B, DebugSignal, Error>(
     assert_eq!(counts_expected, counts);
 }
 
-pub fn step<D, A, B, Error>(
-    stepper: &mut Stepper<D>,
+pub fn step<Driver, A, B, Error>(
+    stepper: &mut Stepper<Driver>,
     timer: &mut mrt::Channel<MRT0>,
     rotary: &mut Rotary<A, B>,
     delay: Microseconds,
@@ -130,10 +130,10 @@ pub fn step<D, A, B, Error>(
     check_direction: bool,
 ) -> u32
 where
-    D: SetDirection<Error = Error> + Step<Error = Error>,
+    Driver: SetDirection<Error = Error> + Step<Error = Error>,
     Error: Debug,
-    <<D as SetDirection>::Dir as OutputPin>::Error: Debug,
-    <<D as Step>::Step as OutputPin>::Error: Debug,
+    <<Driver as SetDirection>::Dir as OutputPin>::Error: Debug,
+    <<Driver as Step>::Step as OutputPin>::Error: Debug,
     A: InputPin,
     A::Error: Debug,
     B: InputPin,
