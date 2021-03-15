@@ -26,7 +26,7 @@ use crate::{
         EnableMotionControl, MotionControl, SetDirection, SetStepMode, Step,
     },
     util::ref_mut::RefMut,
-    Direction, SetStepModeFuture,
+    Direction, SetDirectionFuture, SetStepModeFuture, StepFuture,
 };
 
 use self::state::State;
@@ -185,6 +185,78 @@ where
 
         Ok(future)
     }
+
+    /// Set direction of the wrapped driver
+    ///
+    /// This method is a more convenient alternative to
+    /// [`Stepper::set_direction`], which requires a timer, while this methods
+    /// reuses the timer that `SoftwareMotionControl` already owns.
+    ///
+    /// However, while [`Stepper::set_direction`] is part of the generic API,
+    /// this method is only available, if you statically know that you're
+    /// working with a driver wrapped by `SoftwareMotionControl`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BusyError::Busy`], if a motion is ongoing.
+    ///
+    /// [`Stepper::set_direction`]: crate::Stepper::set_direction
+    pub fn set_direction(
+        &mut self,
+        direction: Direction,
+    ) -> Result<
+        SetDirectionFuture<RefMut<Driver>, RefMut<Timer>>,
+        BusyError<Infallible>,
+    >
+    where
+        Driver: SetDirection,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
+    {
+        let future = match &mut self.state {
+            State::Idle { driver, timer } => SetDirectionFuture::new(
+                direction,
+                RefMut(driver),
+                RefMut(timer),
+            ),
+            _ => return Err(BusyError::Busy),
+        };
+
+        Ok(future)
+    }
+
+    /// Tell the wrapped driver to move the motor one step
+    ///
+    /// This method is a more convenient alternative to [`Stepper::step`], which
+    /// requires a timer, while this methods reuses the timer that
+    /// `SoftwareMotionControl` already owns.
+    ///
+    /// However, while [`Stepper::step`] is part of the generic API, this method
+    /// is only available, if you statically know that you're working with a
+    /// driver wrapped by `SoftwareMotionControl`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BusyError::Busy`], if a motion is ongoing.
+    ///
+    /// [`Stepper::step`]: crate::Stepper::step
+    pub fn step(
+        &mut self,
+    ) -> Result<StepFuture<RefMut<Driver>, RefMut<Timer>>, BusyError<Infallible>>
+    where
+        Driver: Step,
+        Timer: timer::CountDown,
+        Timer::Time: TryFrom<Nanoseconds>,
+    {
+        let future = match &mut self.state {
+            State::Idle { driver, timer } => {
+                StepFuture::new(RefMut(driver), RefMut(timer))
+            }
+            _ => return Err(BusyError::Busy),
+        };
+
+        Ok(future)
+    }
 }
 
 impl<Driver, Timer, Profile, Convert> MotionControl
@@ -258,10 +330,10 @@ where
     }
 }
 
-// We could also implement `EnableStepModeControl` here, but enabling step mode
-// control can only work while we have access to the driver, which mostly means
-// we'd have to be idle. Since `EnableStepModeControl` is infallible, we'd have
-// to panic, and I don't know if that would be worth it.
+// We could also implement the various "enable" traits here, but those
+// implementations can only work while we have access to the driver, which
+// mostly means we'd have to be idle. Since the "enable" traits are infallible,
+// we'd have to panic, and I don't know if that would be worth it.
 
 impl<Driver, Timer, Profile, Convert> SetStepMode
     for SoftwareMotionControl<Driver, Timer, Profile, Convert>
@@ -292,6 +364,44 @@ where
             Some(driver) => {
                 driver.enable_driver().map_err(|err| BusyError::Other(err))
             }
+            None => Err(BusyError::Busy),
+        }
+    }
+}
+
+impl<Driver, Timer, Profile, Convert> SetDirection
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+where
+    Driver: SetDirection,
+    Profile: MotionProfile,
+{
+    const SETUP_TIME: Nanoseconds = Driver::SETUP_TIME;
+
+    type Dir = Driver::Dir;
+    type Error = BusyError<Driver::Error>;
+
+    fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error> {
+        match self.driver_mut() {
+            Some(driver) => driver.dir().map_err(|err| BusyError::Other(err)),
+            None => Err(BusyError::Busy),
+        }
+    }
+}
+
+impl<Driver, Timer, Profile, Convert> Step
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+where
+    Driver: Step,
+    Profile: MotionProfile,
+{
+    const PULSE_LENGTH: Nanoseconds = Driver::PULSE_LENGTH;
+
+    type Step = Driver::Step;
+    type Error = BusyError<Driver::Error>;
+
+    fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
+        match self.driver_mut() {
+            Some(driver) => driver.step().map_err(|err| BusyError::Other(err)),
             None => Err(BusyError::Busy),
         }
     }
