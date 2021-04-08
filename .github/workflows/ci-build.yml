@@ -19,9 +19,5 @@ jobs:
     - name: Install Cortex-M0+ target for test stand
       run: |
         rustup target install thumbv6m-none-eabi
-    - name: Install cargo-task
-      run: |
-        cargo install cargo-task
-        cargo task ct-init
     - name: Run build script
       run: ./scripts/build.sh
