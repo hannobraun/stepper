@@ -17,7 +17,7 @@ Right now, Stepper supports the following drivers:
 
 Support for more stepper drivers and controllers will be added in the future. Please consider helping out with this effort, if you need support for a driver or controller that is currently missing.
 
-Please check out [the documentation](https://docs.rs/stepper) to learn more.
+Please refer to the [API Reference](https://docs.rs/stepper) or the [documentation/](https://github.com/flott-motion/stepper/tree/main/documentation) directory to learn more.
 
 
 ## Status
