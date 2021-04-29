@@ -15,6 +15,9 @@ Right now, Stepper supports the following drivers:
 - [DRV8825] ([crate](https://crates.io/crates/drv8825))
 - [STSPIN220] ([crate](https://crates.io/crates/stspin220))
 
+[DRV8825]: https://www.ti.com/product/DRV8825
+[STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
+
 Support for more stepper drivers and controllers will be added in the future. Please consider helping out with this effort, if you need support for a driver or controller that is currently missing.
 
 Please refer to the [API Reference](https://docs.rs/stepper) or one of the following guides to learn more:
@@ -72,8 +75,6 @@ See [LICENSE.md] for full details.
 
 [Flott]: https://flott-motion.org/
 [RampMaker]: https://crates.io/crates/ramp-maker
-[DRV8825]: https://www.ti.com/product/DRV8825
-[STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
 [API Reference]: https://docs.rs/stepper
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
 [LICENSE.md]: https://github.com/flott-motion/stepper/blob/main/LICENSE.md
