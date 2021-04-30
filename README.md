@@ -12,11 +12,14 @@ Stepper is part of the [Flott] motion control toolkit. Please also check out [Ra
 
 Right now, Stepper supports the following drivers:
 
-- [DRV8825] ([crate](https://crates.io/crates/drv8825))
-- [STSPIN220] ([crate](https://crates.io/crates/stspin220))
+- [DRV8825] ([crate][drv8825-crate])
+- [STSPIN220] ([crate][stspin220-crate])
 
 [DRV8825]: https://www.ti.com/product/DRV8825
+[drv8825-crate]: https://crates.io/crates/drv8825
 [STSPIN220]: https://www.st.com/en/motor-drivers/stspin220.html
+[stspin220-crate]: https://crates.io/crates/stspin220
+
 
 Support for more stepper drivers and controllers will be added in the future. Please consider helping out with this effort, if you need support for a driver or controller that is currently missing.
 
