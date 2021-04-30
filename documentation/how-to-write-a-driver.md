@@ -61,6 +61,8 @@ There is more driver hardware that doesn't fall neatly into one of the two group
 
 ## Writing a Driver
 
+### Driver Module
+
 When starting to write a new driver, start with copying an existing one. All existing drivers are located in `src/drivers/`, with each having a separate file. Choose one that you think is most similar to what you're going to need (if in doubt, pick `drv8825.rs`).
 
 As an aside, it would be nice if there was less duplicated code between the drivers. A lot has already been done to reduce this, by simplifying the driver traits and moving non-trivial code out of the drivers, but a lot of boilerplate code for managing driver state remains. It should be possible to reduce this to a bare minimum using procedural macros, but that remains an area for future exploration.
@@ -72,3 +74,18 @@ Go through the driver you copied, and change it as required. Most changes should
 - Make sure all traits that the stepper driver can support are implemented.
 
 The last item is the least trivial, as different driver hardware has different capabilities, and thus allow the driver to implement a different set of traits. Please use the information on the traits from the previous section as a guideline.
+
+### Driver Crate
+
+In addition to the modules in Stepper itself, drivers can be used via external crates that re-export the relevant parts of Stepper. This has been done to provide more convenience to users that only need support for a specific driver, and to make it easier to discover Stepper through the driver hardware it supports.
+
+To create an external driver crate, add an entry to `drivers.toml`, then run the `generate-drivers` task to generate the code for it:
+
+``` bash
+cargo install cargo-task # only required once
+cargo task generate-drivers
+```
+
+This should generate a new driver crate in `drivers/` from the template in `templates/driver/`. Please note that the template is fairly specific to the currently existing drivers, and it might be necessary to adapt it for new ones.
+
+If in doubt, feel free to skip creating the driver crate. The important part is having the driver in Stepper. An external crate can always be created later.
