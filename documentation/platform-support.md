@@ -74,7 +74,7 @@ This is not that easy (and can in fact get quite complicated, if the timer frequ
 
 If adding the required trait implementations directly in the HAL is not practical for some reason, you can work around this by providing these implementations in your own code. While it is not possible to implement a foreign trait for a foreign type ("foreign" as in "defined in another crate"), you can create your own wrapper types, and implement the required traits for them.
 
-There is an [open pull request](https://github.com/flott-motion/stepper/pull/122) that aims to provide these wrappers as part of Stepper. It is currently blocked and can't be merged right now, unfortunately, but it can serve as an example to model your own wrapper types after.
+The `compat` module in Stepper provides such wrappers.
 
 
 [LPC845]: https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc800-cortex-m0-plus-/low-cost-microcontrollers-mcus-based-on-arm-cortex-m0-plus-cores:LPC84X
