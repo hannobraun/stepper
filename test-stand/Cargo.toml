@@ -17,7 +17,7 @@ panic-probe = "0.1.0"
 
 [dependencies.lpc8xx-hal]
 git      = "https://github.com/lpc-rs/lpc8xx-hal.git"
-rev      = "5ab3b06dca7c574f17a2587de4856224798ff30d"
+rev      = "26b55977b9188e9d89dbfc6b97f7c7b7d8598c2b"
 features = ["845m301jhi48", "845-rt"]
 
 [dependencies.rotary-encoder-hal]
