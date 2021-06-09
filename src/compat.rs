@@ -96,7 +96,7 @@ macro_rules! impl_conversions {
                 {
                     let ticks =
                         duration.to_generic::<T>(Fraction::new(1, FREQ))?;
-                    Ok(Self(*ticks.integer()))
+                    Ok(Self(ticks.integer()))
                 }
             }
         )*
