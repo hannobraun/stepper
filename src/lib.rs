@@ -161,7 +161,7 @@
 //! [RampMaker]: https://crates.io/crates/ramp-maker
 
 #![cfg_attr(not(test), no_std)]
-#![deny(missing_docs, broken_intra_doc_links)]
+#![deny(missing_docs, rustdoc::broken_intra_doc_links)]
 
 pub extern crate embedded_hal;
 pub extern crate embedded_time;
