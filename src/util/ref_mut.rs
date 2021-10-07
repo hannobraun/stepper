@@ -2,7 +2,7 @@
 //!
 //! See [`RefMut`] for more information.
 
-use embedded_hal::timer;
+use embedded_hal::timer::nb as timer;
 use embedded_time::duration::Nanoseconds;
 
 use crate::traits::{MotionControl, SetDirection, SetStepMode, Step};
@@ -25,15 +25,15 @@ where
     type Error = T::Error;
     type Time = T::Time;
 
-    fn try_start<Time>(&mut self, count: Time) -> Result<(), Self::Error>
+    fn start<Time>(&mut self, count: Time) -> Result<(), Self::Error>
     where
         Time: Into<Self::Time>,
     {
-        self.0.try_start(count)
+        self.0.start(count)
     }
 
-    fn try_wait(&mut self) -> nb::Result<(), Self::Error> {
-        self.0.try_wait()
+    fn wait(&mut self) -> nb::Result<(), Self::Error> {
+        self.0.wait()
     }
 }
 

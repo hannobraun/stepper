@@ -17,7 +17,7 @@ use lpc8xx_hal::{
 };
 use rotary_encoder_hal::{Direction as EncoderDirection, Rotary};
 use stepper::{
-    embedded_hal::digital::{InputPin, OutputPin},
+    embedded_hal::digital::blocking::{InputPin, OutputPin},
     embedded_time::{duration::Microseconds, Clock},
     traits::{SetDirection, Step},
     Direction, Stepper,
@@ -83,7 +83,7 @@ pub fn verify_steps<Driver, A, B, DebugSignal, Error>(
     // Set test output signal. This is useful when debugging with a logic
     // analyzer, as it demarcates the initial setup movement and the actual test
     // movement.
-    debug_signal.try_set_high().unwrap();
+    debug_signal.set_high().unwrap();
 
     // Depending on the initial position of the rotary encoder's magnet, we
     // might not read the number of encoder counts correctly.  If we start at a
@@ -103,7 +103,7 @@ pub fn verify_steps<Driver, A, B, DebugSignal, Error>(
     }
 
     // Setup movement is over. Lower test signal.
-    debug_signal.try_set_low().unwrap();
+    debug_signal.set_low().unwrap();
 
     let steps = 20;
     let counts_expected = steps / STEPS_PER_COUNT;

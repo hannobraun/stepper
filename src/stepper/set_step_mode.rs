@@ -3,7 +3,7 @@ use core::{
     task::Poll,
 };
 
-use embedded_hal::timer;
+use embedded_hal::timer::nb as timer;
 use embedded_time::duration::Nanoseconds;
 
 use crate::traits::SetStepMode;
@@ -85,13 +85,13 @@ where
                     .try_into()
                     .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                 self.timer
-                    .try_start(ticks)
+                    .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
 
                 self.state = State::ApplyingConfig;
                 Poll::Pending
             }
-            State::ApplyingConfig => match self.timer.try_wait() {
+            State::ApplyingConfig => match self.timer.wait() {
                 Ok(()) => {
                     self.driver
                         .enable_driver()
@@ -101,7 +101,7 @@ where
                         .try_into()
                         .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                     self.timer
-                        .try_start(ticks)
+                        .start(ticks)
                         .map_err(|err| SignalError::Timer(err))?;
 
                     self.state = State::EnablingDriver;
@@ -113,7 +113,7 @@ where
                 }
                 Err(nb::Error::WouldBlock) => Poll::Pending,
             },
-            State::EnablingDriver => match self.timer.try_wait() {
+            State::EnablingDriver => match self.timer.wait() {
                 Ok(()) => {
                     self.state = State::Finished;
                     Poll::Ready(Ok(()))

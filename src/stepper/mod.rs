@@ -14,7 +14,7 @@ pub use self::{
 
 use core::convert::{Infallible, TryFrom};
 
-use embedded_hal::{digital::OutputPin, timer};
+use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{
@@ -96,8 +96,8 @@ use crate::{
 /// # Notes on timer use
 ///
 /// Some of this struct's methods take a timer argument. This is expected to be
-/// an implementation of [`embedded_hal::timer::CountDown`], with the additional
-/// requirement that `CountDown::Time` has a `TryFrom<Nanoseconds>`
+/// an implementation of [`embedded_hal::timer::nb::CountDown`], with the
+/// additional requirement that `CountDown::Time` has a `TryFrom<Nanoseconds>`
 /// implementation, where `Nanoseconds` refers to
 /// [`embedded_time::duration::Nanoseconds`].
 ///

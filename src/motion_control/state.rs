@@ -4,7 +4,7 @@ use core::{
     task::Poll,
 };
 
-use embedded_hal::{digital::OutputPin, timer};
+use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
 use embedded_time::duration::Nanoseconds;
 use ramp_maker::MotionProfile;
 
@@ -149,7 +149,7 @@ where
                             }
                         };
 
-                        if let Err(err) = timer.try_start(delay_left) {
+                        if let Err(err) = timer.start(delay_left) {
                             return (
                                 Err(Error::StepDelay(err)),
                                 State::Idle { driver, timer },
@@ -177,7 +177,7 @@ where
                 }
             }
             State::StepDelay { driver, mut timer } => {
-                match timer.try_wait() {
+                match timer.wait() {
                     Ok(()) => {
                         // We've waited out the step delay. Return to idle
                         // state, to figure out what's next.

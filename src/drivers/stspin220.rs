@@ -11,7 +11,7 @@
 
 use core::convert::Infallible;
 
-use embedded_hal::digital::{OutputPin, PinState};
+use embedded_hal::digital::{blocking::OutputPin, PinState};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{
@@ -120,7 +120,7 @@ where
         step_mode: Self::StepMode,
     ) -> Result<(), Self::Error> {
         // Force driver into standby mode.
-        self.standby_reset.try_set_low()?;
+        self.standby_reset.set_low()?;
 
         use PinState::*;
         use StepMode256::*;
@@ -137,17 +137,17 @@ where
         };
 
         // Set mode signals.
-        self.mode1.try_set_state(mode1)?;
-        self.mode2.try_set_state(mode2)?;
-        self.step_mode3.try_set_state(mode3)?;
-        self.dir_mode4.try_set_state(mode4)?;
+        self.mode1.set_state(mode1)?;
+        self.mode2.set_state(mode2)?;
+        self.step_mode3.set_state(mode3)?;
+        self.dir_mode4.set_state(mode4)?;
 
         Ok(())
     }
 
     fn enable_driver(&mut self) -> Result<(), Self::Error> {
         // Leave standby mode.
-        self.standby_reset.try_set_high()
+        self.standby_reset.set_high()
     }
 }
 

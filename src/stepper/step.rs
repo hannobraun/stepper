@@ -3,7 +3,7 @@ use core::{
     task::Poll,
 };
 
-use embedded_hal::{digital::OutputPin, timer};
+use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
 use embedded_time::duration::Nanoseconds;
 
 use crate::traits::Step;
@@ -75,27 +75,27 @@ where
                 self.driver
                     .step()
                     .map_err(|err| SignalError::PinUnavailable(err))?
-                    .try_set_high()
+                    .set_high()
                     .map_err(|err| SignalError::Pin(err))?;
 
                 let ticks: Timer::Time = Driver::PULSE_LENGTH
                     .try_into()
                     .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                 self.timer
-                    .try_start(ticks)
+                    .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
 
                 self.state = State::PulseStarted;
                 Poll::Pending
             }
             State::PulseStarted => {
-                match self.timer.try_wait() {
+                match self.timer.wait() {
                     Ok(()) => {
                         // End step pulse
                         self.driver
                             .step()
                             .map_err(|err| SignalError::PinUnavailable(err))?
-                            .try_set_low()
+                            .set_low()
                             .map_err(|err| SignalError::Pin(err))?;
 
                         self.state = State::Finished;

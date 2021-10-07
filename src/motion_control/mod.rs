@@ -16,7 +16,7 @@ use core::{
     ops,
 };
 
-use embedded_hal::{digital::OutputPin, timer};
+use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
 use embedded_time::duration::Nanoseconds;
 use ramp_maker::MotionProfile;
 use replace_with::replace_with_and_return;

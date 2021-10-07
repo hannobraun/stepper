@@ -3,7 +3,7 @@ use core::{
     task::Poll,
 };
 
-use embedded_hal::{digital::OutputPin, timer};
+use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{traits::SetDirection, Direction};
@@ -78,13 +78,13 @@ where
                         .driver
                         .dir()
                         .map_err(|err| SignalError::PinUnavailable(err))?
-                        .try_set_high()
+                        .set_high()
                         .map_err(|err| SignalError::Pin(err))?,
                     Direction::Backward => self
                         .driver
                         .dir()
                         .map_err(|err| SignalError::PinUnavailable(err))?
-                        .try_set_low()
+                        .set_low()
                         .map_err(|err| SignalError::Pin(err))?,
                 }
 
@@ -92,13 +92,13 @@ where
                     .try_into()
                     .map_err(|err| SignalError::NanosecondsToTicks(err))?;
                 self.timer
-                    .try_start(ticks)
+                    .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
 
                 self.state = State::DirectionSet;
                 Poll::Pending
             }
-            State::DirectionSet => match self.timer.try_wait() {
+            State::DirectionSet => match self.timer.wait() {
                 Ok(()) => {
                     self.state = State::Finished;
                     Poll::Ready(Ok(()))

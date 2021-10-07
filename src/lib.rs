@@ -41,22 +41,22 @@
 //! # >;
 //! #
 //! # struct Pin;
-//! # impl stepper::embedded_hal::digital::OutputPin for Pin {
+//! # impl stepper::embedded_hal::digital::blocking::OutputPin for Pin {
 //! #     type Error = core::convert::Infallible;
-//! #     fn try_set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
-//! #     fn try_set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
+//! #     fn set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
+//! #     fn set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! # }
 //! #
 //! # struct Timer;
-//! # impl stepper::embedded_hal::timer::CountDown for Timer {
+//! # impl stepper::embedded_hal::timer::nb::CountDown for Timer {
 //! #     type Error = core::convert::Infallible;
 //! #     type Time = Ticks;
-//! #     fn try_start<T>(&mut self, count: T) -> Result<(), Self::Error>
+//! #     fn start<T>(&mut self, count: T) -> Result<(), Self::Error>
 //! #         where T: Into<Self::Time>
 //! #     {
 //! #         Ok(())
 //! #     }
-//! #     fn try_wait(&mut self) -> nb::Result<(), Self::Error> {
+//! #     fn wait(&mut self) -> nb::Result<(), Self::Error> {
 //! #         Ok(())
 //! #     }
 //! # }

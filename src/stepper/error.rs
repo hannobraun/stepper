@@ -127,7 +127,7 @@ pub enum SignalError<
 
     /// An error originated from using the [`OutputPin`] trait
     ///
-    /// [`OutputPin`]: embedded_hal::digital::OutputPin
+    /// [`OutputPin`]: embedded_hal::digital::blocking::OutputPin
     Pin(PinError),
 
     /// An error occurred while converting nanoseconds to timer ticks

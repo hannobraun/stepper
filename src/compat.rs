@@ -1,8 +1,11 @@
 //! Compatibility code to help use Stepper on more platforms
 
-use core::convert::{Infallible, TryFrom};
+use core::{
+    convert::{Infallible, TryFrom},
+    fmt,
+};
 
-use embedded_hal::{digital::OutputPin, timer::CountDown};
+use embedded_hal::{digital::blocking::OutputPin, timer::nb::CountDown};
 use embedded_hal_stable::{
     digital::v2::OutputPin as StableOutputPin,
     timer::CountDown as StableCountDown,
@@ -13,31 +16,32 @@ use embedded_time::{
 
 /// Wrapper around a pin
 ///
-/// Provides an implementation of [`embedded_hal::digital::OutputPin`] (that is,
-/// the `OutputPin` from the latest alpha version of `embedded-hal`) for all
-/// types that implement `OutputPin` from the latest stable version of
+/// Provides an implementation of [`embedded_hal::digital::blocking::OutputPin`]
+/// (that is, the `OutputPin` from the latest alpha version of `embedded-hal`)
+/// for all types that implement `OutputPin` from the latest stable version of
 /// `embedded-hal`.
 pub struct Pin<T>(pub T);
 
 impl<T> OutputPin for Pin<T>
 where
     T: StableOutputPin,
+    T::Error: fmt::Debug,
 {
     type Error = <T as StableOutputPin>::Error;
 
-    fn try_set_low(&mut self) -> Result<(), Self::Error> {
+    fn set_low(&mut self) -> Result<(), Self::Error> {
         self.0.set_low()
     }
 
-    fn try_set_high(&mut self) -> Result<(), Self::Error> {
+    fn set_high(&mut self) -> Result<(), Self::Error> {
         self.0.set_high()
     }
 }
 
 /// Wrapper around a timer
 ///
-/// Provides an implementation of [`embedded_hal::timer::CountDown`] (that is,
-/// the `CountDown` from the latest alpha version of `embedded-hal`) for all
+/// Provides an implementation of [`embedded_hal::timer::nb::CountDown`] (that
+/// is, the `CountDown` from the latest alpha version of `embedded-hal`) for all
 /// types that implement `CountDown` from the latest stable version of
 /// `embedded-hal`.
 pub struct Timer<T, const FREQ: u32>(pub T);
@@ -50,7 +54,7 @@ where
 
     type Time = Ticks<<T as StableCountDown>::Time, FREQ>;
 
-    fn try_start<Ticks>(&mut self, ticks: Ticks) -> Result<(), Self::Error>
+    fn start<Ticks>(&mut self, ticks: Ticks) -> Result<(), Self::Error>
     where
         Ticks: Into<Self::Time>,
     {
@@ -59,7 +63,7 @@ where
         Ok(())
     }
 
-    fn try_wait(&mut self) -> nb::Result<(), Self::Error> {
+    fn wait(&mut self) -> nb::Result<(), Self::Error> {
         match self.0.wait() {
             Ok(()) => Ok(()),
             Err(nb::Error::WouldBlock) => return Err(nb::Error::WouldBlock),

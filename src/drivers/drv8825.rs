@@ -11,7 +11,7 @@
 
 use core::convert::Infallible;
 
-use embedded_hal::digital::{OutputPin, PinState};
+use embedded_hal::digital::{blocking::OutputPin, PinState};
 use embedded_time::duration::Nanoseconds;
 
 use crate::{
@@ -108,7 +108,7 @@ where
         step_mode: Self::StepMode,
     ) -> Result<(), Self::Error> {
         // Reset the device's internal logic and disable the h-bridge drivers.
-        self.reset.try_set_low()?;
+        self.reset.set_low()?;
 
         use PinState::*;
         use StepMode32::*;
@@ -122,15 +122,15 @@ where
         };
 
         // Set mode signals.
-        self.mode0.try_set_state(mode0)?;
-        self.mode1.try_set_state(mode1)?;
-        self.mode2.try_set_state(mode2)?;
+        self.mode0.set_state(mode0)?;
+        self.mode1.set_state(mode1)?;
+        self.mode2.set_state(mode2)?;
 
         Ok(())
     }
 
     fn enable_driver(&mut self) -> Result<(), Self::Error> {
-        self.reset.try_set_high()
+        self.reset.set_high()
     }
 }
 
