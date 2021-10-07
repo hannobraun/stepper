@@ -20,7 +20,7 @@
 //!
 //! [`Stepper`]: crate::Stepper
 
-use embedded_hal::digital::OutputPin;
+use embedded_hal::digital::blocking::OutputPin;
 use embedded_time::duration::Nanoseconds;
 
 use crate::step_mode::StepMode;
