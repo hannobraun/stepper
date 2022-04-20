@@ -54,6 +54,7 @@ typenum = "1.12.0"
 
 
 [features]
-default = ["drv8825", "stspin220"]
+default = ["drv8825", "stspin220", "dq542ma"]
 drv8825 = []
 stspin220 = []
+dq542ma = []

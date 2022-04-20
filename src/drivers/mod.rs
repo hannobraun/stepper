@@ -9,3 +9,6 @@ pub mod drv8825;
 
 #[cfg(feature = "stspin220")]
 pub mod stspin220;
+
+#[cfg(feature = "dq542ma")]
+pub mod dq542ma;
