@@ -2,7 +2,7 @@
 
 use core::{
     convert::{Infallible, TryFrom},
-    fmt,
+    fmt, ops,
 };
 
 use embedded_hal::{digital::blocking::OutputPin, timer::nb::CountDown};
@@ -115,3 +115,14 @@ impl_conversions!(
     Minutes,
     Hours,
 );
+
+impl<T, const FREQ: u32> ops::Sub for Ticks<T, FREQ>
+where
+    T: TimeInt + ops::Sub,
+{
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Ticks(self.0 - other.0)
+    }
+}
