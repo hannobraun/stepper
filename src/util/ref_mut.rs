@@ -2,8 +2,11 @@
 //!
 //! See [`RefMut`] for more information.
 
-use embedded_hal::timer::nb as timer;
-use embedded_time::duration::Nanoseconds;
+use fugit::{
+    NanosDurationU32 as Nanoseconds, TimerDurationU32 as TimerDuration,
+    TimerInstantU32 as TimerInstant,
+};
+use fugit_timer::Timer;
 
 use crate::traits::{MotionControl, SetDirection, SetStepMode, Step};
 
@@ -18,18 +21,25 @@ use crate::traits::{MotionControl, SetDirection, SetStepMode, Step};
 /// possible to move types into them, or just provide mutable references.
 pub struct RefMut<'r, T>(pub &'r mut T);
 
-impl<'r, T> timer::CountDown for RefMut<'r, T>
+impl<'r, T, const TIMER_HZ: u32> Timer<TIMER_HZ> for RefMut<'r, T>
 where
-    T: timer::CountDown,
+    T: Timer<TIMER_HZ>,
 {
     type Error = T::Error;
-    type Time = T::Time;
 
-    fn start<Time>(&mut self, count: Time) -> Result<(), Self::Error>
-    where
-        Time: Into<Self::Time>,
-    {
-        self.0.start(count)
+    fn now(&mut self) -> TimerInstant<TIMER_HZ> {
+        self.0.now()
+    }
+
+    fn start(
+        &mut self,
+        duration: TimerDuration<TIMER_HZ>,
+    ) -> Result<(), Self::Error> {
+        self.0.start(duration)
+    }
+
+    fn cancel(&mut self) -> Result<(), Self::Error> {
+        self.0.cancel()
     }
 
     fn wait(&mut self) -> nb::Result<(), Self::Error> {

@@ -29,7 +29,7 @@
 //! #     > {
 //! #
 //! use stepper::{
-//!     embedded_time::duration::Nanoseconds,
+//!     fugit::NanosDurationU32 as Nanoseconds,
 //!     motion_control, ramp_maker,
 //!     Direction, Stepper,
 //! };
@@ -164,7 +164,7 @@
 #![deny(missing_docs, rustdoc::broken_intra_doc_links)]
 
 pub extern crate embedded_hal;
-pub extern crate embedded_time;
+pub extern crate fugit;
 pub extern crate ramp_maker;
 
 pub mod compat;

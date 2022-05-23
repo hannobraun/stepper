@@ -21,7 +21,7 @@
 //! [`Stepper`]: crate::Stepper
 
 use embedded_hal::digital::blocking::OutputPin;
-use embedded_time::duration::Nanoseconds;
+use fugit::NanosDurationU32 as Nanoseconds;
 
 use crate::step_mode::StepMode;
 

@@ -12,10 +12,11 @@ pub use self::{
     step::StepFuture,
 };
 
-use core::convert::{Infallible, TryFrom};
+use core::convert::Infallible;
 
-use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
-use embedded_time::duration::Nanoseconds;
+use embedded_hal::digital::blocking::OutputPin;
+use fugit::NanosDurationU32 as Nanoseconds;
+use fugit_timer::Timer as TimerTrait;
 
 use crate::{
     traits::{
@@ -96,32 +97,8 @@ use crate::{
 /// # Notes on timer use
 ///
 /// Some of this struct's methods take a timer argument. This is expected to be
-/// an implementation of [`embedded_hal::timer::nb::CountDown`], with the
-/// additional requirement that `CountDown::Time` has a `TryFrom<Nanoseconds>`
-/// implementation, where `Nanoseconds` refers to
-/// [`embedded_time::duration::Nanoseconds`].
+/// an implementation of [`fugit_timer::Timer`].
 ///
-/// Not every `CountDown` implementation provides this for its `Time` type, so
-/// it might be necessary that the user either adds this `embedded_time`
-/// integration to the HAL library they are using, or provides a wrapper around
-/// the `CountDown` implementation in their own code, adding the conversion
-/// there.
-///
-/// Every method that takes a timer argument internally performs the conversion
-/// from `Nanoseconds` to the timers `Time` type. Since the nanosecond values
-/// are constant and the `CountDown` implementation is known statically, the
-/// compiler should have enough information to perform this conversion at
-/// compile-time.
-///
-/// Unfortunately there is currently no way to make sure that this optimization
-/// actually happens. Additions like [RFC 2632], [RFC 2920], and possibly others
-/// along those lines, could help with this in the future. For now, users must
-/// manually inspect the generated code and tweak optimization settings (and
-/// possibly the HAL-specific conversion code), if this level of performance is
-/// required.
-///
-/// [RFC 2632]: https://github.com/rust-lang/rfcs/pull/2632
-/// [RFC 2920]: https://github.com/rust-lang/rfcs/pull/2920
 pub struct Stepper<Driver> {
     driver: Driver,
 }
@@ -169,7 +146,7 @@ impl<Driver> Stepper<Driver> {
     /// This method is only available, if the driver supports enabling step mode
     /// control. It might no longer be available, once step mode control has
     /// been enabled.
-    pub fn enable_step_mode_control<Resources, Timer>(
+    pub fn enable_step_mode_control<Resources, Timer, const TIMER_HZ: u32>(
         self,
         res: Resources,
         initial: <Driver::WithStepModeControl as SetStepMode>::StepMode,
@@ -179,14 +156,12 @@ impl<Driver> Stepper<Driver> {
         SignalError<
             Infallible, // only applies to `SetDirection`, `Step`
             <Driver::WithStepModeControl as SetStepMode>::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     >
     where
         Driver: EnableStepModeControl<Resources>,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         let mut self_ = Stepper {
             driver: self.driver.enable_step_mode_control(res),
@@ -205,15 +180,14 @@ impl<Driver> Stepper<Driver> {
     ///
     /// You might need to call [`Stepper::enable_step_mode_control`] to make
     /// this method available.
-    pub fn set_step_mode<'r, Timer>(
+    pub fn set_step_mode<'r, Timer, const TIMER_HZ: u32>(
         &'r mut self,
         step_mode: Driver::StepMode,
         timer: &'r mut Timer,
-    ) -> SetStepModeFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
+    ) -> SetStepModeFuture<RefMut<'r, Driver>, RefMut<'r, Timer>, TIMER_HZ>
     where
         Driver: SetStepMode,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         SetStepModeFuture::new(
             step_mode,
@@ -236,7 +210,7 @@ impl<Driver> Stepper<Driver> {
     /// This method is only available, if the driver supports enabling direction
     /// control. It might no longer be available, once direction control has
     /// been enabled.
-    pub fn enable_direction_control<Resources, Timer>(
+    pub fn enable_direction_control<Resources, Timer, const TIMER_HZ: u32>(
         self,
         res: Resources,
         initial: Direction,
@@ -247,14 +221,12 @@ impl<Driver> Stepper<Driver> {
             <Driver::WithDirectionControl as SetDirection>::Error,
             <<Driver::WithDirectionControl as SetDirection>::Dir
                 as OutputPin>::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     >
     where
         Driver: EnableDirectionControl<Resources>,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         let mut self_ = Stepper {
             driver: self.driver.enable_direction_control(res),
@@ -268,15 +240,14 @@ impl<Driver> Stepper<Driver> {
     ///
     /// You might need to call [`Stepper::enable_direction_control`] to make
     /// this method available.
-    pub fn set_direction<'r, Timer>(
+    pub fn set_direction<'r, Timer, const TIMER_HZ: u32>(
         &'r mut self,
         direction: Direction,
         timer: &'r mut Timer,
-    ) -> SetDirectionFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
+    ) -> SetDirectionFuture<RefMut<'r, Driver>, RefMut<'r, Timer>, TIMER_HZ>
     where
         Driver: SetDirection,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         SetDirectionFuture::new(
             direction,
@@ -319,14 +290,13 @@ impl<Driver> Stepper<Driver> {
     ///
     /// You might need to call [`Stepper::enable_step_control`] to make this
     /// method available.
-    pub fn step<'r, Timer>(
+    pub fn step<'r, Timer, const TIMER_HZ: u32>(
         &'r mut self,
         timer: &'r mut Timer,
     ) -> StepFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
     where
         Driver: Step,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         StepFuture::new(RefMut(&mut self.driver), RefMut(timer))
     }

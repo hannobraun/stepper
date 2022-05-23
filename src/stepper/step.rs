@@ -64,7 +64,6 @@ where
             SignalError<
                 Driver::Error,
                 <Driver::Step as OutputPin>::Error,
-                <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
         >,
@@ -123,7 +122,6 @@ where
         SignalError<
             Driver::Error,
             <Driver::Step as OutputPin>::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     > {

@@ -1,11 +1,9 @@
-use core::{
-    convert::{TryFrom, TryInto as _},
-    ops,
-    task::Poll,
-};
+use core::task::Poll;
 
 use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
-use embedded_time::duration::Nanoseconds;
+use fugit::{
+    NanosDurationU32 as Nanoseconds, TimerDurationU32 as TimerDuration,
+};
 use ramp_maker::MotionProfile;
 
 use crate::{
@@ -18,12 +16,12 @@ use super::{
     DelayToTicks,
 };
 
-pub enum State<Driver, Timer, Profile: MotionProfile> {
+pub enum State<Driver, Timer, Profile: MotionProfile, const TIMER_HZ: u32> {
     Idle {
         driver: Driver,
         timer: Timer,
     },
-    SetDirection(SetDirectionFuture<Driver, Timer>),
+    SetDirection(SetDirectionFuture<Driver, Timer, TIMER_HZ>),
     Step {
         future: StepFuture<Driver, Timer>,
         delay: Profile::Delay,
@@ -35,8 +33,8 @@ pub enum State<Driver, Timer, Profile: MotionProfile> {
     Invalid,
 }
 
-pub fn update<Driver, Timer, Profile, Convert>(
-    mut state: State<Driver, Timer, Profile>,
+pub fn update<Driver, Timer, Profile, Convert, const TIMER_HZ: u32>(
+    mut state: State<Driver, Timer, Profile, TIMER_HZ>,
     new_motion: &mut Option<Direction>,
     profile: &mut Profile,
     current_step: &mut i32,
@@ -51,18 +49,16 @@ pub fn update<Driver, Timer, Profile, Convert>(
             <Driver as Step>::Error,
             <<Driver as Step>::Step as OutputPin>::Error,
             Timer::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Convert::Error,
         >,
     >,
-    State<Driver, Timer, Profile>,
+    State<Driver, Timer, Profile, TIMER_HZ>,
 )
 where
     Driver: SetDirection + Step,
     Timer: timer::CountDown,
     Profile: MotionProfile,
-    Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
-    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
+    Convert: DelayToTicks<Profile::Delay, TIMER_HZ>,
 {
     loop {
         match state {
@@ -211,27 +207,18 @@ where
     }
 }
 
-fn delay_left<Delay, Convert>(
+fn delay_left<Delay, Convert, const TIMER_HZ: u32>(
     delay: Delay,
     pulse_length: Nanoseconds,
     convert: &Convert,
-) -> Result<
-    Convert::Ticks,
-    TimeConversionError<
-        <Convert::Ticks as TryFrom<Nanoseconds>>::Error,
-        Convert::Error,
-    >,
->
+) -> Result<TimerDuration<TIMER_HZ>, TimeConversionError<Convert::Error>>
 where
-    Convert: DelayToTicks<Delay>,
-    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
+    Convert: DelayToTicks<Delay, TIMER_HZ>,
 {
     let delay: Convert::Ticks = convert
         .delay_to_ticks(delay)
         .map_err(|err| TimeConversionError::DelayToTicks(err))?;
-    let pulse_length: Convert::Ticks = pulse_length
-        .try_into()
-        .map_err(|err| TimeConversionError::NanosecondsToTicks(err))?;
+    let pulse_length: TimerDuration<TIMER_HZ> = pulse_length.convert();
 
     let delay_left = delay - pulse_length;
     Ok(delay_left)

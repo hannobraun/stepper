@@ -1,10 +1,8 @@
-use core::{
-    convert::{TryFrom, TryInto as _},
-    task::Poll,
-};
+use core::task::Poll;
 
-use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
-use embedded_time::duration::Nanoseconds;
+use embedded_hal::digital::blocking::OutputPin;
+use fugit::TimerDurationU32 as TimerDuration;
+use fugit_timer::Timer as TimerTrait;
 
 use crate::{traits::SetDirection, Direction};
 
@@ -18,18 +16,18 @@ use super::SignalError;
 ///
 /// [`Stepper::set_direction`]: crate::Stepper::set_direction
 #[must_use]
-pub struct SetDirectionFuture<Driver, Timer> {
+pub struct SetDirectionFuture<Driver, Timer, const TIMER_HZ: u32> {
     direction: Direction,
     driver: Driver,
     timer: Timer,
     state: State,
 }
 
-impl<Driver, Timer> SetDirectionFuture<Driver, Timer>
+impl<Driver, Timer, const TIMER_HZ: u32>
+    SetDirectionFuture<Driver, Timer, TIMER_HZ>
 where
     Driver: SetDirection,
-    Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
+    Timer: TimerTrait<TIMER_HZ>,
 {
     /// Create new instance of `SetDirectionFuture`
     ///
@@ -66,7 +64,6 @@ where
             SignalError<
                 Driver::Error,
                 <Driver::Dir as OutputPin>::Error,
-                <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
         >,
@@ -88,9 +85,8 @@ where
                         .map_err(|err| SignalError::Pin(err))?,
                 }
 
-                let ticks: Timer::Time = Driver::SETUP_TIME
-                    .try_into()
-                    .map_err(|err| SignalError::NanosecondsToTicks(err))?;
+                let ticks: TimerDuration<TIMER_HZ> =
+                    Driver::SETUP_TIME.convert();
                 self.timer
                     .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
@@ -124,7 +120,6 @@ where
         SignalError<
             Driver::Error,
             <Driver::Dir as OutputPin>::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     > {

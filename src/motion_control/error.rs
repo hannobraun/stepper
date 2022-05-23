@@ -8,7 +8,6 @@ pub enum Error<
     StepPinUnavailable,
     StepError,
     TimerError,
-    NanosecondsToTicksError,
     DelayToTicksError,
 > {
     /// Error while setting direction
@@ -16,25 +15,15 @@ pub enum Error<
         crate::SignalError<
             SetDirectionPinUnavailable,
             SetDirectionError,
-            NanosecondsToTicksError,
             TimerError,
         >,
     ),
 
     /// Error while stepping the motor
-    Step(
-        crate::SignalError<
-            StepPinUnavailable,
-            StepError,
-            NanosecondsToTicksError,
-            TimerError,
-        >,
-    ),
+    Step(crate::SignalError<StepPinUnavailable, StepError, TimerError>),
 
     /// Error while converting between time formats
-    TimeConversion(
-        TimeConversionError<NanosecondsToTicksError, DelayToTicksError>,
-    ),
+    TimeConversion(TimeConversionError<DelayToTicksError>),
 
     /// Error while waiting for a step to finish
     StepDelay(TimerError),
@@ -42,10 +31,7 @@ pub enum Error<
 
 /// An error occurred while converting between time formats
 #[derive(Debug, Eq, PartialEq)]
-pub enum TimeConversionError<NanosecondsToTicksError, DelayToTicksError> {
-    /// Error converting from nanoseconds to timer ticks
-    NanosecondsToTicks(NanosecondsToTicksError),
-
+pub enum TimeConversionError<DelayToTicksError> {
     /// Error converting from RampMaker delay value to timer ticks
     DelayToTicks(DelayToTicksError),
 }
