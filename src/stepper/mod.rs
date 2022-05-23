@@ -334,12 +334,12 @@ impl<Driver> Stepper<Driver> {
     /// hardware support, or through the aforementioned software fallback. It
     /// might no longer be available, once motion control support has been
     /// enabled.
-    pub fn enable_motion_control<Resources>(
+    pub fn enable_motion_control<Resources, const TIMER_HZ: u32>(
         self,
         res: Resources,
     ) -> Stepper<Driver::WithMotionControl>
     where
-        Driver: EnableMotionControl<Resources>,
+        Driver: EnableMotionControl<Resources, TIMER_HZ>,
     {
         Stepper {
             driver: self.driver.enable_motion_control(res),

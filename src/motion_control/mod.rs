@@ -408,7 +408,7 @@ where
 // Blanket implementation of `EnableMotionControl` for all STEP/DIR stepper
 // drivers.
 impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32>
-    EnableMotionControl<(Timer, Profile, Convert)> for Driver
+    EnableMotionControl<(Timer, Profile, Convert), TIMER_HZ> for Driver
 where
     Driver: SetDirection + Step,
     Profile: MotionProfile,

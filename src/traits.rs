@@ -130,7 +130,7 @@ pub trait Step {
 ///
 /// The `Resources` type parameter defines the hardware resources required for
 /// motion control.
-pub trait EnableMotionControl<Resources> {
+pub trait EnableMotionControl<Resources, const TIMER_HZ: u32> {
     /// The type of the driver after motion control has been enabled
     type WithMotionControl: MotionControl;
 
