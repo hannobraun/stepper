@@ -243,7 +243,10 @@ where
     /// [`Stepper::step`]: crate::Stepper::step
     pub fn step(
         &mut self,
-    ) -> Result<StepFuture<RefMut<Driver>, RefMut<Timer>>, BusyError<Infallible>>
+    ) -> Result<
+        StepFuture<RefMut<Driver>, RefMut<Timer>, TIMER_HZ>,
+        BusyError<Infallible>,
+    >
     where
         Driver: Step,
         Timer: TimerTrait<TIMER_HZ>,

@@ -293,7 +293,7 @@ impl<Driver> Stepper<Driver> {
     pub fn step<'r, Timer, const TIMER_HZ: u32>(
         &'r mut self,
         timer: &'r mut Timer,
-    ) -> StepFuture<RefMut<'r, Driver>, RefMut<'r, Timer>>
+    ) -> StepFuture<RefMut<'r, Driver>, RefMut<'r, Timer>, TIMER_HZ>
     where
         Driver: Step,
         Timer: TimerTrait<TIMER_HZ>,

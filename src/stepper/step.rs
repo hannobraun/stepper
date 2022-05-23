@@ -1,10 +1,8 @@
-use core::{
-    convert::{TryFrom, TryInto as _},
-    task::Poll,
-};
+use core::task::Poll;
 
-use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
-use embedded_time::duration::Nanoseconds;
+use embedded_hal::digital::blocking::OutputPin;
+use fugit::TimerDurationU32 as TimerDuration;
+use fugit_timer::Timer as TimerTrait;
 
 use crate::traits::Step;
 
@@ -18,17 +16,16 @@ use super::SignalError;
 ///
 /// [`Stepper::step`]: crate::Stepper::step
 #[must_use]
-pub struct StepFuture<Driver, Timer> {
+pub struct StepFuture<Driver, Timer, const TIMER_HZ: u32> {
     driver: Driver,
     timer: Timer,
     state: State,
 }
 
-impl<Driver, Timer> StepFuture<Driver, Timer>
+impl<Driver, Timer, const TIMER_HZ: u32> StepFuture<Driver, Timer, TIMER_HZ>
 where
     Driver: Step,
-    Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
+    Timer: TimerTrait<TIMER_HZ>,
 {
     /// Create new instance of `StepFuture`
     ///
@@ -77,9 +74,9 @@ where
                     .set_high()
                     .map_err(|err| SignalError::Pin(err))?;
 
-                let ticks: Timer::Time = Driver::PULSE_LENGTH
-                    .try_into()
-                    .map_err(|err| SignalError::NanosecondsToTicks(err))?;
+                let ticks: TimerDuration<TIMER_HZ> =
+                    Driver::PULSE_LENGTH.convert();
+
                 self.timer
                     .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;

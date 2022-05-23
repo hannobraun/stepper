@@ -1,9 +1,10 @@
 use core::task::Poll;
 
-use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
+use embedded_hal::digital::blocking::OutputPin;
 use fugit::{
     NanosDurationU32 as Nanoseconds, TimerDurationU32 as TimerDuration,
 };
+use fugit_timer::Timer as TimerTrait;
 use ramp_maker::MotionProfile;
 
 use crate::{
@@ -23,7 +24,7 @@ pub enum State<Driver, Timer, Profile: MotionProfile, const TIMER_HZ: u32> {
     },
     SetDirection(SetDirectionFuture<Driver, Timer, TIMER_HZ>),
     Step {
-        future: StepFuture<Driver, Timer>,
+        future: StepFuture<Driver, Timer, TIMER_HZ>,
         delay: Profile::Delay,
     },
     StepDelay {
@@ -56,7 +57,7 @@ pub fn update<Driver, Timer, Profile, Convert, const TIMER_HZ: u32>(
 )
 where
     Driver: SetDirection + Step,
-    Timer: timer::CountDown,
+    Timer: TimerTrait<TIMER_HZ>,
     Profile: MotionProfile,
     Convert: DelayToTicks<Profile::Delay, TIMER_HZ>,
 {
@@ -131,19 +132,20 @@ where
                         *current_step += *current_direction as i32;
 
                         let (driver, mut timer) = future.release();
-                        let delay_left: Timer::Time = match delay_left(
-                            delay,
-                            Driver::PULSE_LENGTH,
-                            convert,
-                        ) {
-                            Ok(delay_left) => delay_left,
-                            Err(err) => {
-                                return (
-                                    Err(Error::TimeConversion(err)),
-                                    State::Idle { driver, timer },
-                                )
-                            }
-                        };
+                        let delay_left: TimerDuration<TIMER_HZ> =
+                            match delay_left(
+                                delay,
+                                Driver::PULSE_LENGTH,
+                                convert,
+                            ) {
+                                Ok(delay_left) => delay_left,
+                                Err(err) => {
+                                    return (
+                                        Err(Error::TimeConversion(err)),
+                                        State::Idle { driver, timer },
+                                    )
+                                }
+                            };
 
                         if let Err(err) = timer.start(delay_left) {
                             return (
@@ -215,7 +217,7 @@ fn delay_left<Delay, Convert, const TIMER_HZ: u32>(
 where
     Convert: DelayToTicks<Delay, TIMER_HZ>,
 {
-    let delay: Convert::Ticks = convert
+    let delay: TimerDuration<TIMER_HZ> = convert
         .delay_to_ticks(delay)
         .map_err(|err| TimeConversionError::DelayToTicks(err))?;
     let pulse_length: TimerDuration<TIMER_HZ> = pulse_length.convert();
