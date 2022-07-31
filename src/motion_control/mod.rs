@@ -13,7 +13,7 @@ pub use self::{
 
 use core::convert::Infallible;
 
-use embedded_hal::digital::blocking::OutputPin;
+use embedded_hal::digital::ErrorType;
 use fugit::NanosDurationU32 as Nanoseconds;
 use fugit_timer::Timer as TimerTrait;
 use ramp_maker::MotionProfile;
@@ -274,9 +274,9 @@ where
     type Velocity = Profile::Velocity;
     type Error = Error<
         <Driver as SetDirection>::Error,
-        <<Driver as SetDirection>::Dir as OutputPin>::Error,
+        <<Driver as SetDirection>::Dir as ErrorType>::Error,
         <Driver as Step>::Error,
-        <<Driver as Step>::Step as OutputPin>::Error,
+        <<Driver as Step>::Step as ErrorType>::Error,
         Timer::Error,
         Convert::Error,
     >;
