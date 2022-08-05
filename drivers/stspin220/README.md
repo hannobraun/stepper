@@ -18,4 +18,4 @@ See [LICENSE.md] for full details.
 [available from pololu]: https://www.pololu.com/category/260/
 [Stepper]: https://crates.io/crates/stepper
 [zero clause bsd license]: https://opensource.org/licenses/0BSD
-[license.md]: LICENSE.
+[license.md]: LICENSE.md
