@@ -7,22 +7,9 @@ use crate::motion_control;
 ///
 /// [`Stepper`]: crate::Stepper
 #[derive(Debug, Eq, PartialEq)]
-pub enum Error<
-    PinUnavailableError,
-    PinError,
-    NanosecondsToTicksError,
-    DelayToTicksError,
-    TimerError,
-> {
+pub enum Error<PinUnavailableError, PinError, DelayToTicksError, TimerError> {
     /// A signal error
-    Signal(
-        SignalError<
-            PinUnavailableError,
-            PinError,
-            NanosecondsToTicksError,
-            TimerError,
-        >,
-    ),
+    Signal(SignalError<PinUnavailableError, PinError, TimerError>),
 
     /// A motion control error
     MotionControl(
@@ -32,54 +19,23 @@ pub enum Error<
             PinUnavailableError,
             PinError,
             TimerError,
-            NanosecondsToTicksError,
             DelayToTicksError,
         >,
     ),
 }
 
-impl<
-        PinUnavailableError,
-        PinError,
-        NanosecondsToTicksError,
-        DelayToTicksError,
-        TimerError,
-    >
-    From<
-        SignalError<
-            PinUnavailableError,
-            PinError,
-            NanosecondsToTicksError,
-            TimerError,
-        >,
-    >
-    for Error<
-        PinUnavailableError,
-        PinError,
-        NanosecondsToTicksError,
-        DelayToTicksError,
-        TimerError,
-    >
+impl<PinUnavailableError, PinError, DelayToTicksError, TimerError>
+    From<SignalError<PinUnavailableError, PinError, TimerError>>
+    for Error<PinUnavailableError, PinError, DelayToTicksError, TimerError>
 {
     fn from(
-        err: SignalError<
-            PinUnavailableError,
-            PinError,
-            NanosecondsToTicksError,
-            TimerError,
-        >,
+        err: SignalError<PinUnavailableError, PinError, TimerError>,
     ) -> Self {
         Self::Signal(err)
     }
 }
 
-impl<
-        PinUnavailableError,
-        PinError,
-        NanosecondsToTicksError,
-        DelayToTicksError,
-        TimerError,
-    >
+impl<PinUnavailableError, PinError, DelayToTicksError, TimerError>
     From<
         motion_control::Error<
             PinUnavailableError,
@@ -87,17 +43,9 @@ impl<
             PinUnavailableError,
             PinError,
             TimerError,
-            NanosecondsToTicksError,
             DelayToTicksError,
         >,
-    >
-    for Error<
-        PinUnavailableError,
-        PinError,
-        NanosecondsToTicksError,
-        DelayToTicksError,
-        TimerError,
-    >
+    > for Error<PinUnavailableError, PinError, DelayToTicksError, TimerError>
 {
     fn from(
         err: motion_control::Error<
@@ -106,7 +54,6 @@ impl<
             PinUnavailableError,
             PinError,
             TimerError,
-            NanosecondsToTicksError,
             DelayToTicksError,
         >,
     ) -> Self {
@@ -116,12 +63,7 @@ impl<
 
 /// An error that can occur while using this API
 #[derive(Debug, Eq, PartialEq)]
-pub enum SignalError<
-    PinUnavailableError,
-    PinError,
-    NanosecondsToTicksError,
-    TimerError,
-> {
+pub enum SignalError<PinUnavailableError, PinError, TimerError> {
     /// A pin was not accessible
     PinUnavailable(PinUnavailableError),
 
@@ -129,9 +71,6 @@ pub enum SignalError<
     ///
     /// [`OutputPin`]: embedded_hal::digital::blocking::OutputPin
     Pin(PinError),
-
-    /// An error occurred while converting nanoseconds to timer ticks
-    NanosecondsToTicks(NanosecondsToTicksError),
 
     /// An error originated from working with a timer
     Timer(TimerError),

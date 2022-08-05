@@ -12,7 +12,7 @@
 use core::convert::Infallible;
 
 use embedded_hal::digital::blocking::OutputPin;
-use embedded_time::duration::Nanoseconds;
+use fugit::NanosDurationU32 as Nanoseconds;
 
 use crate::traits::{
     EnableDirectionControl, EnableStepControl, SetDirection, Step as StepTrait,
@@ -61,7 +61,7 @@ where
     Dir: OutputPin<Error = OutputPinError>,
 {
     // https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing
-    const SETUP_TIME: Nanoseconds = Nanoseconds(500);
+    const SETUP_TIME: Nanoseconds = Nanoseconds::from_ticks(500);
 
     type Dir = Dir;
     type Error = Infallible;
@@ -91,7 +91,7 @@ where
     Step: OutputPin<Error = OutputPinError>,
 {
     // https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing
-    const PULSE_LENGTH: Nanoseconds = Nanoseconds(5050);
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds::from_ticks(5050);
 
     type Step = Step;
     type Error = Infallible;

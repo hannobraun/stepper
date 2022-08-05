@@ -11,13 +11,11 @@ pub use self::{
     error::{BusyError, Error, TimeConversionError},
 };
 
-use core::{
-    convert::{Infallible, TryFrom},
-    ops,
-};
+use core::convert::Infallible;
 
-use embedded_hal::{digital::blocking::OutputPin, timer::nb as timer};
-use embedded_time::duration::Nanoseconds;
+use embedded_hal::digital::ErrorType;
+use fugit::NanosDurationU32 as Nanoseconds;
+use fugit_timer::Timer as TimerTrait;
 use ramp_maker::MotionProfile;
 use replace_with::replace_with_and_return;
 
@@ -42,9 +40,14 @@ use self::state::State;
 /// designed to be used through the [`Stepper`] API.
 ///
 /// [`Stepper`]: crate::Stepper
-pub struct SoftwareMotionControl<Driver, Timer, Profile: MotionProfile, Convert>
-{
-    state: State<Driver, Timer, Profile>,
+pub struct SoftwareMotionControl<
+    Driver,
+    Timer,
+    Profile: MotionProfile,
+    Convert,
+    const TIMER_HZ: u32,
+> {
+    state: State<Driver, Timer, Profile, TIMER_HZ>,
     new_motion: Option<Direction>,
     profile: Profile,
     current_step: i32,
@@ -52,8 +55,8 @@ pub struct SoftwareMotionControl<Driver, Timer, Profile: MotionProfile, Convert>
     convert: Convert,
 }
 
-impl<Driver, Timer, Profile, Convert>
-    SoftwareMotionControl<Driver, Timer, Profile, Convert>
+impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32>
+    SoftwareMotionControl<Driver, Timer, Profile, Convert, TIMER_HZ>
 where
     Profile: MotionProfile,
 {
@@ -168,13 +171,12 @@ where
         &mut self,
         step_mode: Driver::StepMode,
     ) -> Result<
-        SetStepModeFuture<RefMut<Driver>, RefMut<Timer>>,
+        SetStepModeFuture<RefMut<Driver>, RefMut<Timer>, TIMER_HZ>,
         BusyError<Infallible>,
     >
     where
         Driver: SetStepMode,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         let future = match &mut self.state {
             State::Idle { driver, timer } => {
@@ -205,13 +207,12 @@ where
         &mut self,
         direction: Direction,
     ) -> Result<
-        SetDirectionFuture<RefMut<Driver>, RefMut<Timer>>,
+        SetDirectionFuture<RefMut<Driver>, RefMut<Timer>, TIMER_HZ>,
         BusyError<Infallible>,
     >
     where
         Driver: SetDirection,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         let future = match &mut self.state {
             State::Idle { driver, timer } => SetDirectionFuture::new(
@@ -242,11 +243,13 @@ where
     /// [`Stepper::step`]: crate::Stepper::step
     pub fn step(
         &mut self,
-    ) -> Result<StepFuture<RefMut<Driver>, RefMut<Timer>>, BusyError<Infallible>>
+    ) -> Result<
+        StepFuture<RefMut<Driver>, RefMut<Timer>, TIMER_HZ>,
+        BusyError<Infallible>,
+    >
     where
         Driver: Step,
-        Timer: timer::CountDown,
-        Timer::Time: TryFrom<Nanoseconds>,
+        Timer: TimerTrait<TIMER_HZ>,
     {
         let future = match &mut self.state {
             State::Idle { driver, timer } => {
@@ -259,24 +262,22 @@ where
     }
 }
 
-impl<Driver, Timer, Profile, Convert> MotionControl
-    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32> MotionControl
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert, TIMER_HZ>
 where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
-    Timer: timer::CountDown,
+    Timer: TimerTrait<TIMER_HZ>,
     Profile::Velocity: Copy,
-    Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
-    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
+    Convert: DelayToTicks<Profile::Delay, TIMER_HZ>,
 {
     type Velocity = Profile::Velocity;
     type Error = Error<
         <Driver as SetDirection>::Error,
-        <<Driver as SetDirection>::Dir as OutputPin>::Error,
+        <<Driver as SetDirection>::Dir as ErrorType>::Error,
         <Driver as Step>::Error,
-        <<Driver as Step>::Step as OutputPin>::Error,
+        <<Driver as Step>::Step as ErrorType>::Error,
         Timer::Error,
-        <Timer::Time as TryFrom<Nanoseconds>>::Error,
         Convert::Error,
     >;
 
@@ -335,8 +336,8 @@ where
 // mostly means we'd have to be idle. Since the "enable" traits are infallible,
 // we'd have to panic, and I don't know if that would be worth it.
 
-impl<Driver, Timer, Profile, Convert> SetStepMode
-    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32> SetStepMode
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert, TIMER_HZ>
 where
     Driver: SetStepMode,
     Profile: MotionProfile,
@@ -369,8 +370,8 @@ where
     }
 }
 
-impl<Driver, Timer, Profile, Convert> SetDirection
-    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32> SetDirection
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert, TIMER_HZ>
 where
     Driver: SetDirection,
     Profile: MotionProfile,
@@ -388,8 +389,8 @@ where
     }
 }
 
-impl<Driver, Timer, Profile, Convert> Step
-    for SoftwareMotionControl<Driver, Timer, Profile, Convert>
+impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32> Step
+    for SoftwareMotionControl<Driver, Timer, Profile, Convert, TIMER_HZ>
 where
     Driver: Step,
     Profile: MotionProfile,
@@ -409,18 +410,17 @@ where
 
 // Blanket implementation of `EnableMotionControl` for all STEP/DIR stepper
 // drivers.
-impl<Driver, Timer, Profile, Convert>
-    EnableMotionControl<(Timer, Profile, Convert)> for Driver
+impl<Driver, Timer, Profile, Convert, const TIMER_HZ: u32>
+    EnableMotionControl<(Timer, Profile, Convert), TIMER_HZ> for Driver
 where
     Driver: SetDirection + Step,
     Profile: MotionProfile,
-    Timer: timer::CountDown,
+    Timer: TimerTrait<TIMER_HZ>,
     Profile::Velocity: Copy,
-    Convert: DelayToTicks<Profile::Delay, Ticks = Timer::Time>,
-    Convert::Ticks: TryFrom<Nanoseconds> + ops::Sub<Output = Convert::Ticks>,
+    Convert: DelayToTicks<Profile::Delay, TIMER_HZ>,
 {
     type WithMotionControl =
-        SoftwareMotionControl<Driver, Timer, Profile, Convert>;
+        SoftwareMotionControl<Driver, Timer, Profile, Convert, TIMER_HZ>;
 
     fn enable_motion_control(
         self,

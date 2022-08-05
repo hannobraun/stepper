@@ -1,10 +1,7 @@
-use core::{
-    convert::{Infallible, TryFrom, TryInto as _},
-    task::Poll,
-};
+use core::{convert::Infallible, task::Poll};
 
-use embedded_hal::timer::nb as timer;
-use embedded_time::duration::Nanoseconds;
+use fugit::TimerDurationU32 as TimerDuration;
+use fugit_timer::Timer as TimerTrait;
 
 use crate::traits::SetStepMode;
 
@@ -18,18 +15,18 @@ use super::SignalError;
 ///
 /// [`Stepper::set_step_mode`]: crate::Stepper::set_step_mode
 #[must_use]
-pub struct SetStepModeFuture<Driver: SetStepMode, Timer> {
+pub struct SetStepModeFuture<Driver: SetStepMode, Timer, const TIMER_HZ: u32> {
     step_mode: Driver::StepMode,
     driver: Driver,
     timer: Timer,
     state: State,
 }
 
-impl<Driver, Timer> SetStepModeFuture<Driver, Timer>
+impl<Driver, Timer, const TIMER_HZ: u32>
+    SetStepModeFuture<Driver, Timer, TIMER_HZ>
 where
     Driver: SetStepMode,
-    Timer: timer::CountDown,
-    Timer::Time: TryFrom<Nanoseconds>,
+    Timer: TimerTrait<TIMER_HZ>,
 {
     /// Create new instance of `SetStepModeFuture`
     ///
@@ -70,7 +67,6 @@ where
             SignalError<
                 Infallible, // only applies to `SetDirection`, `Step`
                 Driver::Error,
-                <Timer::Time as TryFrom<Nanoseconds>>::Error,
                 Timer::Error,
             >,
         >,
@@ -81,9 +77,9 @@ where
                     .apply_mode_config(self.step_mode)
                     .map_err(|err| SignalError::Pin(err))?;
 
-                let ticks: Timer::Time = Driver::SETUP_TIME
-                    .try_into()
-                    .map_err(|err| SignalError::NanosecondsToTicks(err))?;
+                let ticks: TimerDuration<TIMER_HZ> =
+                    Driver::SETUP_TIME.convert();
+
                 self.timer
                     .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
@@ -97,9 +93,9 @@ where
                         .enable_driver()
                         .map_err(|err| SignalError::Pin(err))?;
 
-                    let ticks: Timer::Time = Driver::HOLD_TIME
-                        .try_into()
-                        .map_err(|err| SignalError::NanosecondsToTicks(err))?;
+                    let ticks: TimerDuration<TIMER_HZ> =
+                        Driver::HOLD_TIME.convert();
+
                     self.timer
                         .start(ticks)
                         .map_err(|err| SignalError::Timer(err))?;
@@ -140,7 +136,6 @@ where
         SignalError<
             Infallible, // only applies to `SetDirection`, `Step`
             Driver::Error,
-            <Timer::Time as TryFrom<Nanoseconds>>::Error,
             Timer::Error,
         >,
     > {

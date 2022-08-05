@@ -12,7 +12,7 @@
 use core::convert::Infallible;
 
 use embedded_hal::digital::{blocking::OutputPin, PinState};
-use embedded_time::duration::Nanoseconds;
+use fugit::NanosDurationU32 as Nanoseconds;
 
 use crate::{
     step_mode::StepMode256,
@@ -109,8 +109,8 @@ where
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
 {
-    const SETUP_TIME: Nanoseconds = Nanoseconds(1_000);
-    const HOLD_TIME: Nanoseconds = Nanoseconds(100_000);
+    const SETUP_TIME: Nanoseconds = Nanoseconds::from_ticks(1_000);
+    const HOLD_TIME: Nanoseconds = Nanoseconds::from_ticks(100_000);
 
     type Error = OutputPinError;
     type StepMode = StepMode256;
@@ -195,7 +195,7 @@ impl<
 where
     DirMode4: OutputPin<Error = OutputPinError>,
 {
-    const SETUP_TIME: Nanoseconds = Nanoseconds(100);
+    const SETUP_TIME: Nanoseconds = Nanoseconds::from_ticks(100);
 
     type Dir = DirMode4;
     type Error = Infallible;
@@ -249,7 +249,7 @@ impl<
 where
     StepMode3: OutputPin<Error = OutputPinError>,
 {
-    const PULSE_LENGTH: Nanoseconds = Nanoseconds(100);
+    const PULSE_LENGTH: Nanoseconds = Nanoseconds::from_ticks(100);
 
     type Step = StepMode3;
     type Error = Infallible;
