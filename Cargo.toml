@@ -13,7 +13,7 @@ default-members = [
 
 [package]
 name    = "stepper"
-version = "0.5.0"
+version = "0.6.0"
 authors = [
     "Hanno Braun <hanno@braun-embedded.com>",
     "Jesse Braham <jesse@beta7.io>",
