@@ -18,7 +18,7 @@ authors = [
     "Hanno Braun <hanno@braun-embedded.com>",
     "Jesse Braham <jesse@beta7.io>",
 ]
-edition = "2021"
+edition = "2018"
 
 description = "Universal Stepper Motor Interface"
 homepage    = "https://flott-motion.org/"
