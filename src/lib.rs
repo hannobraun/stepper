@@ -5,10 +5,11 @@
 //! available, or providing software fallbacks where hardware support is
 //! lacking. Stepper is part of the [Flott] motion control toolkit.
 //!
-//! Right now, Stepper supports the following drivers:
+//! Right now, Stepper supports the following ICs:
 //!
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
 //! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
+//! - [DQ542MA](crate::drivers::dq542ma::DQ542MA)
 //!
 //! Please check out the documentation of [`Stepper`], which is the main entry
 //! point to this API.
@@ -20,7 +21,6 @@
 //! #     -> Result<
 //! #         (),
 //! #         stepper::Error<
-//! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
 //! #             core::convert::Infallible,
@@ -41,38 +41,33 @@
 //! # >;
 //! #
 //! # struct Pin;
-//! # impl stepper::embedded_hal::digital::blocking::OutputPin for Pin {
+//! # impl embedded_hal::digital::ErrorType for Pin {
 //! #     type Error = core::convert::Infallible;
+//! # }
+//! # impl stepper::embedded_hal::digital::blocking::OutputPin for Pin {
 //! #     fn set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! #     fn set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! # }
 //! #
-//! # struct Timer;
-//! # impl stepper::embedded_hal::timer::nb::CountDown for Timer {
-//! #     type Error = core::convert::Infallible;
-//! #     type Time = Ticks;
-//! #     fn start<T>(&mut self, count: T) -> Result<(), Self::Error>
-//! #         where T: Into<Self::Time>
-//! #     {
-//! #         Ok(())
+//! # struct Timer<const TIMER_HZ: u32>;
+//! #     impl<const TIMER_HZ: u32> Timer<TIMER_HZ> {
+//! #         pub fn new() -> Self {  Self {} }
 //! #     }
-//! #     fn wait(&mut self) -> nb::Result<(), Self::Error> {
-//! #         Ok(())
+//! #     impl<const TIMER_HZ: u32> fugit_timer::Timer<TIMER_HZ> for Timer<TIMER_HZ>{
+//! #         type Error = std::convert::Infallible;
+//! #         fn now(&mut self) -> fugit::TimerInstantU32<TIMER_HZ> {
+//! #             todo!()
+//! #         }
+//! #         fn start(&mut self, _duration: fugit::TimerDurationU32<TIMER_HZ>) -> Result<(), Self::Error> {
+//! #             Ok(())
+//! #         }
+//! #         fn cancel(&mut self) -> Result<(), Self::Error> {
+//! #             todo!()
+//! #         }
+//! #         fn wait(&mut self) -> nb::Result<(), Self::Error> {
+//! #             Ok(())
+//! #         }
 //! #     }
-//! # }
-//! #
-//! # pub struct Ticks(Num);
-//! # impl From<Nanoseconds> for Ticks {
-//! #     fn from(_: Nanoseconds) -> Self {
-//! #         Self(Num::from_num(0))
-//! #     }
-//! # }
-//! # impl core::ops::Sub for Ticks {
-//! #     type Output = Self;
-//! #     fn sub(self, rhs: Self) -> Self::Output {
-//! #         Self(Num::from_num(0))
-//! #     }
-//! # }
 //! #
 //! # fn delay_ns(_: Nanoseconds) {}
 //! #
@@ -87,7 +82,7 @@
 //! // since there are time-critical aspects to communicating with the driver
 //! // chip. Again, how you acquire one depends on your target platform, and
 //! // again, we'll use a mock here for the sake of demonstration.
-//! let mut timer = Timer;
+//! let mut timer = Timer::<1_000_000>::new();
 //!
 //! // Define the numeric type we're going to use. We'll use a fixed-point type
 //! // here, as that's the most widely supported. If your target hardware has
@@ -141,15 +136,15 @@
 //! // from the computed delay value to timer ticks. Since we chose to use timer
 //! // ticks as the unit of time for velocity and acceleration, this conversion
 //! // is pretty simple (and cheap).
+//! use num_traits::cast::ToPrimitive;
 //! pub struct DelayToTicks;
-//! impl motion_control::DelayToTicks<Num> for DelayToTicks {
-//!     type Ticks = Ticks; // depends on your timer
+//! impl<const TIMER_HZ: u32> motion_control::DelayToTicks<Num, TIMER_HZ> for DelayToTicks {
 //!     type Error = core::convert::Infallible;
 //!
 //!     fn delay_to_ticks(&self, delay: Num)
-//!         -> Result<Self::Ticks, Self::Error>
+//!         -> Result<fugit::TimerDurationU32<TIMER_HZ>, Self::Error>
 //!     {
-//!         Ok(Ticks(delay.int()))
+//!         Ok(fugit::TimerDurationU32::<TIMER_HZ>::from_ticks(Num::to_u32(&delay).expect("the delay to convert")))
 //!     }
 //! }
 //! #
