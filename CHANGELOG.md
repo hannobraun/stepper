@@ -9,27 +9,27 @@
 - Update error type ([#109], [#110])
 - Rename library from Step/Dir to Stepper ([#112])
 
-[#83]: https://github.com/flott-motion/stepper/pull/83
-[#85]: https://github.com/flott-motion/stepper/pull/85
-[#87]: https://github.com/flott-motion/stepper/pull/87
-[#88]: https://github.com/flott-motion/stepper/pull/88
-[#89]: https://github.com/flott-motion/stepper/pull/89
-[#90]: https://github.com/flott-motion/stepper/pull/90
-[#91]: https://github.com/flott-motion/stepper/pull/91
-[#93]: https://github.com/flott-motion/stepper/pull/93
-[#95]: https://github.com/flott-motion/stepper/pull/95
-[#96]: https://github.com/flott-motion/stepper/pull/96
-[#97]: https://github.com/flott-motion/stepper/pull/97
-[#98]: https://github.com/flott-motion/stepper/pull/98
-[#99]: https://github.com/flott-motion/stepper/pull/99
-[#100]: https://github.com/flott-motion/stepper/pull/100
-[#107]: https://github.com/flott-motion/stepper/pull/107
-[#108]: https://github.com/flott-motion/stepper/pull/108
-[#109]: https://github.com/flott-motion/stepper/pull/109
-[#110]: https://github.com/flott-motion/stepper/pull/110
-[#111]: https://github.com/flott-motion/stepper/pull/111
-[#112]: https://github.com/flott-motion/stepper/pull/112
-[#113]: https://github.com/flott-motion/stepper/pull/113
+[#83]: https://github.com/braun-embedded/stepper/pull/83
+[#85]: https://github.com/braun-embedded/stepper/pull/85
+[#87]: https://github.com/braun-embedded/stepper/pull/87
+[#88]: https://github.com/braun-embedded/stepper/pull/88
+[#89]: https://github.com/braun-embedded/stepper/pull/89
+[#90]: https://github.com/braun-embedded/stepper/pull/90
+[#91]: https://github.com/braun-embedded/stepper/pull/91
+[#93]: https://github.com/braun-embedded/stepper/pull/93
+[#95]: https://github.com/braun-embedded/stepper/pull/95
+[#96]: https://github.com/braun-embedded/stepper/pull/96
+[#97]: https://github.com/braun-embedded/stepper/pull/97
+[#98]: https://github.com/braun-embedded/stepper/pull/98
+[#99]: https://github.com/braun-embedded/stepper/pull/99
+[#100]: https://github.com/braun-embedded/stepper/pull/100
+[#107]: https://github.com/braun-embedded/stepper/pull/107
+[#108]: https://github.com/braun-embedded/stepper/pull/108
+[#109]: https://github.com/braun-embedded/stepper/pull/109
+[#110]: https://github.com/braun-embedded/stepper/pull/110
+[#111]: https://github.com/braun-embedded/stepper/pull/111
+[#112]: https://github.com/braun-embedded/stepper/pull/112
+[#113]: https://github.com/braun-embedded/stepper/pull/113
 
 
 ## v0.4.1 (2021-01-29)
@@ -39,13 +39,13 @@
 - Change main branch to `main` ([#74])
 - Set up sponsorships ([#75])
 
-[#69]: https://github.com/flott-motion/stepper/pull/69
-[#70]: https://github.com/flott-motion/stepper/pull/70
-[#71]: https://github.com/flott-motion/stepper/pull/71
-[#74]: https://github.com/flott-motion/stepper/pull/74
-[#75]: https://github.com/flott-motion/stepper/pull/75
-[#76]: https://github.com/flott-motion/stepper/pull/76
-[#77]: https://github.com/flott-motion/stepper/pull/77
+[#69]: https://github.com/braun-embedded/stepper/pull/69
+[#70]: https://github.com/braun-embedded/stepper/pull/70
+[#71]: https://github.com/braun-embedded/stepper/pull/71
+[#74]: https://github.com/braun-embedded/stepper/pull/74
+[#75]: https://github.com/braun-embedded/stepper/pull/75
+[#76]: https://github.com/braun-embedded/stepper/pull/76
+[#77]: https://github.com/braun-embedded/stepper/pull/77
 
 
 ## v0.4.0 (2021-01-06)
@@ -59,24 +59,24 @@
 - Separate setting direction and making steps ([#53])
 - Make interface non-blocking ([#61], [#57])
 
-[#24]: https://github.com/flott-motion/stepper/pull/24
-[#25]: https://github.com/flott-motion/stepper/pull/25
-[#27]: https://github.com/flott-motion/stepper/pull/27
-[#28]: https://github.com/flott-motion/stepper/pull/28
-[#29]: https://github.com/flott-motion/stepper/pull/29
-[#32]: https://github.com/flott-motion/stepper/pull/32
-[#35]: https://github.com/flott-motion/stepper/pull/35
-[#46]: https://github.com/flott-motion/stepper/pull/46
-[#52]: https://github.com/flott-motion/stepper/pull/52
-[#53]: https://github.com/flott-motion/stepper/pull/53
-[#54]: https://github.com/flott-motion/stepper/pull/54
-[#56]: https://github.com/flott-motion/stepper/pull/56
-[#57]: https://github.com/flott-motion/stepper/pull/57
-[#59]: https://github.com/flott-motion/stepper/pull/59
-[#61]: https://github.com/flott-motion/stepper/pull/61
-[#62]: https://github.com/flott-motion/stepper/pull/62
-[#64]: https://github.com/flott-motion/stepper/pull/64
-[#65]: https://github.com/flott-motion/stepper/pull/65
+[#24]: https://github.com/braun-embedded/stepper/pull/24
+[#25]: https://github.com/braun-embedded/stepper/pull/25
+[#27]: https://github.com/braun-embedded/stepper/pull/27
+[#28]: https://github.com/braun-embedded/stepper/pull/28
+[#29]: https://github.com/braun-embedded/stepper/pull/29
+[#32]: https://github.com/braun-embedded/stepper/pull/32
+[#35]: https://github.com/braun-embedded/stepper/pull/35
+[#46]: https://github.com/braun-embedded/stepper/pull/46
+[#52]: https://github.com/braun-embedded/stepper/pull/52
+[#53]: https://github.com/braun-embedded/stepper/pull/53
+[#54]: https://github.com/braun-embedded/stepper/pull/54
+[#56]: https://github.com/braun-embedded/stepper/pull/56
+[#57]: https://github.com/braun-embedded/stepper/pull/57
+[#59]: https://github.com/braun-embedded/stepper/pull/59
+[#61]: https://github.com/braun-embedded/stepper/pull/61
+[#62]: https://github.com/braun-embedded/stepper/pull/62
+[#64]: https://github.com/braun-embedded/stepper/pull/64
+[#65]: https://github.com/braun-embedded/stepper/pull/65
 
 
 ## v0.3.0 (2020-11-12)
@@ -85,10 +85,10 @@
 - Add support for DRV8825 ([#17])
 - Require embedded-hal 1.0.0-alpha.4 ([#16], [#21])
 
-[#15]: https://github.com/flott-motion/stepper/pull/15
-[#16]: https://github.com/flott-motion/stepper/pull/16
-[#17]: https://github.com/flott-motion/stepper/pull/17
-[#21]: https://github.com/flott-motion/stepper/pull/21
+[#15]: https://github.com/braun-embedded/stepper/pull/15
+[#16]: https://github.com/braun-embedded/stepper/pull/16
+[#17]: https://github.com/braun-embedded/stepper/pull/17
+[#21]: https://github.com/braun-embedded/stepper/pull/21
 
 
 ## v0.2.1 (2020-10-20)
@@ -102,8 +102,8 @@
 - Include STSPIN220 driver in Step/Dir ([#9])
 - Initial release of Step/Dir library ([step-dir])
 
-[#8]: https://github.com/flott-motion/stepper/pull/8
-[#9]: https://github.com/flott-motion/stepper/pull/9
+[#8]: https://github.com/braun-embedded/stepper/pull/8
+[#9]: https://github.com/braun-embedded/stepper/pull/9
 [step-dir]: https://crates.io/crates/step-dir
 
 
