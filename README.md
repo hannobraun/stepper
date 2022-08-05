@@ -73,7 +73,7 @@ See [LICENSE.md] for full details.
 [RampMaker]: https://crates.io/crates/ramp-maker
 [API Reference]: https://docs.rs/stepper
 [Zero Clause BSD License]: https://opensource.org/licenses/0BSD
-[LICENSE.md]: https://github.com/flott-motion/stepper/blob/main/LICENSE.md
+[LICENSE.md]: LICENSE.md
 
 [@hannobraun]: https://github.com/hannobraun
 [@jessebraham]: https://github.com/jessebraham
