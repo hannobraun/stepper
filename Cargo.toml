@@ -21,7 +21,7 @@ authors = [
 edition = "2018"
 
 description = "Universal Stepper Motor Interface"
-repository = "https://github.com/flott-motion/stepper"
+repository = "https://github.com/braun-embedded/stepper"
 license = "0BSD"
 keywords = ["stepper", "motor", "driver", "abstract", "interface"]
 categories = ["embedded", "hardware-support", "no-std", "science::robotics"]
