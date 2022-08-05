@@ -8,9 +8,9 @@ Unfortunately, the set of traits required by Stepper is somewhat non-standard, a
 
 At the time of writing (April 2021), the only target platform that Stepper is confirmed to work on is the [LPC845][LPC845] by NXP. Porting it to other microcontrollers should be relatively straight-forward, by following the rest of this guide.
 
-If you just want to give Stepper a try and don't have specific hardware in mind, just grab an [LPC845-BRK] development board, which is fully supported. [Stepper Terminal](https://github.com/flott-motion/stepper-terminal) should provide a good starting point.
+If you just want to give Stepper a try and don't have specific hardware in mind, just grab an [LPC845-BRK] development board, which is fully supported. [Stepper Terminal](https://github.com/braun-embedded/stepper-terminal) should provide a good starting point.
 
-If you find any problems with this guide, if anything is unclear, incomplete, or incorrect, please [open an issue](https://github.com/flott-motion/stepper/issues). If you need any help with adding support for Flott to a given HAL, please feel free to reach out to [@hannobraun](https://github.com/hannobraun), for example by pinging him from an issue or pull request in the HAL's repository.
+If you find any problems with this guide, if anything is unclear, incomplete, or incorrect, please [open an issue](https://github.com/braun-embedded/stepper/issues). If you need any help with adding support for Stepper to a given HAL, please feel free to reach out to [@hannobraun](https://github.com/hannobraun), for example by pinging him from an issue or pull request in the HAL's repository.
 
 
 ## Required Traits

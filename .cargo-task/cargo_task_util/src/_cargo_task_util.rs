@@ -98,7 +98,7 @@ impl CTEnv {
     }
 
     /// Export an environment variable up to the parent task runner env.
-    /// Also sets the varible in the current environment.
+    /// Also sets the variable in the current environment.
     pub fn set_env<N: AsRef<str>, V: AsRef<str>>(&self, name: N, val: V) {
         let name = name.as_ref();
         let val = val.as_ref();
@@ -286,6 +286,7 @@ fn priv_new_env() -> Rc<CTEnv> {
 }
 
 /// Loads task metadata from environment.
+#[allow(clippy::unnecessary_wraps)]
 fn enumerate_task_metadata(
 ) -> Result<BTreeMap<String, CTTaskMeta>, &'static str> {
     let mut out = BTreeMap::new();
