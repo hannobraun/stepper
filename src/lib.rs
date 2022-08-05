@@ -3,7 +3,7 @@
 //! Stepper aims to provide an interface that abstracts over stepper drivers and
 //! motion control chips, exposing high-level hardware features directly where
 //! available, or providing software fallbacks where hardware support is
-//! lacking. Stepper is part of the [Flott] motion control toolkit.
+//! lacking.
 //!
 //! Right now, Stepper supports the following ICs:
 //!
@@ -152,7 +152,6 @@
 //! # }
 //! ```
 //!
-//! [Flott]: https://flott-motion.org/
 //! [RampMaker]: https://crates.io/crates/ramp-maker
 
 #![cfg_attr(not(test), no_std)]
