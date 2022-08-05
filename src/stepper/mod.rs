@@ -14,7 +14,7 @@ pub use self::{
 
 use core::convert::Infallible;
 
-use embedded_hal::digital::blocking::OutputPin;
+use embedded_hal::digital::ErrorType;
 use fugit::NanosDurationU32 as Nanoseconds;
 use fugit_timer::Timer as TimerTrait;
 
@@ -219,8 +219,7 @@ impl<Driver> Stepper<Driver> {
         Stepper<Driver::WithDirectionControl>,
         SignalError<
             <Driver::WithDirectionControl as SetDirection>::Error,
-            <<Driver::WithDirectionControl as SetDirection>::Dir
-                as OutputPin>::Error,
+            <<Driver::WithDirectionControl as SetDirection>::Dir as ErrorType>::Error,
             Timer::Error,
         >,
     >

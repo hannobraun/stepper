@@ -18,7 +18,7 @@ authors = [
     "Hanno Braun <hanno@braun-embedded.com>",
     "Jesse Braham <jesse@beta7.io>",
 ]
-edition = "2018"
+edition = "2021"
 
 description = "Universal Stepper Motor Interface"
 homepage    = "https://flott-motion.org/"
@@ -29,7 +29,7 @@ categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
 [dependencies]
-embedded-hal  = "=1.0.0-alpha.6"
+embedded-hal  = "=1.0.0-alpha.8"
 fugit         = "0.3.5"
 fugit-timer   = "0.1.3"
 nb            = "1.0.0"

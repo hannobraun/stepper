@@ -1,6 +1,6 @@
 use core::task::Poll;
 
-use embedded_hal::digital::blocking::OutputPin;
+use embedded_hal::digital::ErrorType;
 use fugit::{
     NanosDurationU32 as Nanoseconds, TimerDurationU32 as TimerDuration,
 };
@@ -46,9 +46,9 @@ pub fn update<Driver, Timer, Profile, Convert, const TIMER_HZ: u32>(
         bool,
         Error<
             <Driver as SetDirection>::Error,
-            <<Driver as SetDirection>::Dir as OutputPin>::Error,
+            <<Driver as SetDirection>::Dir as ErrorType>::Error,
             <Driver as Step>::Error,
-            <<Driver as Step>::Step as OutputPin>::Error,
+            <<Driver as Step>::Step as ErrorType>::Error,
             Timer::Error,
             Convert::Error,
         >,
