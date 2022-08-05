@@ -33,7 +33,7 @@ Please refer to the [API Reference](https://docs.rs/stepper) or one of the follo
 
 Stepper is under active development. Its API is going to change, as more features are added and existing ones are improved. Support for drivers is very limited right now, and support for controllers is non-existent.
 
-The library is usable, but far from mature. There are some known limitations that are documented on the [issue tracker](https://github.com/flott-motion/stepper/issues). If you find any additional problems, please open an issue on the GitHub repository.
+The library is usable, but far from mature. There are some known limitations that are documented on the [issue tracker](https://github.com/braun-embedded/stepper/issues). If you find any additional problems, please open an issue on the GitHub repository.
 
 Stepper is maintained by:
 
