@@ -1,5 +1,29 @@
 # Stepper - Changelog
 
+## v0.6.0 (2022-08-05)
+
+- Make `SetDirection`/`Step` errors less weird, more flexible ([#116])
+- Implement `SetDirection` and `Step` for `SoftwareMotionControl` ([#118])
+- Add compatibility code to broaden platform support ([#122], [#138])
+- Add documentation for developers ([#123], [#124], [#126])
+- Upgrade to latest version of embedded-hal ([#130], [#133])
+- Add DQ542MA driver ([#136])
+- Replace embedded-time with fugit ([#142], [#143])
+
+[#116]: https://github.com/braun-embedded/stepper/pull/116
+[#118]: https://github.com/braun-embedded/stepper/pull/118
+[#122]: https://github.com/braun-embedded/stepper/pull/122
+[#123]: https://github.com/braun-embedded/stepper/pull/123
+[#124]: https://github.com/braun-embedded/stepper/pull/124
+[#126]: https://github.com/braun-embedded/stepper/pull/126
+[#130]: https://github.com/braun-embedded/stepper/pull/130
+[#133]: https://github.com/braun-embedded/stepper/pull/133
+[#136]: https://github.com/braun-embedded/stepper/pull/136
+[#138]: https://github.com/braun-embedded/stepper/pull/138
+[#142]: https://github.com/braun-embedded/stepper/pull/142
+[#143]: https://github.com/braun-embedded/stepper/pull/143
+
+
 ## v0.5.0 (2021-03-10)
 
 - Rename struct `Driver` to `Stepper` ([#83], [#85])
