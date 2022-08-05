@@ -1,6 +1,6 @@
 # Stepper - Universal Stepper Motor Interface
 
-[![crates.io](https://img.shields.io/crates/v/stepper.svg)](https://crates.io/crates/stepper) [![Documentation](https://docs.rs/stepper/badge.svg)](https://docs.rs/stepper) ![CI Build](https://github.com/flott-motion/stepper/workflows/CI%20Build/badge.svg)
+[![crates.io](https://img.shields.io/crates/v/stepper.svg)](https://crates.io/crates/stepper) [![Documentation](https://docs.rs/stepper/badge.svg)](https://docs.rs/stepper) ![CI Build](workflows/CI%20Build/badge.svg)
 
 ## About
 
@@ -25,8 +25,8 @@ Support for more stepper drivers and controllers will be added in the future. Pl
 
 Please refer to the [API Reference](https://docs.rs/stepper) or one of the following guides to learn more:
 
-- [How to Write a Driver](https://github.com/flott-motion/stepper/tree/main/documentation/how-to-write-a-driver.md)
-- [Platform Support Guide](https://github.com/flott-motion/stepper/tree/main/documentation/platform-support.md)
+- [How to Write a Driver](/documentation/how-to-write-a-driver.md)
+- [Platform Support Guide](documentation/platform-support.md)
 
 
 ## Status
