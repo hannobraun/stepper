@@ -1,4 +1,4 @@
-# DRV8825 Driver [![crates.io](https://img.shields.io/crates/v/drv8825.svg)](https://crates.io/crates/drv8825) [![Documentation](https://docs.rs/drv8825/badge.svg)](https://docs.rs/drv8825) ![CI Build](https://github.com/flott-motion/stepper/workflows/CI%20Build/badge.svg)
+# DRV8825 Driver [![crates.io](https://img.shields.io/crates/v/drv8825.svg)](https://crates.io/crates/drv8825) [![Documentation](https://docs.rs/drv8825/badge.svg)](https://docs.rs/drv8825) ![CI Build](workflows/CI%20Build/badge.svg)
 
 ## About
 
@@ -18,4 +18,4 @@ See [LICENSE.md] for full details.
 [available from pololu]: https://www.pololu.com/category/154/
 [Stepper]: https://crates.io/crates/stepper
 [zero clause bsd license]: https://opensource.org/licenses/0BSD
-[license.md]: https://github.com/flott-motion/stepper/blob/main/LICENSE.md
+[license.md]: LICENSE.md

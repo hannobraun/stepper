@@ -1,4 +1,4 @@
-# STSPIN220 Driver [![crates.io](https://img.shields.io/crates/v/stspin220.svg)](https://crates.io/crates/stspin220) [![Documentation](https://docs.rs/stspin220/badge.svg)](https://docs.rs/stspin220) ![CI Build](https://github.com/flott-motion/stepper/workflows/CI%20Build/badge.svg)
+# STSPIN220 Driver [![crates.io](https://img.shields.io/crates/v/stspin220.svg)](https://crates.io/crates/stspin220) [![Documentation](https://docs.rs/stspin220/badge.svg)](https://docs.rs/stspin220) ![CI Build](workflows/CI%20Build/badge.svg)
 
 ## About
 
@@ -18,4 +18,4 @@ See [LICENSE.md] for full details.
 [available from pololu]: https://www.pololu.com/category/260/
 [Stepper]: https://crates.io/crates/stepper
 [zero clause bsd license]: https://opensource.org/licenses/0BSD
-[license.md]: https://github.com/flott-motion/stepper/blob/main/LICENSE.md
+[license.md]: LICENSE.
