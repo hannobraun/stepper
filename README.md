@@ -2,8 +2,6 @@
 
 [![crates.io](https://img.shields.io/crates/v/stepper.svg)](https://crates.io/crates/stepper) [![Documentation](https://docs.rs/stepper/badge.svg)](https://docs.rs/stepper) ![CI Build](https://github.com/flott-motion/stepper/workflows/CI%20Build/badge.svg)
 
-**Please consider supporting this project financially. More information below.**
-
 ## About
 
 Stepper aims to provide an interface that abstracts over stepper motor drivers and controllers, exposing high-level hardware features directly where available, or providing software fallbacks where hardware support is lacking.
@@ -62,13 +60,6 @@ version = "0.5" # make sure this is the latest version
 ```
 
 Please refer to the [API Reference] for more information.
-
-
-## Funding
-
-If you're getting value out of Stepper or other libraries from the [Flott] toolkit, please consider supporting us financially. Your sponsorship helps to keep the project healthy and moving forward.
-
-[Hanno Braun][@hannobraun], maintainer and original creator of this library, is [accepting sponsorship](https://github.com/sponsors/hannobraun).
 
 
 ## License
