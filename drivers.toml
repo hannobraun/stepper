@@ -1,6 +1,11 @@
 # If adding a new driver, please try to keep the entries alphabetized! :)
 
 [[drivers]]
+name = "a4988"
+product_url = "https://www.allegromicro.com/en/products/motor-drivers/brush-dc-motor-drivers/a4988"
+pololu_url = "https://www.pololu.com/product/1182"
+
+[[drivers]]
 name = "drv8825"
 product_url = "https://www.ti.com/product/DRV8825"
 pololu_url = "https://www.pololu.com/category/154/"
