@@ -14,7 +14,13 @@ use embedded_hal_stable::digital::v2::OutputPin as StableOutputPin;
 /// `embedded-hal`.
 pub struct Pin<T>(pub T);
 
-impl<T> ErrorType for Pin<T> where T: StableOutputPin, T::Error: fmt::Debug { type Error = T::Error; }
+impl<T> ErrorType for Pin<T>
+where
+    T: StableOutputPin,
+    T::Error: fmt::Debug,
+{
+    type Error = T::Error;
+}
 
 impl<T> OutputPin for Pin<T>
 where
