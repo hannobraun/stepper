@@ -2,13 +2,13 @@
 
 use core::fmt;
 
-use embedded_hal::digital::blocking::OutputPin;
 use embedded_hal::digital::ErrorType;
+use embedded_hal::digital::OutputPin;
 use embedded_hal_stable::digital::v2::OutputPin as StableOutputPin;
 
 /// Wrapper around a pin
 ///
-/// Provides an implementation of [`embedded_hal::digital::blocking::OutputPin`]
+/// Provides an implementation of [`embedded_hal::digital::OutputPin`]
 /// (that is, the `OutputPin` from the latest alpha version of `embedded-hal`)
 /// for all types that implement `OutputPin` from the latest stable version of
 /// `embedded-hal`.
