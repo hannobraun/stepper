@@ -8,9 +8,13 @@ Stepper aims to provide an interface that abstracts over stepper motor drivers a
 
 Right now, Stepper supports the following drivers:
 
+- [A4988] ([crate][a4988-crate], [vendor documentation][a4988-doc])
 - [DRV8825] ([crate][drv8825-crate], [vendor documentation][drv8825-doc])
 - [STSPIN220] ([crate][stspin220-crate], [vendor documentation][stspin220-doc])
 
+[A4988]: https://www.allegromicro.com/en/products/motor-drivers/brush-dc-motor-drivers/a4988
+[a4988-crate]: https://crates.io/crates/a4988
+[a4988-doc]: https://www.pololu.com/file/0J450/A4988.pdf
 [DRV8825]: https://www.ti.com/product/DRV8825
 [drv8825-crate]: https://crates.io/crates/drv8825
 [drv8825-doc]: https://www.ti.com/lit/ds/symlink/drv8825.pdf

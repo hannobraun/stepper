@@ -1,12 +1,14 @@
 [workspace]
 members = [
     ".cargo-task/generate-drivers",
+    "drivers/a4988",
     "drivers/drv8825",
     "drivers/stspin220",
 ]
 default-members = [
     ".",
     ".cargo-task/generate-drivers",
+    "drivers/a4988",
     "drivers/drv8825",
     "drivers/stspin220",
 ]
@@ -54,7 +56,8 @@ typenum = "1.12.0"
 
 
 [features]
-default = ["drv8825", "stspin220", "dq542ma"]
+default = ["a4988", "drv8825", "stspin220", "dq542ma"]
+a4988 = []
 drv8825 = []
 stspin220 = []
 dq542ma = []

@@ -7,6 +7,7 @@
 //!
 //! Right now, Stepper supports the following ICs:
 //!
+//! - [A4988](crate::drivers::a4988::A4988)
 //! - [DRV8825](crate::drivers::drv8825::DRV8825)
 //! - [STSPIN220](crate::drivers::stspin220::STSPIN220)
 //! - [DQ542MA](crate::drivers::dq542ma::DQ542MA)

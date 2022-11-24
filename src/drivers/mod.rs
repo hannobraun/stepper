@@ -4,6 +4,9 @@
 //! by Stepper. Each sub-module is behind a feature gate, to allow users to only
 //! enable the drivers they actually need. By default, all drivers are enabled.
 
+#[cfg(feature = "a4988")]
+pub mod a4988;
+
 #[cfg(feature = "drv8825")]
 pub mod drv8825;
 
