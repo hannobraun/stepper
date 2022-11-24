@@ -11,7 +11,7 @@
 
 use core::convert::Infallible;
 
-use embedded_hal::digital::blocking::OutputPin;
+use embedded_hal::digital::OutputPin;
 use fugit::NanosDurationU32 as Nanoseconds;
 
 use crate::traits::{

@@ -69,7 +69,7 @@ pub enum SignalError<PinUnavailableError, PinError, TimerError> {
 
     /// An error originated from using the [`OutputPin`] trait
     ///
-    /// [`OutputPin`]: embedded_hal::digital::blocking::OutputPin
+    /// [`OutputPin`]: embedded_hal::digital::OutputPin
     Pin(PinError),
 
     /// An error originated from working with a timer

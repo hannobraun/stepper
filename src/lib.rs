@@ -44,7 +44,7 @@
 //! # impl embedded_hal::digital::ErrorType for Pin {
 //! #     type Error = core::convert::Infallible;
 //! # }
-//! # impl stepper::embedded_hal::digital::blocking::OutputPin for Pin {
+//! # impl stepper::embedded_hal::digital::OutputPin for Pin {
 //! #     fn set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! #     fn set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
 //! # }

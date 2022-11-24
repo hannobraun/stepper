@@ -1,7 +1,7 @@
 use core::task::Poll;
 
-use embedded_hal::digital::blocking::OutputPin;
 use embedded_hal::digital::ErrorType;
+use embedded_hal::digital::OutputPin;
 use fugit::TimerDurationU32 as TimerDuration;
 use fugit_timer::Timer as TimerTrait;
 
