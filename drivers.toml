@@ -14,3 +14,9 @@ pololu_url = "https://www.pololu.com/category/154/"
 name = "stspin220"
 product_url = "https://www.st.com/en/motor-drivers/stspin220.html"
 pololu_url = "https://www.pololu.com/category/260/"
+
+[[drivers]]
+name = "tmc2209"
+product_url = "https://www.analog.com/en/products/tmc2209.html"
+pololu_url = ""
+

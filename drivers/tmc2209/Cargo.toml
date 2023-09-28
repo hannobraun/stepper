@@ -1,0 +1,21 @@
+[package]
+name    = "tmc2209"
+version = "0.6.0"
+authors = [
+    "Hanno Braun <hanno@braun-embedded.com>",
+    "Nicholas Sica <njs82@drexel.edu>",
+]
+edition = "2018"
+
+description = "Driver crate for the TMC2209 stepper motor driver"
+repository  = "https://github.com/braun-embedded/stepper"
+license     = "0BSD"
+keywords    = ["stepper", "motor", "driver", "pololu"]
+categories  = ["embedded", "hardware-support", "no-std", "science::robotics"]
+
+
+[dependencies.stepper]
+version          = "0.6.0"
+path             = "../.."
+default-features = false
+features         = ["tmc2209"]

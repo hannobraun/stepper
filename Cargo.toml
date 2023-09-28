@@ -4,6 +4,7 @@ members = [
     "drivers/a4988",
     "drivers/drv8825",
     "drivers/stspin220",
+    "drivers/tmc2209",
 ]
 default-members = [
     ".",
@@ -11,6 +12,7 @@ default-members = [
     "drivers/a4988",
     "drivers/drv8825",
     "drivers/stspin220",
+    "drivers/tmc2209",
 ]
 
 [package]
@@ -56,8 +58,9 @@ typenum = "1.12.0"
 
 
 [features]
-default = ["a4988", "drv8825", "stspin220", "dq542ma"]
+default = ["a4988", "drv8825", "stspin220", "dq542ma", "tmc2209"]
 a4988 = []
 drv8825 = []
 stspin220 = []
 dq542ma = []
+tmc2209 = []
