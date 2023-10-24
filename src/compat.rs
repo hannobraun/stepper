@@ -17,7 +17,7 @@ pub struct Pin<T>(pub T);
 impl<T> ErrorType for Pin<T>
 where
     T: StableOutputPin,
-    T::Error: fmt::Debug,
+    T::Error: fmt::Debug + embedded_hal::digital::Error,
 {
     type Error = T::Error;
 }
@@ -25,7 +25,7 @@ where
 impl<T> OutputPin for Pin<T>
 where
     T: StableOutputPin,
-    T::Error: fmt::Debug,
+    T::Error: fmt::Debug + embedded_hal::digital::Error,
 {
     fn set_low(&mut self) -> Result<(), Self::Error> {
         self.0.set_low()

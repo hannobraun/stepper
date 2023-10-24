@@ -30,7 +30,7 @@ categories = ["embedded", "hardware-support", "no-std", "science::robotics"]
 
 
 [dependencies]
-embedded-hal = "=1.0.0-alpha.9"
+embedded-hal = "=1.0.0-rc.1"
 fugit = "0.3.5"
 fugit-timer = "0.1.3"
 nb = "1.0.0"
