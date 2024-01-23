@@ -23,8 +23,6 @@ Right now, Stepper supports the following drivers:
 [stspin220-doc]: https://www.st.com/resource/en/datasheet/stspin220.pdf
 
 
-Support for more stepper drivers and controllers will be added in the future. Please consider helping out with this effort, if you need support for a driver or controller that is currently missing.
-
 Please refer to the [API Reference](https://docs.rs/stepper) or one of the following guides to learn more:
 
 - [How to Write a Driver](/documentation/how-to-write-a-driver.md)
@@ -33,9 +31,9 @@ Please refer to the [API Reference](https://docs.rs/stepper) or one of the follo
 
 ## Status
 
-Stepper is under active development. Its API is going to change, as more features are added and existing ones are improved. Support for drivers is very limited right now, and support for controllers is non-existent.
+Active development on Stepper has ceased, but the project is still passively maintained.
 
-The library is usable, but far from mature. There are some known limitations that are documented on the [issue tracker](https://github.com/braun-embedded/stepper/issues). If you find any additional problems, please open an issue on the GitHub repository.
+The library is usable, but far from mature. There are some known limitations that are documented on the [issue tracker](https://github.com/braun-embedded/stepper/issues).
 
 Stepper is maintained by:
 
