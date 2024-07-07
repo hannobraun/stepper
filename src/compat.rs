@@ -43,6 +43,6 @@ where
     }
 
     fn set_high(&mut self) -> Result<(), Self::Error> {
-        self.0.set_low().map_err(CompatError)
+        self.0.set_high().map_err(CompatError)
     }
 }
